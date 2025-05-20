@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: eureka-server
+
+server:
+  port: ${EUREKA_SERVER_PORT:8761}
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:${server.port}/eureka/}
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+    enable-self-preservation: false
