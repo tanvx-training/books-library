@@ -3,11 +3,8 @@ package com.library.common.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -18,17 +15,10 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * Base entity class that all JPA entities should extend.
- * Provides common fields like ID and auditing information.
- */
 @Getter
 @Setter
-@SuperBuilder
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@NoArgsConstructor
-@AllArgsConstructor
 public abstract class BaseEntity implements Serializable {
 
     @Serial
