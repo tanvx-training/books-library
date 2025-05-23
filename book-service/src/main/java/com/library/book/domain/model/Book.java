@@ -2,59 +2,65 @@ package com.library.book.domain.model;
 
 import com.library.common.model.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-import java.util.UUID;
+import java.io.Serial;
+import java.util.List;
 
-@Entity
-@Table(name = "books")
 @Getter
 @Setter
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@Table(name = "books")
 public class Book extends BaseEntity {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private UUID id;
+    private Long id;
 
-    @Column(name = "isbn", nullable = false, unique = true, length = 256)
-    private String isbn;
-
-    @Column(name = "title", nullable = false, length = 1000)
+    @Column(name = "title", nullable = false, length = 200)
     private String title;
 
-    @Column(name = "author", nullable = false, length = 256)
-    private String author;
+    @Column(name = "isbn", unique = true, length = 20)
+    private String isbn;
+
+    @ManyToOne
+    @JoinColumn(name = "publisher_id")
+    private Publisher publisher;
 
     @Column(name = "publication_year")
     private Integer publicationYear;
 
-    @Column(name = "publisher", length = 256)
-    private String publisher;
+    @Lob
+    @Column(name = "description")
+    private String description;
 
-    @Column(name = "image_url_s")
-    private String imageUrlS;
+    @Column(name = "cover_image_url")
+    private String coverImageUrl;
 
-    @Column(name = "image_url-m")
-    private String imageUrlM;
+    @ManyToMany
+    @JoinTable(
+            name = "book_authors",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private List<Author> authors;
 
-    @Column(name = "image-url-l")
-    private String imageUrlL;
+    @ManyToMany
+    @JoinTable(
+            name = "book_categories",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories;
 
-    @Column(name = "available_copies")
-    private Integer availableCopies;
+    @OneToMany(mappedBy = "book")
+    private List<BookCopy> bookCopies;
 
-    @Column(name = "total_copies")
-    private Integer totalCopies;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @OneToMany(mappedBy = "book")
+    private List<Reservation> reservations;
 }
