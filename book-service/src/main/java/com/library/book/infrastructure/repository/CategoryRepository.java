@@ -9,7 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, UUID> {
+public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     Page<Category> findAllByDeleteFlg(boolean deleteFlg, Pageable pageable);
+
+    boolean existsByNameOrSlug(String name, String slug);
 }
