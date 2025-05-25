@@ -2,6 +2,7 @@ package com.library.book.aop;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.library.common.exception.ResourceExistedException;
 import com.library.common.exception.ResourceNotFoundException;
 import lombok.Builder;
 import lombok.Data;
@@ -37,6 +38,17 @@ public class GlobalExceptionHandler {
                 .message(request.getDescription(false))
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(ResourceExistedException.class)
+    public ResponseEntity<ErrorResponse> handleSkillAlreadyExistsException(ResourceExistedException ex, WebRequest request) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.CONFLICT.value())
+                .timestamp(LocalDateTime.now())
+                .error(ex.getMessage())
+                .message(request.getDescription(false))
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)
