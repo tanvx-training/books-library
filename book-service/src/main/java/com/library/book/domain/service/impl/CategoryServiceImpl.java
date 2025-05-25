@@ -3,7 +3,7 @@ package com.library.book.domain.service.impl;
 import com.library.book.domain.service.CategoryService;
 import com.library.book.infrastructure.repository.CategoryRepository;
 import com.library.book.presentation.dto.response.CategoryResponseDTO;
-import com.library.book.util.CategoryMapper;
+import com.library.book.util.mapper.CategoryMapper;
 import com.library.common.dto.PageRequestDTO;
 import com.library.common.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;

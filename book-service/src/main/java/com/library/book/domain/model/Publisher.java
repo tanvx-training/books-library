@@ -22,7 +22,7 @@ public class Publisher extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 256)
     private String name;
 
     @Lob
