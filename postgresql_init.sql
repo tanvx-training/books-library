@@ -64,7 +64,8 @@ CREATE TABLE authors
 CREATE TABLE categories
 (
     id          SERIAL PRIMARY KEY,
-    name        VARCHAR(50) UNIQUE                    NOT NULL,
+    name        VARCHAR(256) UNIQUE                    NOT NULL,
+    slug        VARCHAR(256) UNIQUE                    NOT NULL,
     description TEXT,
     created_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by  VARCHAR(20) DEFAULT 'SYSTEM'          NOT NULL,
@@ -76,7 +77,7 @@ CREATE TABLE categories
 CREATE TABLE publishers
 (
     id         SERIAL PRIMARY KEY,
-    name       VARCHAR(100)                          NOT NULL,
+    name       VARCHAR(256)                          NOT NULL,
     address    TEXT,
     created_at TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by VARCHAR(20) DEFAULT 'SYSTEM'          NOT NULL,
@@ -88,12 +89,12 @@ CREATE TABLE publishers
 CREATE TABLE books
 (
     id               SERIAL PRIMARY KEY,
-    title            VARCHAR(200)                          NOT NULL,
+    title            VARCHAR(256)                          NOT NULL,
     isbn             VARCHAR(20) UNIQUE,
     publisher_id     INT REFERENCES publishers (id),
     publication_year INT,
     description      TEXT,
-    cover_image_url  VARCHAR(255),
+    cover_image_url  VARCHAR(1000),
     created_at       TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by       VARCHAR(20) DEFAULT 'SYSTEM'          NOT NULL,
     updated_at       TIMESTAMP,
@@ -106,13 +107,6 @@ CREATE TABLE book_authors
     book_id   INT REFERENCES books (id),
     author_id INT REFERENCES authors (id),
     PRIMARY KEY (book_id, author_id)
-);
-
-CREATE TABLE book_categories
-(
-    book_id     INT REFERENCES books (id),
-    category_id INT REFERENCES categories (id),
-    PRIMARY KEY (book_id, category_id)
 );
 
 CREATE TABLE book_copies
