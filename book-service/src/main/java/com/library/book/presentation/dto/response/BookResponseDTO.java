@@ -25,7 +25,7 @@ public class BookResponseDTO {
     private PublisherResponseDTO publisher;
     private List<AuthorResponseDTO> authors;
     private List<CategoryResponseDTO> categories;
-    private List<BookCopyResponseDTO> copies;
+    private List<BookCopyResponseDTO> bookCopies;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
