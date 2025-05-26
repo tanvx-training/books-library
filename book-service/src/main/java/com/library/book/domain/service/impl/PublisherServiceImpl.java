@@ -48,7 +48,7 @@ public class PublisherServiceImpl implements PublisherService {
         Publisher publisher = publisherRepository.findById(publisherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Publisher", "id", publisherId));
         Pageable pageable = pageRequestDTO.toPageable();
-        Page<BookResponseDTO> page = bookRepository.findAllByPublisher(publisher, pageable)
+        Page<BookResponseDTO> page = bookRepository.findAllByPublisherAndDeleteFlg(publisher, Boolean.FALSE, pageable)
                 .map(bookMapper::toDto);
         return new PageResponseDTO<>(page);
     }

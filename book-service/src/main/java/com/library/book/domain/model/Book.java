@@ -58,7 +58,7 @@ public class Book extends BaseEntity {
     )
     private List<Category> categories;
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookCopy> bookCopies;
 
     @OneToMany(mappedBy = "book")
