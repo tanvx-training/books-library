@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
         Pageable pageable = pageRequestDTO.toPageable();
-        Page<BookResponseDTO> page = bookRepository.findAllByCategories(List.of(category), pageable)
+        Page<BookResponseDTO> page = bookRepository.findAllByCategoriesAndDeleteFlg(List.of(category), Boolean.FALSE, pageable)
                 .map(bookMapper::toDto);
         return new PageResponseDTO<>(page);
     }

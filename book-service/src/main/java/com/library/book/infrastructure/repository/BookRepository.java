@@ -13,7 +13,11 @@ import java.util.List;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    Page<Book> findAllByCategories(List<Category> categories, Pageable pageable);
+    Page<Book> findAllByDeleteFlg(boolean deleteFlg, Pageable pageable);
 
-    Page<Book> findAllByPublisher(Publisher publisher, Pageable pageable);
+    Page<Book> findAllByCategoriesAndDeleteFlg(List<Category> categories, boolean deleteFlg, Pageable pageable);
+
+    Page<Book> findAllByPublisherAndDeleteFlg(Publisher publisher, boolean deleteFlg, Pageable pageable);
+
+    boolean existsByIsbn(String isbn);
 }
