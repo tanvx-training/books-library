@@ -11,4 +11,8 @@ public interface BookService {
     PageResponseDTO<BookResponseDTO> getAllBooks(PageRequestDTO pageRequestDTO);
 
     BookResponseDTO createBook(BookCreateDTO bookCreateDTO);
+
+    BookResponseDTO getBookById(Long bookId);
+
+    PageResponseDTO<BookResponseDTO> searchBooks(String keyword, PageRequestDTO pageRequestDTO);
 }
