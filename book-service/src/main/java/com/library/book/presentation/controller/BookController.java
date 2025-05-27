@@ -28,4 +28,15 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(bookService.createBook(bookCreateDTO));
     }
+
+    @GetMapping("/{bookId}")
+    public ResponseEntity<BookResponseDTO> getBookById(@PathVariable("bookId") Long bookId) {
+        return ResponseEntity.ok(bookService.getBookById(bookId));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<PageResponseDTO<BookResponseDTO>> searchBooks(@RequestParam(value = "keyword") String keyword,
+                                                                        @Valid @ModelAttribute PageRequestDTO pageRequestDTO) {
+        return ResponseEntity.ok(bookService.searchBooks(keyword, pageRequestDTO));
+    }
 }
