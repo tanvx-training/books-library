@@ -1,4 +1,4 @@
-package com.library.common.util;
+package com.library.user.util.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class JwtUtils {
+public class JwtTokenProvider {
 
   @Value("${app.jwt.secret}")
   private String jwtSecret;
@@ -49,15 +49,9 @@ public class JwtUtils {
         .filter(authority -> authority.startsWith("ROLE_"))
         .toList();
 
-    List<String> permissions = authentication.getAuthorities().stream()
-        .map(GrantedAuthority::getAuthority)
-        .filter(authority -> !authority.startsWith("ROLE_"))
-        .toList();
-
     return Jwts.builder()
         .setSubject(user.getUsername())
         .claim("roles", roles)
-        .claim("permissions", permissions)
         .setIssuedAt(now)
         .setExpiration(expiryDate)
         .signWith(key)

@@ -1,4 +1,4 @@
-package com.library.common.model;
+package com.library.user.domain.constant;
 
 /**
  * Constants for security configuration across all services

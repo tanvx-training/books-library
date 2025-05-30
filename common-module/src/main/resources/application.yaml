@@ -1,6 +1,0 @@
-app:
-  jwt:
-    secret: d6d9vYwRjZ0C5P1w72wYJ+PGgKYTWm6u83rXJwVQSO8jxTDV+jMp1+XO9Mg4Xz0+nYOvivTOLXi/L4vXxzvC1A==
-    expiration:
-      access: 9000000      # 15 minutes
-      refresh: 2592000000 # 30 days

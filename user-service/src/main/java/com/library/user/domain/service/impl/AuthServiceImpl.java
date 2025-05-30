@@ -5,7 +5,7 @@ import com.library.common.exception.ResourceNotFoundException;
 import com.library.user.domain.model.Role;
 import com.library.user.domain.model.User;
 import com.library.user.domain.service.AuthService;
-import com.library.user.enums.UserRole;
+import com.library.user.domain.enums.UserRole;
 import com.library.user.infrastructure.repository.RoleRepository;
 import com.library.user.infrastructure.repository.UserRepository;
 import com.library.user.presentation.dto.request.RegisterRequestDTO;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,9 +41,15 @@ public class AuthServiceImpl implements AuthService {
             throw new ResourceExistedException("User", "email", registerRequestDTO.getEmail());
         }
         User user = userMapper.toEntity(registerRequestDTO);
+        user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
         Role readerRole = roleRepository.findByName(UserRole.READER.name())
                 .orElseThrow(() -> new ResourceNotFoundException("Role", "name", UserRole.READER.name()));
         user.setRoles(List.of(readerRole));
-        return null;
+        userRepository.save(user);
+        return RegisterResponseDTO.builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .roles(user.getRoles().stream().map(Role::getName).toList())
+                .build();
     }
 }
