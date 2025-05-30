@@ -1,4 +1,4 @@
-package com.library.book.enums;
+package com.library.book.domain.enums;
 
 /**
  * Enum đại diện cho trạng thái của một lần mượn sách.
