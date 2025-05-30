@@ -1,4 +1,4 @@
-package com.library.book.enums;
+package com.library.book.domain.enums;
 
 /**
  * Enum đại diện cho các trạng thái có thể có của một bản sao sách.
