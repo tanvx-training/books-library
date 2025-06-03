@@ -1,7 +1,9 @@
 package com.library.user.presentation.controller;
 
 import com.library.user.domain.service.AuthService;
+import com.library.user.presentation.dto.request.LoginRequestDTO;
 import com.library.user.presentation.dto.request.RegisterRequestDTO;
+import com.library.user.presentation.dto.response.LoginResponseDTO;
 import com.library.user.presentation.dto.response.RegisterResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +25,10 @@ public class AuthController {
     public ResponseEntity<RegisterResponseDTO> registerUser(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(authService.registerUser(registerRequestDTO));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> loginUser(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+        return ResponseEntity.ok(authService.loginUser(loginRequestDTO));
     }
 }

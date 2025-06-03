@@ -20,7 +20,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserDetails createUserDetails(User user) {
         // Combine roles and permissions into a flat list of authorities
         List<SimpleGrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName())).toList();
+                .map(role -> new SimpleGrantedAuthority( "ROLE_" + role.getName()))
+                .toList();
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
