@@ -48,6 +48,18 @@ CREATE TABLE library_cards
     delete_flg  BOOLEAN     DEFAULT FALSE
 );
 
+CREATE TABLE refresh_tokens
+(
+    id          SERIAL PRIMARY KEY,
+    token       VARCHAR(512) UNIQUE                   NOT NULL,
+    expiry_date TIMESTAMP                             NOT NULL,
+    user_id     INT                                   NOT NULL REFERENCES users (id),
+    created_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_by  VARCHAR(20) DEFAULT 'SYSTEM'          NOT NULL,
+    updated_at  TIMESTAMP,
+    updated_by  VARCHAR(20),
+    delete_flg  BOOLEAN     DEFAULT FALSE
+);
 -- book-service
 CREATE TABLE authors
 (
@@ -64,8 +76,8 @@ CREATE TABLE authors
 CREATE TABLE categories
 (
     id          SERIAL PRIMARY KEY,
-    name        VARCHAR(256) UNIQUE                    NOT NULL,
-    slug        VARCHAR(256) UNIQUE                    NOT NULL,
+    name        VARCHAR(256) UNIQUE                   NOT NULL,
+    slug        VARCHAR(256) UNIQUE                   NOT NULL,
     description TEXT,
     created_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by  VARCHAR(20) DEFAULT 'SYSTEM'          NOT NULL,
