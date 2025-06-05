@@ -1,21 +1,25 @@
-package com.library.user.presentation.dto.request;
+package com.library.user.presentation.dto.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class LoginRequestDTO {
-    @NotBlank(message = "Tên đăng nhập là bắt buộc")
-    private String username;
-    @NotBlank(message = "Mật khẩu là bắt buộc")
-    private String password;
+public class LibraryCardResponseDTO {
+
+    private Long id;
+    private String cardNumber;
+    private Long userId;
+    private LocalDate issueDate;
+    private LocalDate expiryDate;
+    private String status;
 }

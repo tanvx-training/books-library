@@ -26,7 +26,7 @@ public class LibraryCard extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "card_number", nullable = false, unique = true, length = 20)
+    @Column(name = "card_number", nullable = false, unique = true, length = 36)
     private String cardNumber;
 
     @Column(name = "issue_date", nullable = false)
