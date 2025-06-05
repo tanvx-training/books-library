@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -47,7 +48,12 @@ public class SecurityConfig {
                                 SecurityConstants.AUTH_REFRESH_URL,
                                 SecurityConstants.AUTH_JWKS_URL
                         ).permitAll()
-                        .requestMatchers("api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST ,"/api/users/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET ,"/api/users/**")
+                        .hasAnyRole("ADMIN", "LIBRARIAN")
+                        .requestMatchers("/api/library-cards/**")
+                        .hasAnyRole("ADMIN", "LIBRARIAN")
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )

@@ -3,6 +3,7 @@ package com.library.user.presentation.controller;
 import com.library.common.dto.PageRequestDTO;
 import com.library.common.dto.PageResponseDTO;
 import com.library.user.domain.service.UserService;
+import com.library.user.presentation.dto.response.UserDetailResponseDTO;
 import com.library.user.presentation.dto.response.UserResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,5 +20,10 @@ public class UserController {
     @GetMapping
     public ResponseEntity<PageResponseDTO<UserResponseDTO>> getAllUsers(@Valid @ModelAttribute PageRequestDTO pageRequestDTO) {
         return ResponseEntity.ok(userService.getAllUsers(pageRequestDTO));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDetailResponseDTO> getUserById(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getUserById(userId));
     }
 }
