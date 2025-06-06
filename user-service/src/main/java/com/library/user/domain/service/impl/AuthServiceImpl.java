@@ -1,7 +1,11 @@
 package com.library.user.domain.service.impl;
 
+import com.library.common.dto.UserCreatedEvent;
+import com.library.common.enums.EventType;
 import com.library.common.exception.ResourceExistedException;
 import com.library.common.exception.ResourceNotFoundException;
+import com.library.common.model.KafkaEvent;
+import com.library.common.service.KafkaProducerService;
 import com.library.user.domain.model.RefreshToken;
 import com.library.user.domain.model.Role;
 import com.library.user.domain.model.User;
@@ -17,6 +21,7 @@ import com.library.user.presentation.dto.response.RegisterResponseDTO;
 import com.library.user.util.mapper.UserMapper;
 import com.library.user.util.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,19 +38,17 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+    @Value("${spring.application.name}")
+    private String source;
+
     private final UserRepository userRepository;
-
     private final UserMapper userMapper;
-
     private final RoleRepository roleRepository;
-
     private final PasswordEncoder passwordEncoder;
-
     private final AuthenticationManager authenticationManager;
-
     private final JwtTokenProvider jwtTokenProvider;
-
     private final RefreshTokenService refreshTokenService;
+    private final KafkaProducerService kafkaProducerService;
 
     @Override
     @Transactional
@@ -62,6 +65,19 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("Role", "name", UserRole.READER.name()));
         user.setRoles(List.of(readerRole));
         userRepository.save(user);
+        // Trigger user-created event
+        UserCreatedEvent userCreatedEvent = UserCreatedEvent.builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build();
+        KafkaEvent<UserCreatedEvent> event = KafkaEvent.create(
+                EventType.USER_CREATED, source, userCreatedEvent);
+        kafkaProducerService.sendEvent(
+                EventType.USER_CREATED.getTopicName(), String.valueOf(user.getId()), event);
+
         return RegisterResponseDTO.builder()
                 .userId(user.getId())
                 .username(user.getUsername())

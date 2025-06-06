@@ -1,0 +1,49 @@
+package com.library.common.service.impl;
+
+import com.library.common.enums.EventType;
+import com.library.common.model.KafkaEvent;
+import com.library.common.service.KafkaProducerService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class KafkaProducerServiceImpl implements KafkaProducerService {
+
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    @Override
+    public <T> void sendEvent(String topic, String key, KafkaEvent<T> event) {
+        log.debug("Sending event to topic {}: {}", topic, event);
+
+        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, key, event);
+
+        future.whenComplete((result, ex) -> {
+            if (Objects.isNull(ex)) {
+                RecordMetadata recordMetadata = result.getRecordMetadata();
+                log.debug("Sent event {} to topic {}, partition {}, offset {}",
+                        event.getEventId(),
+                        recordMetadata.topic(),
+                        recordMetadata.partition(),
+                        recordMetadata.offset());
+            } else {
+                log.error("Failed to send event {} to topic {}", event.getEventId(), topic, ex);
+            }
+        });
+    }
+
+    @Override
+    public <T> KafkaEvent<T> createAndSendEvent(String topic, String key, EventType eventType, String source, T payload) {
+        KafkaEvent<T> event = KafkaEvent.create(eventType, source, payload);
+        sendEvent(topic, key, event);
+        return event;
+    }
+}
