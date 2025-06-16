@@ -1,8 +1,7 @@
-package com.library.common.service.impl;
+package com.library.user.domain.service.impl;
 
-import com.library.common.enums.EventType;
 import com.library.common.model.KafkaEvent;
-import com.library.common.service.KafkaProducerService;
+import com.library.user.domain.service.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -22,14 +21,14 @@ public class KafkaProducerServiceImpl implements KafkaProducerService {
 
     @Override
     public <T> void sendEvent(String topic, String key, KafkaEvent<T> event) {
-        log.debug("Sending event to topic {}: {}", topic, event);
 
         CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, key, event);
+        log.info("Sending event to topic {}: {}", topic, event);
 
         future.whenComplete((result, ex) -> {
             if (Objects.isNull(ex)) {
                 RecordMetadata recordMetadata = result.getRecordMetadata();
-                log.debug("Sent event {} to topic {}, partition {}, offset {}",
+                log.info("Sent event {} to topic {}, partition {}, offset {}",
                         event.getEventId(),
                         recordMetadata.topic(),
                         recordMetadata.partition(),
@@ -41,9 +40,9 @@ public class KafkaProducerServiceImpl implements KafkaProducerService {
     }
 
     @Override
-    public <T> KafkaEvent<T> createAndSendEvent(String topic, String key, EventType eventType, String source, T payload) {
+    public <T> KafkaEvent<T> createAndSendEvent(String topic, String key, String eventType, String source, T payload) {
         KafkaEvent<T> event = KafkaEvent.create(eventType, source, payload);
-        sendEvent(topic, key, event);
+        this.sendEvent(topic, key, event);
         return event;
     }
 }

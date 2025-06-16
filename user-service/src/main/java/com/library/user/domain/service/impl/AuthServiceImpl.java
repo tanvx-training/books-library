@@ -1,11 +1,11 @@
 package com.library.user.domain.service.impl;
 
 import com.library.common.dto.UserCreatedEvent;
-import com.library.common.enums.EventType;
+import com.library.common.constants.EventType;
 import com.library.common.exception.ResourceExistedException;
 import com.library.common.exception.ResourceNotFoundException;
 import com.library.common.model.KafkaEvent;
-import com.library.common.service.KafkaProducerService;
+import com.library.user.domain.service.KafkaProducerService;
 import com.library.user.domain.model.RefreshToken;
 import com.library.user.domain.model.Role;
 import com.library.user.domain.model.User;
@@ -76,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
         KafkaEvent<UserCreatedEvent> event = KafkaEvent.create(
                 EventType.USER_CREATED, source, userCreatedEvent);
         kafkaProducerService.sendEvent(
-                EventType.USER_CREATED.getTopicName(), String.valueOf(user.getId()), event);
+                EventType.USER_CREATED, String.valueOf(user.getId()), event);
 
         return RegisterResponseDTO.builder()
                 .userId(user.getId())

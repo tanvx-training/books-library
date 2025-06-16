@@ -1,3 +1,0 @@
-# config kafka
-kafka:
-  servers: ${KAFKA_SERVER:localhost:9092}
