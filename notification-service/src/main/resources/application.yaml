@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8883
 
 spring:
   application:
@@ -18,10 +18,43 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka
-    fetch-registry: true
-    register-with-eureka: true
+# config kafka
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVER:localhost:9092}
+    security:
+      protocol: plaintext
+    consumer:
+      group-id: book-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      properties:
+        spring.json.trusted.packages: '*'
+        spring.json.use.type.headers: false
+        partition.assignment.strategy: org.apache.kafka.clients.consumer.CooperativeStickyAssignor
+# config mail
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
+
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka
+#    fetch-registry: true
+#    register-with-eureka: true
+#
+#logging:
+#  level:
+#    org.springframework.kafka: DEBUG
+#    com.library.notification: DEBUG
