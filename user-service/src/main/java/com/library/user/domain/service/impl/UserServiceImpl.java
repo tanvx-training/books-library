@@ -2,8 +2,10 @@ package com.library.user.domain.service.impl;
 
 import com.library.common.dto.PageRequestDTO;
 import com.library.common.dto.PageResponseDTO;
+import com.library.common.exception.ResourceNotFoundException;
 import com.library.user.domain.service.UserService;
 import com.library.user.infrastructure.repository.UserRepository;
+import com.library.user.presentation.dto.response.UserDetailResponseDTO;
 import com.library.user.presentation.dto.response.UserResponseDTO;
 import com.library.user.util.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +29,13 @@ public class UserServiceImpl implements UserService {
         Page<UserResponseDTO> page = userRepository.findAll(pageable)
                 .map(userMapper::toUserResponseDTO);
         return new PageResponseDTO<>(page);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetailResponseDTO getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::toUserDetailResponseDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
     }
 }

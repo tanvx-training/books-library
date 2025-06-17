@@ -1,24 +1,25 @@
-package com.library.common.message;
+package com.library.user.presentation.dto.response;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.library.common.enums.EventType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class MessageMeta {
+public class LibraryCardResponseDTO {
 
-  protected String messageId;
-  private String originalMessageId;
-  private EventType type;
-  private String serviceId;
-  private long timestamp;
-  private boolean autoRetry;
+    private Long id;
+    private String cardNumber;
+    private Long userId;
+    private LocalDate issueDate;
+    private LocalDate expiryDate;
+    private String status;
 }

@@ -1,4 +1,4 @@
-package com.library.user.config;
+package com.library.user.domain.service.impl;
 
 import com.library.user.domain.model.User;
 import com.library.user.infrastructure.repository.UserRepository;

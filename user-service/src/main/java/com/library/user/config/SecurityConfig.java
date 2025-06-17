@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -47,9 +48,28 @@ public class SecurityConfig {
                                 SecurityConstants.AUTH_REFRESH_URL,
                                 SecurityConstants.AUTH_JWKS_URL
                         ).permitAll()
-                        .requestMatchers("api/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST ,"/api/users/**")
+                        .hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET ,"/api/users/**")
+                        .hasAnyRole("ADMIN", "LIBRARIAN")
+                        .requestMatchers("/api/library-cards/**")
+                        .hasAnyRole("ADMIN", "LIBRARIAN")
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Authentication Error\", \"message\": \"" + authException.getMessage() + "\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403 status
+                            response.setContentType("application/json");
+                            response.getWriter().write(
+                                    "{\"error\": \"Access Denied\", \"message\": \"" + accessDeniedException.getMessage() + "\"}"
+                            );
+                        })
                 )
                 .authenticationManager(authenticationManager(http))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
