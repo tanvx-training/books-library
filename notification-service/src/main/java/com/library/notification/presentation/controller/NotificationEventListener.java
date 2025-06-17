@@ -3,6 +3,7 @@ package com.library.notification.presentation.controller;
 import com.library.common.constants.EventType;
 import com.library.common.dto.UserCreatedEvent;
 import com.library.common.model.KafkaEvent;
+import com.library.notification.domain.service.NotificationService;
 import com.library.notification.presentation.dto.UserCreatedMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class NotificationEventListener {
 
+    private final NotificationService notificationService;
+
     @KafkaListener(
             topics = {EventType.USER_CREATED},
             groupId = "book-group",
@@ -24,5 +27,6 @@ public class NotificationEventListener {
     @SneakyThrows
     public void notifyUserCreated(@Payload UserCreatedMessage message) {
         log.info("Received user created event: {}", message);
+        notificationService.handleUserCreated(message);
     }
 }

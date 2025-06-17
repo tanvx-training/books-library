@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{subject}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            background-color: #1a5276;
+            padding: 20px;
+            text-align: center;
+        }
+        .header img {
+            max-height: 60px;
+        }
+        .content {
+            padding: 30px;
+        }
+        h1 {
+            color: #1a5276;
+            margin-top: 0;
+            font-size: 24px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+        .button {
+            display: inline-block;
+            background-color: #1a5276;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .info-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #1a5276;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .highlight {
+            color: #1a5276;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table th, table td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            text-align: left;
+        }
+        table th {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <img src="https://example.com/library-logo.png" alt="Library Logo">
+    </div>
+    <div class="content">
+        <h1>Chào mừng đến với Hệ thống Thư viện!</h1>
+        <p>Xin chào <span class="highlight">{firstName}</span>,</p>
+        <p>Chúng tôi rất vui mừng chào đón bạn đến với Hệ thống Thư viện của chúng tôi! Tài khoản của bạn đã được tạo thành công vào ngày {registrationDate}.</p>
+
+        <div class="info-box">
+            <p><strong>Thông tin tài khoản của bạn:</strong></p>
+            <p>Tên đăng nhập: <span class="highlight">{userName}</span></p>
+            <p>Email: <span class="highlight">{email}</span></p>
+        </div>
+
+        <p>Với tài khoản này, bạn có thể:</p>
+        <ul>
+            <li>Tìm kiếm và mượn sách từ thư viện của chúng tôi</li>
+            <li>Đặt trước sách bạn quan tâm</li>
+            <li>Theo dõi lịch sử mượn sách của bạn</li>
+            <li>Nhận thông báo về các sự kiện thư viện</li>
+        </ul>
+
+        <p>Để bắt đầu khám phá bộ sưu tập sách của chúng tôi, hãy nhấp vào nút bên dưới:</p>
+        <a href="https://library.example.com/explore" class="button">Khám phá thư viện</a>
+
+        <p>Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với đội ngũ hỗ trợ của chúng tôi.</p>
+
+        <p>Trân trọng,<br>
+            Đội ngũ Hệ thống Thư viện</p>
+    </div>
+    <div class="footer">
+        <p>© 2025 Hệ thống Thư viện. Tất cả các quyền được bảo lưu.</p>
+        <p>Địa chỉ: 123 Đường Sách, Quận Tri Thức, Thành phố Học Vấn</p>
+        <p>Email: support@library.example.com | Điện thoại: (012) 345-6789</p>
+        <p>Email này được gửi tự động, vui lòng không trả lời.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -33,7 +33,18 @@ spring:
         spring.json.trusted.packages: '*'
         spring.json.use.type.headers: false
         partition.assignment.strategy: org.apache.kafka.clients.consumer.CooperativeStickyAssignor
-
+# config mail
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 
 #eureka:
