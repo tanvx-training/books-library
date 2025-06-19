@@ -1,12 +1,9 @@
 package com.library.notification.presentation.controller;
 
 import com.library.common.constants.EventType;
-import com.library.common.dto.UserCreatedEvent;
-import com.library.common.model.KafkaEvent;
 import com.library.notification.domain.service.NotificationService;
 import com.library.notification.presentation.dto.UserCreatedMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -24,9 +21,15 @@ public class NotificationEventListener {
             groupId = "book-group",
             properties = {"spring.json.value.default.type=com.library.notification.presentation.dto.UserCreatedMessage"}
     )
-    @SneakyThrows
     public void notifyUserCreated(@Payload UserCreatedMessage message) {
         log.info("Received user created event: {}", message);
-        notificationService.handleUserCreated(message);
+        
+        try {
+            notificationService.handleUserCreated(message);
+            log.info("Successfully processed user created event for user ID: {}", 
+                    message.getPayload() != null ? message.getPayload().getUserId() : "unknown");
+        } catch (Exception e) {
+            log.error("Error processing user created event: {}", e.getMessage(), e);
+        }
     }
 }

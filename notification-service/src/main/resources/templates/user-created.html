@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{subject}</title>
+    <title>Chào mừng đến với Hệ thống Thư viện!</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -47,7 +47,7 @@
         }
         .button {
             display: inline-block;
-            background-color: #1a5276;
+            background-color: royalblue;
             color: white;
             text-decoration: none;
             padding: 12px 24px;
@@ -87,13 +87,13 @@
     </div>
     <div class="content">
         <h1>Chào mừng đến với Hệ thống Thư viện!</h1>
-        <p>Xin chào <span class="highlight">{firstName}</span>,</p>
-        <p>Chúng tôi rất vui mừng chào đón bạn đến với Hệ thống Thư viện của chúng tôi! Tài khoản của bạn đã được tạo thành công vào ngày {registrationDate}.</p>
+        <p>Xin chào <span class="highlight" th:text="${firstName}">Người dùng</span>,</p>
+        <p>Chúng tôi rất vui mừng chào đón bạn đến với Hệ thống Thư viện của chúng tôi! Tài khoản của bạn đã được tạo thành công vào ngày <span th:text="${registrationDate}">01/01/2025</span>.</p>
 
         <div class="info-box">
             <p><strong>Thông tin tài khoản của bạn:</strong></p>
-            <p>Tên đăng nhập: <span class="highlight">{userName}</span></p>
-            <p>Email: <span class="highlight">{email}</span></p>
+            <p>Tên đăng nhập: <span class="highlight" th:text="${userName}">username</span></p>
+            <p>Email: <span class="highlight" th:text="${email}">email@example.com</span></p>
         </div>
 
         <p>Với tài khoản này, bạn có thể:</p>

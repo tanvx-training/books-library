@@ -1,8 +1,6 @@
 package com.library.common.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
@@ -42,4 +40,17 @@ public abstract class BaseEntity implements Serializable {
 
     @Column(name = "delete_flg", nullable = false)
     private boolean deleteFlg;
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        createdBy = "admin";
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+        updatedBy = "admin";
+    }
 } 
