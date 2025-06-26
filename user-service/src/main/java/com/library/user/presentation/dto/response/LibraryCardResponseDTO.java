@@ -18,7 +18,9 @@ public class LibraryCardResponseDTO {
 
     private Long id;
     private String cardNumber;
-    private Long userId;
+    private String username;
+    private String firstName;
+    private String lastName;
     private LocalDate issueDate;
     private LocalDate expiryDate;
     private String status;
