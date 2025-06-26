@@ -4,9 +4,10 @@ package com.library.book.domain.enums;
  * Enum đại diện cho các trạng thái có thể có của một bản sao sách.
  */
 public enum BookCopyStatus {
-    AVAILABLE,   // Sẵn sàng cho mượn
-    BORROWED,    // Đã được mượn
-    RESERVED,    // Đã được đặt giữ
+    AVAILABLE,   // Có sẵn (sẵn sàng cho mượn)
+    BORROWED,    // Đang mượn
+    RESERVED,    // Đặt trước
+    MAINTENANCE, // Bảo trì
     LOST,        // Bị mất
     DAMAGED;     // Bị hỏng
 }
