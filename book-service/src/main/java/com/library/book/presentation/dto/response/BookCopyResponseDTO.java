@@ -16,5 +16,6 @@ public class BookCopyResponseDTO {
     private Long id;
     private String copyNumber;
     private String status;
+    private String condition;
     private String location;
 }
