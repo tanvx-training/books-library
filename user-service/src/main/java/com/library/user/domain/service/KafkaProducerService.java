@@ -6,5 +6,5 @@ public interface KafkaProducerService {
 
     <T> void sendEvent(String topic, String key, KafkaEvent<T> event);
 
-    <T> KafkaEvent<T> createAndSendEvent(String topic, String key, String eventType, String source, T payload);
+    <T> void createAndSendEvent(String topic, String key, String eventType, String source, T payload);
 }

@@ -40,9 +40,8 @@ public class KafkaProducerServiceImpl implements KafkaProducerService {
     }
 
     @Override
-    public <T> KafkaEvent<T> createAndSendEvent(String topic, String key, String eventType, String source, T payload) {
+    public <T> void createAndSendEvent(String topic, String key, String eventType, String source, T payload) {
         KafkaEvent<T> event = KafkaEvent.create(eventType, source, payload);
         this.sendEvent(topic, key, event);
-        return event;
     }
 }
