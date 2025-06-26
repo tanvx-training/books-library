@@ -8,6 +8,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface LibraryCardMapper {
 
-    @Mapping(target = "userId", expression = "java(libraryCard.getUser().getId())")
+    @Mapping(target = "username", expression = "java(libraryCard.getUser().getUsername())")
+    @Mapping(target = "firstName", expression = "java(libraryCard.getUser().getFirstName())")
+    @Mapping(target = "lastName", expression = "java(libraryCard.getUser().getLastName())")
     LibraryCardResponseDTO toLibraryCardResponseDTO(LibraryCard libraryCard);
 }
