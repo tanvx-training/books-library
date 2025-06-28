@@ -1,5 +1,6 @@
 package com.library.user.controller;
 
+import com.library.common.dto.ApiResponse;
 import com.library.user.utils.enums.LibraryCardStatus;
 import com.library.user.service.LibraryCardService;
 import com.library.user.dto.request.CreateLibraryCardRequestDTO;
@@ -8,7 +9,6 @@ import com.library.user.dto.request.UpdateLibraryCardStatusRequestDTO;
 import com.library.user.dto.response.LibraryCardResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +29,8 @@ public class LibraryCardController {
      */
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
-    public ResponseEntity<LibraryCardResponseDTO> createLibraryCard(@Valid @RequestBody CreateLibraryCardRequestDTO requestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(libraryCardService.createLibraryCard(requestDTO));
+    public ResponseEntity<ApiResponse<LibraryCardResponseDTO>> createLibraryCard(@Valid @RequestBody CreateLibraryCardRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(libraryCardService.createLibraryCard(requestDTO)));
     }
     
     /**
@@ -40,8 +39,8 @@ public class LibraryCardController {
      * @return the library card
      */
     @GetMapping("/{id}")
-    public ResponseEntity<LibraryCardResponseDTO> getLibraryCardById(@PathVariable Long id) {
-        return ResponseEntity.ok(libraryCardService.getLibraryCardById(id));
+    public ResponseEntity<ApiResponse<LibraryCardResponseDTO>> getLibraryCardById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(libraryCardService.getLibraryCardById(id)));
     }
     
     /**
@@ -50,8 +49,8 @@ public class LibraryCardController {
      * @return list of library cards
      */
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<LibraryCardResponseDTO>> getLibraryCardsByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(libraryCardService.getLibraryCardsByUserId(userId));
+    public ResponseEntity<ApiResponse<List<LibraryCardResponseDTO>>> getLibraryCardsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(ApiResponse.success(libraryCardService.getLibraryCardsByUserId(userId)));
     }
     
     /**
@@ -61,9 +60,9 @@ public class LibraryCardController {
      */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
-    public ResponseEntity<List<LibraryCardResponseDTO>> getAllLibraryCards(
+    public ResponseEntity<ApiResponse<List<LibraryCardResponseDTO>>> getAllLibraryCards(
             @RequestParam(required = false) LibraryCardStatus status) {
-        return ResponseEntity.ok(libraryCardService.getAllLibraryCards(status));
+        return ResponseEntity.ok(ApiResponse.success(libraryCardService.getAllLibraryCards(status)));
     }
     
     /**
@@ -74,10 +73,10 @@ public class LibraryCardController {
      */
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
-    public ResponseEntity<LibraryCardResponseDTO> updateLibraryCardStatus(
+    public ResponseEntity<ApiResponse<LibraryCardResponseDTO>> updateLibraryCardStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateLibraryCardStatusRequestDTO requestDTO) {
-        return ResponseEntity.ok(libraryCardService.updateLibraryCardStatus(id, requestDTO));
+        return ResponseEntity.ok(ApiResponse.success(libraryCardService.updateLibraryCardStatus(id, requestDTO)));
     }
     
     /**
@@ -88,9 +87,9 @@ public class LibraryCardController {
      */
     @PatchMapping("/{id}/renew")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
-    public ResponseEntity<LibraryCardResponseDTO> renewLibraryCard(
+    public ResponseEntity<ApiResponse<LibraryCardResponseDTO>> renewLibraryCard(
             @PathVariable Long id,
             @Valid @RequestBody RenewLibraryCardRequestDTO requestDTO) {
-        return ResponseEntity.ok(libraryCardService.renewLibraryCard(id, requestDTO));
+        return ResponseEntity.ok(ApiResponse.success(libraryCardService.renewLibraryCard(id, requestDTO)));
     }
 }

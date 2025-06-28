@@ -8,9 +8,9 @@ import com.library.book.dto.response.AuthorResponseDTO;
 import com.library.book.dto.response.BookResponseDTO;
 import com.library.book.utils.mapper.AuthorMapper;
 import com.library.book.utils.mapper.BookMapper;
-import com.library.common.dto.PageRequestDTO;
-import com.library.common.dto.PageResponseDTO;
+import com.library.common.dto.PaginatedRequest;
 import com.library.common.aop.exception.ResourceNotFoundException;
+import com.library.common.dto.PaginatedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,11 +31,11 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDTO<AuthorResponseDTO> getAllAuthors(PageRequestDTO pageRequestDTO) {
-        Pageable pageable = pageRequestDTO.toPageable();
+    public PaginatedResponse<AuthorResponseDTO> getAllAuthors(PaginatedRequest paginatedRequest) {
+        Pageable pageable = paginatedRequest.toPageable();
         Page<AuthorResponseDTO> page = authorRepository.findAllByDeleteFlg(Boolean.FALSE, pageable)
                 .map(authorMapper::toDto);
-        return new PageResponseDTO<>(page);
+        return PaginatedResponse.from(page);
     }
 
     @Override

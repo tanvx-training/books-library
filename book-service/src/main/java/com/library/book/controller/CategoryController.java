@@ -4,11 +4,11 @@ import com.library.book.service.CategoryService;
 import com.library.book.dto.request.CategoryCreateDTO;
 import com.library.book.dto.response.BookResponseDTO;
 import com.library.book.dto.response.CategoryResponseDTO;
-import com.library.common.dto.PageRequestDTO;
-import com.library.common.dto.PageResponseDTO;
+import com.library.common.dto.ApiResponse;
+import com.library.common.dto.PaginatedRequest;
+import com.library.common.dto.PaginatedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,21 +20,21 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<PageResponseDTO<CategoryResponseDTO>> getAllCategories(
-            @Valid @ModelAttribute PageRequestDTO pageRequestDTO) {
-        return ResponseEntity.ok(categoryService.getAllCategories(pageRequestDTO));
+    public ResponseEntity<ApiResponse<PaginatedResponse<CategoryResponseDTO>>> getAllCategories(
+            @Valid @ModelAttribute PaginatedRequest paginatedRequest) {
+        return ResponseEntity.ok(ApiResponse.success(categoryService.getAllCategories(paginatedRequest)));
     }
 
     @GetMapping("/{categoryId}/books")
-    public ResponseEntity<PageResponseDTO<BookResponseDTO>> getBooksByCategory(
+    public ResponseEntity<ApiResponse<PaginatedResponse<BookResponseDTO>>> getBooksByCategory(
             @PathVariable Long categoryId,
-            @Valid @ModelAttribute PageRequestDTO pageRequestDTO) {
-        return ResponseEntity.ok(categoryService.getBooksByCategory(categoryId, pageRequestDTO));
+            @Valid @ModelAttribute PaginatedRequest paginatedRequest) {
+        return ResponseEntity.ok(ApiResponse.success(categoryService.getBooksByCategory(categoryId, paginatedRequest)));
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryCreateDTO categoryCreateDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(categoryService.createCategory(categoryCreateDTO));
+    public ResponseEntity<ApiResponse<CategoryResponseDTO>> createCategory(@Valid @RequestBody CategoryCreateDTO categoryCreateDTO) {
+        return ResponseEntity.ok(ApiResponse.success(categoryService.createCategory(categoryCreateDTO)));
+
     }
 }

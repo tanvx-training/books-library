@@ -1,7 +1,8 @@
 package com.library.user.controller;
 
-import com.library.common.dto.PageRequestDTO;
-import com.library.common.dto.PageResponseDTO;
+import com.library.common.dto.ApiResponse;
+import com.library.common.dto.PaginatedRequest;
+import com.library.common.dto.PaginatedResponse;
 import com.library.user.service.UserService;
 import com.library.user.dto.response.UserDetailResponseDTO;
 import com.library.user.dto.response.UserResponseDTO;
@@ -18,8 +19,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<PageResponseDTO<UserResponseDTO>> getAllUsers(@Valid @ModelAttribute PageRequestDTO pageRequestDTO) {
-        return ResponseEntity.ok(userService.getAllUsers(pageRequestDTO));
+    public ResponseEntity<ApiResponse<PaginatedResponse<UserResponseDTO>>> getAllUsers(@Valid @ModelAttribute PaginatedRequest paginatedRequest) {
+        return ResponseEntity.ok(ApiResponse.success(userService.getAllUsers(paginatedRequest)));
     }
 
     @GetMapping("/{userId}")

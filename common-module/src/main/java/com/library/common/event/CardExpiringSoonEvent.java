@@ -1,4 +1,4 @@
-package com.library.common.dto;
+package com.library.common.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

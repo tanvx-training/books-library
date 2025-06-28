@@ -1,71 +1,65 @@
 package com.library.common.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.http.HttpStatus;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.LocalDateTime;
+@Getter
+@Setter
+@JsonInclude(JsonInclude.Include.NON_NULL) // Không serialize các trường có giá trị null
+public class ApiResponse<T> {
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ApiResponse<T> implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    @Builder.Default
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime timestamp = LocalDateTime.now();
-
-    private boolean success;
+    private int status;
     private String message;
     private T data;
-    private Object errors;
+    private ApiError error;
 
-    public static <T> ApiResponse<T> success(T data, String message) {
-        return ApiResponse.<T>builder()
-                .success(true)
-                .message(message)
-                .data(data)
-                .build();
+    // Constructor cho các trường hợp private để ép buộc sử dụng static factory methods
+    private ApiResponse(HttpStatus status, String message, T data) {
+        this.status = status.value();
+        this.message = message;
+        this.data = data;
     }
+
+    private ApiResponse(HttpStatus status, String message) {
+        this.status = status.value();
+        this.message = message;
+    }
+
+    private ApiResponse(ApiError error) {
+        this.status = error.getStatus();
+        this.message = error.getMessage();
+        this.error = error;
+    }
+
+
+    // --- Các Factory Method cho Success Response ---
 
     public static <T> ApiResponse<T> success(T data) {
-        return success(data, "Operation successful");
+        return new ApiResponse<>(HttpStatus.OK, "Success", data);
     }
 
-    public static <T> ApiResponse<T> success(String message) {
-        return success(null, message);
+    public static <T> ApiResponse<T> success(HttpStatus status, T data) {
+        return new ApiResponse<>(status, status.getReasonPhrase(), data);
     }
 
-    public static <T> ApiResponse<T> error(String message, Object errors) {
-        return ApiResponse.<T>builder()
-                .success(false)
-                .message(message)
-                .errors(errors)
-                .build();
+    public static <T> ApiResponse<T> success(HttpStatus status, String message, T data) {
+        return new ApiResponse<>(status, message, data);
     }
 
-    public static <T> ApiResponse<T> error(Object errors) {
-        return ApiResponse.<T>builder()
-                .success(false)
-                .message("Operation failed")
-                .errors(errors)
-                .build();
+    public static ApiResponse<Void> success(HttpStatus status, String message) {
+        return new ApiResponse<>(status, message);
     }
 
-    public static <T> ApiResponse<T> error(String message) {
-        return error(message, null);
+
+    // --- Các Factory Method cho Error Response ---
+
+    public static <T> ApiResponse<T> error(ApiError apiError) {
+        return new ApiResponse<>(apiError);
     }
-} 
+
+    public static <T> ApiResponse<T> error(HttpStatus status, String message) {
+        return new ApiResponse<>(new ApiError(status.value(), message, null));
+    }
+}

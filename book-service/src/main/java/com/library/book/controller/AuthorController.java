@@ -4,11 +4,11 @@ import com.library.book.service.AuthorService;
 import com.library.book.dto.request.AuthorCreateDTO;
 import com.library.book.dto.response.AuthorResponseDTO;
 import com.library.book.dto.response.BookResponseDTO;
-import com.library.common.dto.PageRequestDTO;
-import com.library.common.dto.PageResponseDTO;
+import com.library.common.dto.ApiResponse;
+import com.library.common.dto.PaginatedRequest;
+import com.library.common.dto.PaginatedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,21 +22,20 @@ public class AuthorController {
     private final AuthorService authorService;
 
     @GetMapping
-    public ResponseEntity<PageResponseDTO<AuthorResponseDTO>> getAllCategories(
-            @Valid @ModelAttribute PageRequestDTO pageRequestDTO) {
-        return ResponseEntity.ok(authorService.getAllAuthors(pageRequestDTO));
+    public ResponseEntity<ApiResponse<PaginatedResponse<AuthorResponseDTO>>> getAllCategories(
+            @Valid @ModelAttribute PaginatedRequest paginatedRequest) {
+        return ResponseEntity.ok(ApiResponse.success(authorService.getAllAuthors(paginatedRequest)));
     }
 
     @GetMapping("/{authorId}/books")
-    public ResponseEntity<List<BookResponseDTO>> getBooksByAuthor(
+    public ResponseEntity<ApiResponse<List<BookResponseDTO>>> getBooksByAuthor(
             @PathVariable("authorId") Long authorId) {
-        return ResponseEntity.ok(authorService.getBooksByAuthor(authorId));
+        return ResponseEntity.ok(ApiResponse.success(authorService.getBooksByAuthor(authorId)));
     }
 
     @PostMapping
-    public ResponseEntity<AuthorResponseDTO> createAuthor(
+    public ResponseEntity<ApiResponse<AuthorResponseDTO>> createAuthor(
             @RequestBody @Valid AuthorCreateDTO authorCreateDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(authorService.createAuthor(authorCreateDTO));
+        return ResponseEntity.ok(ApiResponse.success(authorService.createAuthor(authorCreateDTO)));
     }
 }
