@@ -9,10 +9,10 @@ import com.library.book.dto.response.BookResponseDTO;
 import com.library.book.dto.response.CategoryResponseDTO;
 import com.library.book.utils.mapper.BookMapper;
 import com.library.book.utils.mapper.CategoryMapper;
-import com.library.common.dto.PageRequestDTO;
-import com.library.common.dto.PageResponseDTO;
+import com.library.common.dto.PaginatedRequest;
 import com.library.common.aop.exception.ResourceExistedException;
 import com.library.common.aop.exception.ResourceNotFoundException;
+import com.library.common.dto.PaginatedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,22 +35,22 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDTO<CategoryResponseDTO> getAllCategories(PageRequestDTO pageRequestDTO) {
-        Pageable pageable = pageRequestDTO.toPageable();
+    public PaginatedResponse<CategoryResponseDTO> getAllCategories(PaginatedRequest paginatedRequest) {
+        Pageable pageable = paginatedRequest.toPageable();
         Page<CategoryResponseDTO> page = categoryRepository.findAllByDeleteFlg(Boolean.FALSE, pageable)
                 .map(categoryMapper::toDto);
-        return new PageResponseDTO<>(page);
+        return PaginatedResponse.from(page);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDTO<BookResponseDTO> getBooksByCategory(Long categoryId, PageRequestDTO pageRequestDTO) {
+    public PaginatedResponse<BookResponseDTO> getBooksByCategory(Long categoryId, PaginatedRequest paginatedRequest) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
-        Pageable pageable = pageRequestDTO.toPageable();
+        Pageable pageable = paginatedRequest.toPageable();
         Page<BookResponseDTO> page = bookRepository.findAllByCategoriesAndDeleteFlg(List.of(category), Boolean.FALSE, pageable)
                 .map(bookMapper::toDto);
-        return new PageResponseDTO<>(page);
+        return PaginatedResponse.from(page);
     }
 
     @Override

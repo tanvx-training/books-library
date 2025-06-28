@@ -1,6 +1,6 @@
 package com.library.notification.utils;
 
-import com.library.common.dto.UserCreatedEvent;
+import com.library.common.event.UserCreatedEvent;
 import com.library.notification.model.NotificationTemplate;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

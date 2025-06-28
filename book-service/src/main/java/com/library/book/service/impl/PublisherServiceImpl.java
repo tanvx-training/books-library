@@ -9,10 +9,10 @@ import com.library.book.dto.response.BookResponseDTO;
 import com.library.book.dto.response.PublisherResponseDTO;
 import com.library.book.utils.mapper.BookMapper;
 import com.library.book.utils.mapper.PublisherMapper;
-import com.library.common.dto.PageRequestDTO;
-import com.library.common.dto.PageResponseDTO;
+import com.library.common.dto.PaginatedRequest;
 import com.library.common.aop.exception.ResourceExistedException;
 import com.library.common.aop.exception.ResourceNotFoundException;
+import com.library.common.dto.PaginatedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,22 +33,22 @@ public class PublisherServiceImpl implements PublisherService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDTO<PublisherResponseDTO> getAllPublishers(PageRequestDTO pageRequestDTO) {
-        Pageable pageable = pageRequestDTO.toPageable();
+    public PaginatedResponse<PublisherResponseDTO> getAllPublishers(PaginatedRequest paginatedRequest) {
+        Pageable pageable = paginatedRequest.toPageable();
         Page<PublisherResponseDTO> page = publisherRepository.findAllByDeleteFlg(Boolean.FALSE, pageable)
                 .map(publisherMapper::toDto);
-        return new PageResponseDTO<>(page);
+        return PaginatedResponse.from(page);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDTO<BookResponseDTO> getBooksByPublisher(Long publisherId, PageRequestDTO pageRequestDTO) {
+    public PaginatedResponse<BookResponseDTO> getBooksByPublisher(Long publisherId, PaginatedRequest paginatedRequest) {
         Publisher publisher = publisherRepository.findById(publisherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Publisher", "id", publisherId));
-        Pageable pageable = pageRequestDTO.toPageable();
+        Pageable pageable = paginatedRequest.toPageable();
         Page<BookResponseDTO> page = bookRepository.findAllByPublisherAndDeleteFlg(publisher, Boolean.FALSE, pageable)
                 .map(bookMapper::toDto);
-        return new PageResponseDTO<>(page);
+        return PaginatedResponse.from(page);
     }
 
     @Override

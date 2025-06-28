@@ -1,8 +1,8 @@
 package com.library.user.service.impl;
 
-import com.library.common.dto.PageRequestDTO;
-import com.library.common.dto.PageResponseDTO;
+import com.library.common.dto.PaginatedRequest;
 import com.library.common.aop.exception.ResourceNotFoundException;
+import com.library.common.dto.PaginatedResponse;
 import com.library.user.service.UserService;
 import com.library.user.repository.UserRepository;
 import com.library.user.dto.response.UserDetailResponseDTO;
@@ -24,11 +24,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDTO<UserResponseDTO> getAllUsers(PageRequestDTO pageRequestDTO) {
-        Pageable pageable = pageRequestDTO.toPageable();
+    public PaginatedResponse<UserResponseDTO> getAllUsers(PaginatedRequest paginatedRequest) {
+        Pageable pageable = paginatedRequest.toPageable();
         Page<UserResponseDTO> page = userRepository.findAll(pageable)
                 .map(userMapper::toUserResponseDTO);
-        return new PageResponseDTO<>(page);
+        return PaginatedResponse.from(page);
     }
 
     @Override

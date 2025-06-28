@@ -1,6 +1,6 @@
 package com.library.user.service.impl;
 
-import com.library.common.dto.UserCreatedEvent;
+import com.library.common.event.UserCreatedEvent;
 import com.library.common.constants.EventType;
 import com.library.common.aop.exception.ResourceExistedException;
 import com.library.common.aop.exception.ResourceNotFoundException;

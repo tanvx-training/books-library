@@ -1,10 +1,10 @@
 package com.library.user.service.impl;
 
 import com.library.common.constants.EventType;
-import com.library.common.dto.CardCreatedEvent;
-import com.library.common.dto.CardExpiredEvent;
-import com.library.common.dto.CardExpiringSoonEvent;
-import com.library.common.dto.CardRenewedEvent;
+import com.library.common.event.CardCreatedEvent;
+import com.library.common.event.CardExpiredEvent;
+import com.library.common.event.CardExpiringSoonEvent;
+import com.library.common.event.CardRenewedEvent;
 import com.library.common.aop.exception.BadRequestException;
 import com.library.common.aop.exception.ResourceNotFoundException;
 import com.library.user.utils.enums.LibraryCardStatus;

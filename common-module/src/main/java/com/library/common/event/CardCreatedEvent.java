@@ -1,4 +1,4 @@
-package com.library.common.dto;
+package com.library.common.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,19 +8,19 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * Payload for CARD_RENEWED events
+ * Payload for CARD_CREATED events
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CardRenewedEvent {
+public class CardCreatedEvent {
     private Long userId;
     private String email;
     private String firstName;
     private String lastName;
     private String cardNumber;
-    private LocalDate previousExpiryDate;
-    private LocalDate newExpiryDate;
+    private LocalDate issueDate;
+    private LocalDate expiryDate;
     private String cardType;
 } 

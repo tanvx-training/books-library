@@ -19,7 +19,7 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PageRequestDTO implements Serializable {
+public class PaginatedRequest implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

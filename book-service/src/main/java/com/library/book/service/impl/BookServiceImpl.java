@@ -12,10 +12,10 @@ import com.library.book.model.Publisher;
 import com.library.book.dto.request.BookCreateDTO;
 import com.library.book.dto.response.BookResponseDTO;
 import com.library.book.utils.mapper.BookMapper;
-import com.library.common.dto.PageRequestDTO;
-import com.library.common.dto.PageResponseDTO;
+import com.library.common.dto.PaginatedRequest;
 import com.library.common.aop.exception.ResourceExistedException;
 import com.library.common.aop.exception.ResourceNotFoundException;
+import com.library.common.dto.PaginatedResponse;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -46,11 +46,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDTO<BookResponseDTO> getAllBooks(PageRequestDTO pageRequestDTO) {
-        Pageable pageable = pageRequestDTO.toPageable();
+    public PaginatedResponse<BookResponseDTO> getAllBooks(PaginatedRequest paginatedRequest) {
+        Pageable pageable = paginatedRequest.toPageable();
         Page<BookResponseDTO> page = bookRepository.findAllByDeleteFlg(Boolean.FALSE, pageable)
                 .map(bookMapper::toDto);
-        return new PageResponseDTO<>(page);
+        return PaginatedResponse.from(page);
     }
 
     @Override
@@ -91,11 +91,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponseDTO<BookResponseDTO> searchBooks(String keyword, PageRequestDTO pageRequestDTO) {
-        Pageable pageable = pageRequestDTO.toPageable();
+    public PaginatedResponse<BookResponseDTO> searchBooks(String keyword, PaginatedRequest paginatedRequest) {
+        Pageable pageable = paginatedRequest.toPageable();
         Page<BookResponseDTO> page = bookRepository.findAll(createSpecification(keyword), pageable)
                 .map(bookMapper::toDto);
-        return new PageResponseDTO<>(page);
+        return PaginatedResponse.from(page);
     }
 
     private Specification<Book> createSpecification(String keyword) {
