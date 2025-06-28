@@ -1,7 +1,7 @@
 package com.library.user.aop.filter;
 
-import com.library.user.domain.constant.SecurityConstants;
-import com.library.user.util.security.JwtTokenProvider;
+import com.library.user.utils.constant.SecurityConstants;
+import com.library.user.utils.jwt.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
