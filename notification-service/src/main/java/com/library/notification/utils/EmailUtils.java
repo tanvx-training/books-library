@@ -1,6 +1,9 @@
 package com.library.notification.utils;
 
-import com.library.common.dto.UserCreatedEvent;
+import com.library.common.aop.annotation.Loggable;
+import com.library.common.enums.LogLevel;
+import com.library.common.enums.OperationType;
+import com.library.common.event.UserCreatedEvent;
 import com.library.notification.model.NotificationTemplate;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,27 @@ public class EmailUtils {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.CREATE,
+        resourceType = "EmailNotification",
+        logArguments = true,
+        logReturnValue = false, // Void method
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 5000L, // Email processing can take time
+        sanitizeSensitiveData = true, // Email addresses should be sanitized
+        messagePrefix = "EMAIL_UTILS_SEND_USER_CREATED",
+        customTags = {
+            "layer=utils", 
+            "email_service=true", 
+            "template_processing=true",
+            "external_service=true",
+            "user_onboarding=true",
+            "smtp_operation=true",
+            "thymeleaf_template=true"
+        }
+    )
     public void sendUserCreatedMail(UserCreatedEvent userCreatedEvent, NotificationTemplate template) {
 
         try {
@@ -37,7 +61,8 @@ public class EmailUtils {
             mailSender.send(mimeMessage);
             log.info("Email sent to user {}", userCreatedEvent.getEmail());
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Failed to send email to user {}: {}", userCreatedEvent.getEmail(), e.getMessage());
+            throw new RuntimeException("Email sending failed", e);
         }
     }
 }

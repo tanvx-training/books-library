@@ -30,7 +30,6 @@ public class NotificationTemplate extends BaseEntity {
     @Column(name = "subject", length = 200)
     private String subject;
 
-    @Lob
     @Column(name = "content", nullable = false)
     private String content;
 }

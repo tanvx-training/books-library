@@ -1,6 +1,9 @@
 package com.library.user.service.impl;
 
-import com.library.common.dto.UserCreatedEvent;
+import com.library.common.aop.annotation.Loggable;
+import com.library.common.enums.LogLevel;
+import com.library.common.enums.OperationType;
+import com.library.common.event.UserCreatedEvent;
 import com.library.common.constants.EventType;
 import com.library.common.aop.exception.ResourceExistedException;
 import com.library.common.aop.exception.ResourceNotFoundException;
@@ -52,6 +55,28 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.CREATE,
+        resourceType = "User",
+        logArguments = true,
+        logReturnValue = false, // Don't log user details for security
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 3000L, // Registration can involve multiple operations
+        sanitizeSensitiveData = true,
+        messagePrefix = "AUTH_SERVICE_REGISTER",
+        customTags = {
+            "layer=service",
+            "transaction=write",
+            "security_operation=true",
+            "multi_table_operation=true",
+            "password_encoding=true",
+            "role_assignment=true",
+            "event_publishing=true",
+            "validation=true"
+        }
+    )
     public RegisterResponseDTO registerUser(RegisterRequestDTO registerRequestDTO) {
         if (userRepository.existsByUsername(registerRequestDTO.getUsername())) {
             throw new ResourceExistedException("User", "username", registerRequestDTO.getUsername());
@@ -87,6 +112,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.AUTHENTICATION,
+        resourceType = "UserSession",
+        logArguments = true,
+        logReturnValue = false, // Don't log tokens and sensitive auth data
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 2000L,
+        sanitizeSensitiveData = true,
+        messagePrefix = "AUTH_SERVICE_LOGIN",
+        customTags = {
+            "layer=service",
+            "transaction=write",
+            "security_operation=true",
+            "authentication_manager=true",
+            "jwt_generation=true",
+            "refresh_token_creation=true",
+            "session_management=true"
+        }
+    )
     public LoginResponseDTO loginUser(LoginRequestDTO loginRequestDTO) {
         try {
             Authentication authentication = authenticationManager.authenticate(

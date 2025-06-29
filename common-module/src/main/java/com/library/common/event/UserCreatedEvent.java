@@ -1,25 +1,21 @@
-package com.library.common.dto;
+package com.library.common.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 /**
- * Payload for PASSWORD_RESET events
+ * Payload for USER_CREATED events
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PasswordResetEvent {
+public class UserCreatedEvent {
     private Long userId;
     private String email;
     private String firstName;
     private String lastName;
-    private String resetToken;
-    private LocalDateTime tokenExpiryTime;
-    private String resetUrl;
+    private String username;
 } 

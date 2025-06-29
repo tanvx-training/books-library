@@ -2,16 +2,16 @@ package com.library.book.service;
 
 import com.library.book.dto.request.BookCreateDTO;
 import com.library.book.dto.response.BookResponseDTO;
-import com.library.common.dto.PageRequestDTO;
-import com.library.common.dto.PageResponseDTO;
+import com.library.common.dto.PaginatedRequest;
+import com.library.common.dto.PaginatedResponse;
 
 public interface BookService {
 
-    PageResponseDTO<BookResponseDTO> getAllBooks(PageRequestDTO pageRequestDTO);
+    PaginatedResponse<BookResponseDTO> getAllBooks(PaginatedRequest paginatedRequest);
 
     BookResponseDTO createBook(BookCreateDTO bookCreateDTO);
 
     BookResponseDTO getBookById(Long bookId);
 
-    PageResponseDTO<BookResponseDTO> searchBooks(String keyword, PageRequestDTO pageRequestDTO);
+    PaginatedResponse<BookResponseDTO> searchBooks(String keyword, PaginatedRequest paginatedRequest);
 }
