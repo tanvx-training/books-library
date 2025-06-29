@@ -1,8 +1,11 @@
 package com.library.user.service.impl;
 
+import com.library.common.aop.annotation.Loggable;
 import com.library.common.dto.PaginatedRequest;
 import com.library.common.aop.exception.ResourceNotFoundException;
 import com.library.common.dto.PaginatedResponse;
+import com.library.common.enums.LogLevel;
+import com.library.common.enums.OperationType;
 import com.library.user.service.UserService;
 import com.library.user.repository.UserRepository;
 import com.library.user.dto.response.UserDetailResponseDTO;
@@ -24,6 +27,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.READ,
+        resourceType = "User",
+        logArguments = true,
+        logReturnValue = false, // Don't log full collection in service layer
+        logExecutionTime = true,
+        performanceThresholdMs = 800L,
+        messagePrefix = "USER_SERVICE_LIST",
+        customTags = {"layer=service", "transaction=readonly", "pagination=true"}
+    )
     public PaginatedResponse<UserResponseDTO> getAllUsers(PaginatedRequest paginatedRequest) {
         Pageable pageable = paginatedRequest.toPageable();
         Page<UserResponseDTO> page = userRepository.findAll(pageable)
@@ -33,6 +47,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.READ,
+        resourceType = "User",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 300L,
+        messagePrefix = "USER_SERVICE_DETAIL",
+        customTags = {"layer=service", "transaction=readonly", "single_entity=true", "includes_mapping=true"}
+    )
     public UserDetailResponseDTO getUserById(Long userId) {
         return userRepository.findById(userId)
                 .map(userMapper::toUserDetailResponseDTO)

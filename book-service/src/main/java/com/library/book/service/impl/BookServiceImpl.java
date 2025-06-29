@@ -12,10 +12,13 @@ import com.library.book.model.Publisher;
 import com.library.book.dto.request.BookCreateDTO;
 import com.library.book.dto.response.BookResponseDTO;
 import com.library.book.utils.mapper.BookMapper;
+import com.library.common.aop.annotation.Loggable;
 import com.library.common.dto.PaginatedRequest;
 import com.library.common.aop.exception.ResourceExistedException;
 import com.library.common.aop.exception.ResourceNotFoundException;
 import com.library.common.dto.PaginatedResponse;
+import com.library.common.enums.LogLevel;
+import com.library.common.enums.OperationType;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -46,6 +49,17 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.READ,
+        resourceType = "Book",
+        logArguments = true,
+        logReturnValue = false, // Large collection - don't log full result
+        logExecutionTime = true,
+        performanceThresholdMs = 1000L,
+        messagePrefix = "BOOK_SERVICE_LIST",
+        customTags = {"layer=service", "transaction=readonly", "soft_delete_filter=true", "pagination=true"}
+    )
     public PaginatedResponse<BookResponseDTO> getAllBooks(PaginatedRequest paginatedRequest) {
         Pageable pageable = paginatedRequest.toPageable();
         Page<BookResponseDTO> page = bookRepository.findAllByDeleteFlg(Boolean.FALSE, pageable)
@@ -55,6 +69,25 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.CREATE,
+        resourceType = "Book",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 1500L,
+        messagePrefix = "BOOK_SERVICE_CREATE",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "business_validation=true", 
+            "multi_entity_operation=true",
+            "includes_relations=true",
+            "isbn_validation=true"
+        }
+    )
     public BookResponseDTO createBook(BookCreateDTO bookCreateDTO) {
         if (bookRepository.existsByIsbn(bookCreateDTO.getIsbn())) {
             throw new ResourceExistedException("Book", "isbn", bookCreateDTO.getIsbn());
@@ -83,6 +116,18 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.READ,
+        resourceType = "Book",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 400L,
+        messagePrefix = "BOOK_SERVICE_DETAIL",
+        customTags = {"layer=service", "transaction=readonly", "single_entity=true", "includes_mapping=true"}
+    )
     public BookResponseDTO getBookById(Long bookId) {
         return bookRepository.findById(bookId)
                 .map(bookMapper::toDto)
@@ -91,6 +136,25 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.SEARCH,
+        resourceType = "Book",
+        logArguments = true,
+        logReturnValue = false, // Don't log search results - can be large
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 2000L, // Search operations can be slower
+        messagePrefix = "BOOK_SERVICE_SEARCH",
+        customTags = {
+            "layer=service", 
+            "transaction=readonly", 
+            "full_text_search=true",
+            "multi_table_join=true",
+            "dynamic_criteria=true",
+            "specification_pattern=true"
+        }
+    )
     public PaginatedResponse<BookResponseDTO> searchBooks(String keyword, PaginatedRequest paginatedRequest) {
         Pageable pageable = paginatedRequest.toPageable();
         Page<BookResponseDTO> page = bookRepository.findAll(createSpecification(keyword), pageable)

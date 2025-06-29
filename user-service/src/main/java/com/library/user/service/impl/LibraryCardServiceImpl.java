@@ -1,6 +1,9 @@
 package com.library.user.service.impl;
 
+import com.library.common.aop.annotation.Loggable;
 import com.library.common.constants.EventType;
+import com.library.common.enums.LogLevel;
+import com.library.common.enums.OperationType;
 import com.library.common.event.CardCreatedEvent;
 import com.library.common.event.CardExpiredEvent;
 import com.library.common.event.CardExpiringSoonEvent;
@@ -52,6 +55,26 @@ public class LibraryCardServiceImpl implements LibraryCardService {
 
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.CREATE,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 3000L,
+        messagePrefix = "LIBRARY_CARD_SERVICE_CREATE",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "business_critical=true",
+            "uniqueness_check=true",
+            "card_generation=true",
+            "event_publishing=true",
+            "user_validation=true"
+        }
+    )
     public LibraryCardResponseDTO createLibraryCard(CreateLibraryCardRequestDTO requestDTO) {
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", requestDTO.getUserId()));
@@ -87,6 +110,22 @@ public class LibraryCardServiceImpl implements LibraryCardService {
     
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.READ,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        performanceThresholdMs = 500L,
+        messagePrefix = "LIBRARY_CARD_SERVICE_DETAIL",
+        customTags = {
+            "layer=service", 
+            "transaction=readonly", 
+            "single_entity=true",
+            "card_lookup=true"
+        }
+    )
     public LibraryCardResponseDTO getLibraryCardById(Long id) {
         LibraryCard libraryCard = findLibraryCardById(id);
         return libraryCardMapper.toLibraryCardResponseDTO(libraryCard);
@@ -94,6 +133,23 @@ public class LibraryCardServiceImpl implements LibraryCardService {
     
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.READ,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = false, // Don't log card collections - can contain sensitive info
+        logExecutionTime = true,
+        performanceThresholdMs = 1000L,
+        messagePrefix = "LIBRARY_CARD_SERVICE_BY_USER",
+        customTags = {
+            "layer=service", 
+            "transaction=readonly", 
+            "relationship_query=true",
+            "user_cards_lookup=true",
+            "user_validation=true"
+        }
+    )
     public List<LibraryCardResponseDTO> getLibraryCardsByUserId(Long userId) {
         // Check if user exists
         if (!userRepository.existsById(userId)) {
@@ -108,6 +164,22 @@ public class LibraryCardServiceImpl implements LibraryCardService {
     
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.BASIC,
+        operationType = OperationType.READ,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = false, // Don't log all cards - can be large and sensitive
+        logExecutionTime = true,
+        performanceThresholdMs = 1500L,
+        messagePrefix = "LIBRARY_CARD_SERVICE_LIST",
+        customTags = {
+            "layer=service", 
+            "transaction=readonly", 
+            "status_filter=true",
+            "admin_operation=true"
+        }
+    )
     public List<LibraryCardResponseDTO> getAllLibraryCards(LibraryCardStatus status) {
         List<LibraryCard> libraryCards;
         
@@ -124,6 +196,25 @@ public class LibraryCardServiceImpl implements LibraryCardService {
     
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.UPDATE,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 2000L,
+        messagePrefix = "LIBRARY_CARD_SERVICE_STATUS_UPDATE",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "business_critical=true",
+            "status_change=true",
+            "admin_operation=true",
+            "audit_required=true"
+        }
+    )
     public LibraryCardResponseDTO updateLibraryCardStatus(Long id, UpdateLibraryCardStatusRequestDTO requestDTO) {
         LibraryCard libraryCard = findLibraryCardById(id);
         
@@ -140,6 +231,27 @@ public class LibraryCardServiceImpl implements LibraryCardService {
     
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.UPDATE,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 3000L,
+        messagePrefix = "LIBRARY_CARD_SERVICE_RENEWAL",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "business_critical=true",
+            "renewal_operation=true",
+            "business_validation=true",
+            "event_publishing=true",
+            "expiry_update=true",
+            "audit_required=true"
+        }
+    )
     public LibraryCardResponseDTO renewLibraryCard(Long id, RenewLibraryCardRequestDTO requestDTO) {
         LibraryCard libraryCard = findLibraryCardById(id);
         
@@ -175,6 +287,27 @@ public class LibraryCardServiceImpl implements LibraryCardService {
      */
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.UPDATE,
+        resourceType = "LibraryCard",
+        logArguments = false, // No arguments for scheduled job
+        logReturnValue = false, // Void method
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 10000L, // Batch job can take longer
+        messagePrefix = "LIBRARY_CARD_SCHEDULED_EXPIRY_CHECK",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "scheduled_job=true",
+            "business_critical=true",
+            "batch_operation=true",
+            "status_update=true",
+            "event_publishing=true",
+            "expiry_management=true"
+        }
+    )
     public void checkExpiredCards() {
         LocalDate today = LocalDate.now();
         List<LibraryCard> expiredCards = libraryCardRepository.findByExpiryDateBeforeAndStatus(today, LibraryCardStatus.ACTIVE.name());
@@ -199,6 +332,27 @@ public class LibraryCardServiceImpl implements LibraryCardService {
      */
     @Scheduled(cron = "0 0 1 * * ?")
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.READ,
+        resourceType = "LibraryCard",
+        logArguments = false, // No arguments for scheduled job
+        logReturnValue = false, // Void method
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 8000L, // Batch notification job
+        messagePrefix = "LIBRARY_CARD_SCHEDULED_EXPIRING_CHECK",
+        customTags = {
+            "layer=service", 
+            "transaction=readonly", 
+            "scheduled_job=true",
+            "notification_operation=true",
+            "batch_operation=true",
+            "event_publishing=true",
+            "expiry_notification=true",
+            "business_critical=true"
+        }
+    )
     public void checkExpiringCards() {
         LocalDate today = LocalDate.now();
         LocalDate expiryDateStart = today;

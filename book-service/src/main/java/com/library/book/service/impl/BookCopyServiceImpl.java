@@ -10,9 +10,12 @@ import com.library.book.dto.request.BookCopyRequestDTO;
 import com.library.book.dto.request.BookCopyUpdateDTO;
 import com.library.book.dto.response.BookCopyResponseDTO;
 import com.library.book.utils.mapper.BookCopyMapper;
+import com.library.common.aop.annotation.Loggable;
 import com.library.common.aop.exception.BadRequestException;
 import com.library.common.aop.exception.ResourceExistedException;
 import com.library.common.aop.exception.ResourceNotFoundException;
+import com.library.common.enums.LogLevel;
+import com.library.common.enums.OperationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,23 @@ public class BookCopyServiceImpl implements BookCopyService {
 
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.READ,
+        resourceType = "BookCopy",
+        logArguments = true,
+        logReturnValue = false, // Don't log collections in service layer
+        logExecutionTime = true,
+        performanceThresholdMs = 800L,
+        messagePrefix = "BOOK_COPY_SERVICE_BY_BOOK",
+        customTags = {
+            "layer=service", 
+            "transaction=readonly", 
+            "relationship_query=true",
+            "inventory_check=true",
+            "collection_mapping=true"
+        }
+    )
     public List<BookCopyResponseDTO> getBookCopiesByBookId(Long bookId) {
         if (!bookRepository.existsById(bookId)) {
             throw new ResourceNotFoundException("Book", "id", bookId);
@@ -42,6 +62,26 @@ public class BookCopyServiceImpl implements BookCopyService {
 
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.CREATE,
+        resourceType = "BookCopy",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 2000L,
+        messagePrefix = "BOOK_COPY_SERVICE_CREATE",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "business_validation=true",
+            "uniqueness_check=true",
+            "status_validation=true",
+            "inventory_management=true",
+            "relationship_setup=true"
+        }
+    )
     public BookCopyResponseDTO addBookCopy(BookCopyRequestDTO bookCopyRequestDTO) {
         Book book = bookRepository.findById(bookCopyRequestDTO.getBookId())
                 .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookCopyRequestDTO.getBookId()));
@@ -68,6 +108,25 @@ public class BookCopyServiceImpl implements BookCopyService {
 
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.UPDATE,
+        resourceType = "BookCopy",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 2000L,
+        messagePrefix = "BOOK_COPY_SERVICE_UPDATE",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "business_validation=true",
+            "status_validation=true",
+            "conflict_check=true",
+            "inventory_management=true"
+        }
+    )
     public BookCopyResponseDTO updateBookCopy(Long bookCopyId, BookCopyUpdateDTO bookCopyRequestDTO) {
         BookCopy bookCopy = bookCopyRepository.findById(bookCopyId)
                 .orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", bookCopyId));
@@ -96,6 +155,26 @@ public class BookCopyServiceImpl implements BookCopyService {
 
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.UPDATE,
+        resourceType = "BookCopy",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 1500L,
+        messagePrefix = "BOOK_COPY_SERVICE_STATUS_UPDATE",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "business_critical=true",
+            "status_change=true",
+            "inventory_management=true",
+            "availability_tracking=true",
+            "business_rules_validation=true"
+        }
+    )
     public BookCopyResponseDTO updateBookCopyStatus(Long bookCopyId, String status) {
         BookCopy bookCopy = bookCopyRepository.findById(bookCopyId)
                 .orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", bookCopyId));
@@ -111,6 +190,27 @@ public class BookCopyServiceImpl implements BookCopyService {
 
     @Override
     @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.DELETE,
+        resourceType = "BookCopy",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 2000L,
+        messagePrefix = "BOOK_COPY_SERVICE_DELETE",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "business_critical=true",
+            "data_removal=true",
+            "inventory_management=true",
+            "safety_checks=true",
+            "borrowing_validation=true",
+            "audit_required=true"
+        }
+    )
     public boolean deleteBookCopy(Long bookCopyId) {
         BookCopy bookCopy = bookCopyRepository.findById(bookCopyId)
                 .orElseThrow(() -> new ResourceNotFoundException("BookCopy", "id", bookCopyId));
@@ -131,6 +231,24 @@ public class BookCopyServiceImpl implements BookCopyService {
 
     @Override
     @Transactional(readOnly = true)
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.READ,
+        resourceType = "BookCopy",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 300L,
+        messagePrefix = "BOOK_COPY_SERVICE_DETAIL",
+        customTags = {
+            "layer=service", 
+            "transaction=readonly", 
+            "single_entity=true",
+            "inventory_check=true",
+            "entity_mapping=true"
+        }
+    )
     public BookCopyResponseDTO getBookCopyById(Long bookCopyId) {
         return bookCopyRepository.findById(bookCopyId)
                 .map(bookCopyMapper::toDto)

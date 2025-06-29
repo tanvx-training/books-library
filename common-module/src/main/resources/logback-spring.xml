@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Include Spring Boot's base configuration -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    
+    <!-- Properties -->
+    <property name="LOG_PATH" value="${LOG_PATH:-./logs}"/>
+    <property name="APP_NAME" value="${spring.application.name:-library-app}"/>
+    
+    <!-- Console Pattern for Basic Logging (Human Readable) -->
+    <property name="CONSOLE_LOG_PATTERN" 
+        value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%X{requestId}]){magenta} %clr([%X{correlationId}]){blue} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+    
+    <!-- File Pattern for Detailed/Advanced Logging (JSON) -->
+    <property name="FILE_LOG_PATTERN_JSON" 
+        value='{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%level","thread":"%thread","logger":"%logger","requestId":"%X{requestId:-}","correlationId":"%X{correlationId:-}","spanId":"%X{spanId:-}","parentSpanId":"%X{parentSpanId:-}","userId":"%X{userId:-}","clientIp":"%X{clientIp:-}","userAgent":"%X{userAgent:-}","httpMethod":"%X{httpMethod:-}","requestUrl":"%X{requestUrl:-}","className":"%X{className:-}","methodName":"%X{methodName:-}","executionTime":"%X{executionTime:-}","message":"%message","exception":"%exception"}%n'/>
+
+    <!-- Console Appender - Basic Info -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>NEUTRAL</onMismatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- File Appender - All Logs (Detailed JSON) -->
+    <appender name="FILE_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}-all.log</file>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>${FILE_LOG_PATTERN_JSON}</pattern>
+            </layout>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-all.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+
+    <!-- File Appender - Error Only -->
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}-error.log</file>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>${FILE_LOG_PATTERN_JSON}</pattern>
+            </layout>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>90</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- File Appender - Performance/Trace -->
+    <appender name="FILE_TRACE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}-trace.log</file>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <pattern>${FILE_LOG_PATTERN_JSON}</pattern>
+            </layout>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-trace.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>200MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>TRACE</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- Async Appenders for better performance -->
+    <appender name="ASYNC_FILE_ALL" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE_ALL"/>
+        <queueSize>512</queueSize>
+        <discardingThreshold>20</discardingThreshold>
+        <maxFlushTime>1000</maxFlushTime>
+        <includeCallerData>true</includeCallerData>
+    </appender>
+
+    <appender name="ASYNC_FILE_ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE_ERROR"/>
+        <queueSize>256</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <maxFlushTime>1000</maxFlushTime>
+        <includeCallerData>true</includeCallerData>
+    </appender>
+
+    <appender name="ASYNC_FILE_TRACE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE_TRACE"/>
+        <queueSize>1024</queueSize>
+        <discardingThreshold>50</discardingThreshold>
+        <maxFlushTime>1000</maxFlushTime>
+        <includeCallerData>true</includeCallerData>
+    </appender>
+
+    <!-- Profile-specific configurations -->
+    <springProfile name="!prod">
+        <!-- Development/Test: Console + File logging with DEBUG level -->
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_FILE_ALL"/>
+            <appender-ref ref="ASYNC_FILE_ERROR"/>
+        </root>
+        
+        <!-- Enable TRACE for specific packages in development -->
+        <logger name="com.library" level="TRACE" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_FILE_ALL"/>
+            <appender-ref ref="ASYNC_FILE_TRACE"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="prod">
+        <!-- Production: File logging only with INFO level, selective TRACE -->
+        <root level="INFO">
+            <appender-ref ref="ASYNC_FILE_ALL"/>
+            <appender-ref ref="ASYNC_FILE_ERROR"/>
+        </root>
+        
+        <!-- Library packages at DEBUG level in production -->
+        <logger name="com.library" level="DEBUG" additivity="false">
+            <appender-ref ref="ASYNC_FILE_ALL"/>
+            <appender-ref ref="ASYNC_FILE_ERROR"/>
+        </logger>
+    </springProfile>
+
+    <!-- Disable some noisy loggers -->
+    <logger name="org.springframework.web.servlet.DispatcherServlet" level="WARN"/>
+    <logger name="org.springframework.security" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+    
+</configuration> 

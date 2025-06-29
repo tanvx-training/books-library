@@ -1,6 +1,9 @@
 package com.library.user.controller;
 
+import com.library.common.aop.annotation.Loggable;
 import com.library.common.dto.ApiResponse;
+import com.library.common.enums.LogLevel;
+import com.library.common.enums.OperationType;
 import com.library.user.utils.enums.LibraryCardStatus;
 import com.library.user.service.LibraryCardService;
 import com.library.user.dto.request.CreateLibraryCardRequestDTO;
@@ -29,6 +32,22 @@ public class LibraryCardController {
      */
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.CREATE,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 2000L,
+        messagePrefix = "LIBRARY_CARD_CREATION",
+        customTags = {
+            "endpoint=createLibraryCard", 
+            "security_operation=true", 
+            "admin_operation=true",
+            "card_management=true"
+        }
+    )
     public ResponseEntity<ApiResponse<LibraryCardResponseDTO>> createLibraryCard(@Valid @RequestBody CreateLibraryCardRequestDTO requestDTO) {
         return ResponseEntity.ok(ApiResponse.success(libraryCardService.createLibraryCard(requestDTO)));
     }
@@ -39,6 +58,16 @@ public class LibraryCardController {
      * @return the library card
      */
     @GetMapping("/{id}")
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.READ,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = true,
+        performanceThresholdMs = 500L,
+        messagePrefix = "LIBRARY_CARD_DETAIL",
+        customTags = {"endpoint=getLibraryCardById", "single_resource=true", "card_lookup=true"}
+    )
     public ResponseEntity<ApiResponse<LibraryCardResponseDTO>> getLibraryCardById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(libraryCardService.getLibraryCardById(id)));
     }
@@ -49,6 +78,20 @@ public class LibraryCardController {
      * @return list of library cards
      */
     @GetMapping("/user/{userId}")
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.READ,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = false, // Don't log card lists - can contain sensitive info
+        performanceThresholdMs = 1000L,
+        messagePrefix = "LIBRARY_CARD_BY_USER",
+        customTags = {
+            "endpoint=getLibraryCardsByUserId", 
+            "relationship_query=true", 
+            "user_cards_lookup=true"
+        }
+    )
     public ResponseEntity<ApiResponse<List<LibraryCardResponseDTO>>> getLibraryCardsByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(ApiResponse.success(libraryCardService.getLibraryCardsByUserId(userId)));
     }
@@ -60,6 +103,21 @@ public class LibraryCardController {
      */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+    @Loggable(
+        level = LogLevel.BASIC,
+        operationType = OperationType.READ,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = false, // Don't log all cards - can be large and sensitive
+        performanceThresholdMs = 1500L,
+        messagePrefix = "LIBRARY_CARD_LIST",
+        customTags = {
+            "endpoint=getAllLibraryCards", 
+            "admin_operation=true", 
+            "status_filter=true",
+            "card_management=true"
+        }
+    )
     public ResponseEntity<ApiResponse<List<LibraryCardResponseDTO>>> getAllLibraryCards(
             @RequestParam(required = false) LibraryCardStatus status) {
         return ResponseEntity.ok(ApiResponse.success(libraryCardService.getAllLibraryCards(status)));
@@ -73,6 +131,24 @@ public class LibraryCardController {
      */
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.UPDATE,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 1500L,
+        messagePrefix = "LIBRARY_CARD_STATUS_UPDATE",
+        customTags = {
+            "endpoint=updateLibraryCardStatus", 
+            "admin_operation=true", 
+            "status_change=true",
+            "business_critical=true",
+            "card_management=true",
+            "audit_required=true"
+        }
+    )
     public ResponseEntity<ApiResponse<LibraryCardResponseDTO>> updateLibraryCardStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateLibraryCardStatusRequestDTO requestDTO) {
@@ -87,6 +163,25 @@ public class LibraryCardController {
      */
     @PatchMapping("/{id}/renew")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.UPDATE,
+        resourceType = "LibraryCard",
+        logArguments = true,
+        logReturnValue = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 2000L,
+        messagePrefix = "LIBRARY_CARD_RENEWAL",
+        customTags = {
+            "endpoint=renewLibraryCard", 
+            "admin_operation=true", 
+            "renewal_operation=true",
+            "business_critical=true",
+            "card_management=true",
+            "expiry_update=true",
+            "audit_required=true"
+        }
+    )
     public ResponseEntity<ApiResponse<LibraryCardResponseDTO>> renewLibraryCard(
             @PathVariable Long id,
             @Valid @RequestBody RenewLibraryCardRequestDTO requestDTO) {
