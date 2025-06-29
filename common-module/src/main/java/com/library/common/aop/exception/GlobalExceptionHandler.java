@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     // Xử lý các lỗi nghiệp vụ (ví dụ: không tìm thấy tài nguyên)
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler(value = {ResourceNotFoundException.class, ResourceExistedException.class})
     public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), null);
         return ResponseEntity.ok(ApiResponse.error(apiError));

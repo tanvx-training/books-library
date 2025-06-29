@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface BookCopyRepository extends JpaRepository<BookCopy, Long> {
+public interface BookCopyRepository extends JpaRepository<BookCopy, Long>, com.library.book.repository.custom.BookCopyRepositoryCustom {
     
     /**
      * Find all book copies for a specific book

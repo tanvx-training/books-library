@@ -32,7 +32,6 @@ public class Notification extends BaseEntity {
     @Column(name = "title", nullable = false, length = 200)
     private String title;
 
-    @Lob
     @Column(name = "content", nullable = false)
     private String content;
 

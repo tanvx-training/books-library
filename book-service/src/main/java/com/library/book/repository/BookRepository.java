@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book> {
+public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book>, com.library.book.repository.custom.BookRepositoryCustom {
 
     Page<Book> findAllByDeleteFlg(boolean deleteFlg, Pageable pageable);
 

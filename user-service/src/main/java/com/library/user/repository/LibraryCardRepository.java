@@ -1,6 +1,7 @@
 package com.library.user.repository;
 
 import com.library.user.model.LibraryCard;
+import com.library.user.repository.custom.LibraryCardRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface LibraryCardRepository extends JpaRepository<LibraryCard, Long> {
+public interface LibraryCardRepository extends JpaRepository<LibraryCard, Long>, LibraryCardRepositoryCustom {
     
     /**
      * Find all library cards for a user
