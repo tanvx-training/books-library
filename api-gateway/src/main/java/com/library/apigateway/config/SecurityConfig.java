@@ -1,21 +1,21 @@
-package com.library.book.config;
+package com.library.apigateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,28 +25,28 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
+@EnableWebFluxSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authorize -> authorize
+            .csrf(ServerHttpSecurity.CsrfSpec::disable)
+            .cors(corsSpec -> corsSpec.configurationSource(corsConfigurationSource()))
+            .authorizeExchange(exchanges -> exchanges
                 // Public endpoints
-                .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .pathMatchers("/auth/**", "/actuator/**", "/api/auth/**").permitAll()
                 // Secured endpoints with specific roles
-                .requestMatchers("/api/books/admin/**").hasRole("ADMIN")
+                .pathMatchers("/api/books/admin/**").hasRole("ADMIN")
+                .pathMatchers("/api/users/admin/**").hasRole("ADMIN")
                 // All other endpoints require authentication
-                .anyRequest().authenticated()
+                .anyExchange().authenticated()
             )
+            .oauth2Login(oauth2 -> {})
             .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor()))
             );
-            
+        
         return http.build();
     }
     
@@ -63,25 +63,27 @@ public class SecurityConfig {
         return source;
     }
     
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
-        return converter;
+    /**
+     * JWT converter that extracts roles from the JWT token
+     */
+    private Converter<Jwt, Mono<AbstractAuthenticationToken>> grantedAuthoritiesExtractor() {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new GrantedAuthoritiesExtractor());
+        return new ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter);
     }
     
     /**
      * Custom converter to extract roles from the JWT token
      * Keycloak puts roles in realm_access.roles or resource_access.[client-id].roles
      */
-    static class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
+    static class GrantedAuthoritiesExtractor implements Converter<Jwt, Collection<GrantedAuthority>> {
         @Override
         public Collection<GrantedAuthority> convert(Jwt jwt) {
             // Extract realm roles
             Collection<GrantedAuthority> authorities = extractRealmRoles(jwt);
             
             // Extract client roles if needed
-            authorities.addAll(extractResourceRoles(jwt, "book-service"));
+            authorities.addAll(extractResourceRoles(jwt, "api-gateway"));
             
             return authorities;
         }
@@ -118,4 +120,4 @@ public class SecurityConfig {
                     .collect(Collectors.toList());
         }
     }
-}
+} 

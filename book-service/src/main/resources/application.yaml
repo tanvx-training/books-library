@@ -17,6 +17,12 @@ spring:
       hibernate:
         format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/library-realm
+          jwk-set-uri: http://localhost:8090/realms/library-realm/protocol/openid-connect/certs
 
 #eureka:
 #  client:
@@ -27,3 +33,4 @@ spring:
 logging:
   level:
     org.springframework.security: DEBUG
+    com.library.book: INFO

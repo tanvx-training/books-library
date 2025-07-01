@@ -3,6 +3,7 @@ package com.library.book.controller;
 import com.library.book.service.BookService;
 import com.library.book.dto.request.BookCreateDTO;
 import com.library.book.dto.response.BookResponseDTO;
+import com.library.book.utils.SecurityUtils;
 import com.library.common.aop.annotation.Loggable;
 import com.library.common.dto.ApiResponse;
 import com.library.common.dto.PaginatedRequest;
@@ -12,7 +13,10 @@ import com.library.common.enums.OperationType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class BookController {
 
     private final BookService bookService;
+    private final SecurityUtils securityUtils;
 
     @GetMapping
     @Loggable(
@@ -38,6 +43,7 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
     @Loggable(
         level = LogLevel.DETAILED,
         operationType = OperationType.CREATE,
@@ -83,5 +89,61 @@ public class BookController {
     public ResponseEntity<ApiResponse<PaginatedResponse<BookResponseDTO>>> searchBooks(@RequestParam(value = "keyword") String keyword,
                                                                         @Valid @ModelAttribute PaginatedRequest paginatedRequest) {
         return ResponseEntity.ok(ApiResponse.success(bookService.searchBooks(keyword, paginatedRequest)));
+    }
+    
+    @PutMapping("/{bookId}")
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.UPDATE,
+        resourceType = "Book",
+        logArguments = true,
+        logReturnValue = true,
+        performanceThresholdMs = 1000L,
+        messagePrefix = "BOOK_UPDATE",
+        customTags = {"endpoint=updateBook", "content_management=true"}
+    )
+    public ResponseEntity<ApiResponse<BookResponseDTO>> updateBook(
+            @PathVariable("bookId") Long bookId,
+            @Valid @RequestBody BookCreateDTO bookUpdateDTO) {
+        return ResponseEntity.ok(ApiResponse.success(bookService.updateBook(bookId, bookUpdateDTO)));
+    }
+    
+    @DeleteMapping("/{bookId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.DELETE,
+        resourceType = "Book",
+        logArguments = true,
+        logReturnValue = false,
+        performanceThresholdMs = 1000L,
+        messagePrefix = "BOOK_DELETE",
+        customTags = {"endpoint=deleteBook", "content_management=true"}
+    )
+    public ResponseEntity<ApiResponse<Void>> deleteBook(@PathVariable("bookId") Long bookId) {
+        bookService.deleteBook(bookId);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    
+    @GetMapping("/admin/dashboard")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Loggable(
+        level = LogLevel.DETAILED,
+        operationType = OperationType.READ,
+        resourceType = "Book",
+        logArguments = false,
+        logReturnValue = false,
+        performanceThresholdMs = 2000L,
+        messagePrefix = "ADMIN_DASHBOARD",
+        customTags = {"endpoint=adminDashboard", "admin_operation=true"}
+    )
+    public ResponseEntity<ApiResponse<Object>> getAdminDashboard() {
+        String currentUser = securityUtils.getCurrentUsername();
+        // Implement admin dashboard logic
+        return ResponseEntity.ok(ApiResponse.success(Map.of(
+            "message", "Admin dashboard accessed by: " + currentUser,
+            "timestamp", System.currentTimeMillis()
+        )));
     }
 }
