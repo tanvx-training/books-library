@@ -8,7 +8,7 @@ volumes:
     postgres-data:
     redis-data:
     keycloak-data:
-
+    elasticsearch-data:
 services:
   # PostgreSQL
   postgres:
@@ -48,6 +48,8 @@ services:
       KC_HOSTNAME_STRICT: false
       KC_HTTP_ENABLED: true
       KC_PROXY: edge
+      KC_LOG_LEVEL: INFO
+      KC_LOG_CONSOLE_OUTPUT: json
     command: start-dev
     ports:
       - "8080:8080"
@@ -101,14 +103,43 @@ services:
     depends_on:
       - zoo
 
-  zipkin:
-    image: openzipkin/zipkin
-    container_name: zipkin
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
     ports:
-      - "9411:9411"
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
       - backend-network
 
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.8.0
+    container_name: logstash
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    networks:
+      - backend-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - backend-network
   # ==========================================================
   # Microservices
   # (Mỗi service build qua Jib có image: ${docker.image.prefix}/<artifactId>:latest)

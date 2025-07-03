@@ -1,5 +1,6 @@
 package com.library.apigateway.config;
 
+import org.springframework.lang.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -78,7 +79,7 @@ public class SecurityConfig {
      */
     static class GrantedAuthoritiesExtractor implements Converter<Jwt, Collection<GrantedAuthority>> {
         @Override
-        public Collection<GrantedAuthority> convert(Jwt jwt) {
+        public Collection<GrantedAuthority> convert(@NonNull Jwt jwt) {
             // Extract realm roles
             Collection<GrantedAuthority> authorities = extractRealmRoles(jwt);
             
