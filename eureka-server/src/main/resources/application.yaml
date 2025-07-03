@@ -14,3 +14,10 @@ eureka:
   server:
     wait-time-in-ms-when-sync-empty: 0
     enable-self-preservation: false
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: INFO
+    com.library: DEBUG
+    org.springframework: INFO

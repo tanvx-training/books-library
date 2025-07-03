@@ -14,4 +14,8 @@ public interface BookService {
     BookResponseDTO getBookById(Long bookId);
 
     PaginatedResponse<BookResponseDTO> searchBooks(String keyword, PaginatedRequest paginatedRequest);
+    
+    BookResponseDTO updateBook(Long bookId, BookCreateDTO bookUpdateDTO);
+    
+    void deleteBook(Long bookId);
 }
