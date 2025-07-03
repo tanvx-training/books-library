@@ -1,20 +1,72 @@
 server:
-  port: 8080
+  port: 8888
 spring:
   application:
     name: api-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/certs
+      client:
+        registration:
+          keycloak:
+            client-id: api-gateway
+            client-secret: ${KEYCLOAK_CLIENT_SECRET:kia8wLCbflCup6q8TL5jgLUdcYDivqBb}
+            authorization-grant-type: authorization_code
+            scope: openid, profile, email, roles
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/library-realm
+            jwk-set-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/certs
+            user-name-attribute: preferred_username
   cloud:
     gateway:
+      default-filters:
+        - TokenRelay
       routes:
         - id: book-service
           uri: lb://BOOK-SERVICE
           predicates:
             - Path=/api/books/**
+          filters:
+            - RemoveRequestHeader=Cookie
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
             - Path=/api/users/**,/api/auth/**
+          filters:
+            - RemoveRequestHeader=Cookie
         - id: notification-service
           uri: lb://NOTIFICATION-SERVICE
           predicates:
             - Path=/api/notifications/**
+          filters:
+            - RemoveRequestHeader=Cookie
+        # Keycloak routes
+        - id: keycloak-login
+          uri: http://localhost:8090
+          predicates:
+            - Path=/auth/login
+          filters:
+            - RedirectTo=302, http://localhost:8080/realms/library-realm/protocol/openid-connect/auth?client_id=api-gateway&response_type=code&redirect_uri=http://localhost:8080/login/oauth2/code/keycloak
+        - id: keycloak-logout
+          uri: http://localhost:8080
+          predicates:
+            - Path=/auth/logout
+          filters:
+            - RedirectTo=302, http://localhost:8080/realms/library-realm/protocol/openid-connect/logout?redirect_uri=http://localhost:8080/
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+# Logging configuration
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: INFO
+    com.library: DEBUG
+    org.springframework: INFO

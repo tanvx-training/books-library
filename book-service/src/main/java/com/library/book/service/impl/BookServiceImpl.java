@@ -11,6 +11,7 @@ import com.library.book.model.Category;
 import com.library.book.model.Publisher;
 import com.library.book.dto.request.BookCreateDTO;
 import com.library.book.dto.response.BookResponseDTO;
+import com.library.book.utils.SecurityUtils;
 import com.library.book.utils.mapper.BookMapper;
 import com.library.common.aop.annotation.Loggable;
 import com.library.common.dto.PaginatedRequest;
@@ -23,6 +24,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,17 +37,15 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookServiceImpl implements BookService {
 
     private final BookMapper bookMapper;
-
     private final BookRepository bookRepository;
-
     private final PublisherRepository publisherRepository;
-
     private final AuthorRepository authorRepository;
-
     private final CategoryRepository categoryRepository;
+    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional(readOnly = true)
@@ -161,6 +161,98 @@ public class BookServiceImpl implements BookService {
                 .map(bookMapper::toDto);
         return PaginatedResponse.from(page);
     }
+    
+    @Override
+    @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.UPDATE,
+        resourceType = "Book",
+        logArguments = true,
+        logReturnValue = true,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 1500L,
+        messagePrefix = "BOOK_SERVICE_UPDATE",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "business_validation=true", 
+            "multi_entity_operation=true",
+            "includes_relations=true"
+        }
+    )
+    public BookResponseDTO updateBook(Long bookId, BookCreateDTO bookUpdateDTO) {
+        log.info("Updating book with ID: {} by user: {}", bookId, securityUtils.getCurrentUsername());
+        
+        Book existingBook = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
+        
+        // Check ISBN uniqueness if it's changed
+        if (!existingBook.getIsbn().equals(bookUpdateDTO.getIsbn()) && 
+                bookRepository.existsByIsbn(bookUpdateDTO.getIsbn())) {
+            throw new ResourceExistedException("Book", "isbn", bookUpdateDTO.getIsbn());
+        }
+        
+        // Get related entities
+        Publisher publisher = publisherRepository.findById(bookUpdateDTO.getPublisherId())
+                .orElseThrow(() -> new ResourceNotFoundException("Publisher", "id", bookUpdateDTO.getPublisherId()));
+        
+        List<Author> authors = authorRepository.findAllById(bookUpdateDTO.getAuthors());
+        if (!Objects.equals(authors.size(), bookUpdateDTO.getAuthors().size())) {
+            throw new ResourceNotFoundException("Authors", "ids", bookUpdateDTO.getAuthors());
+        }
+        
+        List<Category> categories = categoryRepository.findAllById(bookUpdateDTO.getCategories());
+        if (!Objects.equals(categories.size(), bookUpdateDTO.getCategories().size())) {
+            throw new ResourceNotFoundException("Categories", "ids", bookUpdateDTO.getCategories());
+        }
+        
+        // Update book properties
+        existingBook.setTitle(bookUpdateDTO.getTitle());
+        existingBook.setIsbn(bookUpdateDTO.getIsbn());
+        existingBook.setPublicationYear(bookUpdateDTO.getPublicationYear());
+        existingBook.setDescription(bookUpdateDTO.getDescription());
+        existingBook.setPublisher(publisher);
+        existingBook.setAuthors(authors);
+        existingBook.setCategories(categories);
+        
+        // Save and return updated book
+        Book updatedBook = bookRepository.save(existingBook);
+        return bookMapper.toDto(updatedBook);
+    }
+    
+    @Override
+    @Transactional
+    @Loggable(
+        level = LogLevel.ADVANCED,
+        operationType = OperationType.DELETE,
+        resourceType = "Book",
+        logArguments = true,
+        logReturnValue = false,
+        logExecutionTime = true,
+        includeInPerformanceMonitoring = true,
+        performanceThresholdMs = 1000L,
+        messagePrefix = "BOOK_SERVICE_DELETE",
+        customTags = {
+            "layer=service", 
+            "transaction=write", 
+            "soft_delete=true",
+            "admin_operation=true"
+        }
+    )
+    public void deleteBook(Long bookId) {
+        log.info("Deleting book with ID: {} by admin: {}", bookId, securityUtils.getCurrentUsername());
+        
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book", "id", bookId));
+        
+        // Soft delete - set delete flag to true
+        book.setDeleteFlg(true);
+        bookRepository.save(book);
+        
+        log.info("Book with ID: {} has been soft-deleted", bookId);
+    }
 
     private Specification<Book> createSpecification(String keyword) {
         return (root, query, cb) -> {
@@ -187,5 +279,4 @@ public class BookServiceImpl implements BookService {
             return cb.or(predicates.toArray(new Predicate[0]));
         };
     }
-
 }
