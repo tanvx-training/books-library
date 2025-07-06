@@ -1043,4 +1043,24 @@ Phần này mô tả chi tiết các kịch bản tương tác chính giữa ng�
         4.  Use case kết thúc.
 
 *(Có thể bổ sung thêm các Use Case chi tiết khác như: Quản lý sách (Admin/Librarian), Quản lý người dùng (Admin), Xem lịch sử mượn, Hủy đặt trước, Cấu hình hệ thống (Admin)... tùy thuộc vào mức độ chi tiết yêu cầu)*
-
+```text
+book-service/
+├── src/main/java/com/library/book/
+├── application/
+│   ├── service/
+│   └── dto/
+├── domain/
+│   ├── model/
+│   ├── repository/
+│   ├── service/
+│   ├── event/
+│   └── exception/
+├── infrastructure/
+│   ├── persistence/
+│   ├── messaging/
+│   └── security/
+└── interfaces/
+├── rest/
+├── event/
+└── scheduler/
+```
