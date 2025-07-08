@@ -1,7 +1,6 @@
 package com.library.book.application.service;
 
 import com.library.book.application.dto.request.CategoryCreateRequest;
-import com.library.book.application.dto.response.BookResponse;
 import com.library.book.application.dto.response.CategoryResponse;
 import com.library.book.application.exception.CategoryApplicationException;
 import com.library.book.application.exception.CategoryNotFoundException;
@@ -11,10 +10,10 @@ import com.library.book.domain.model.category.Category;
 import com.library.book.domain.model.category.CategoryId;
 import com.library.book.domain.model.category.CategoryName;
 import com.library.book.domain.model.category.CategorySlug;
+import com.library.book.domain.repository.BookRepository;
 import com.library.book.domain.repository.CategoryRepository;
 import com.library.book.domain.service.CategoryDomainService;
-import com.library.book.repository.BookRepository;
-import com.library.book.utils.mapper.BookMapper;
+import com.library.book.infrastructure.persistence.mapper.BookEntityMapper;
 import com.library.common.aop.annotation.Loggable;
 import com.library.common.dto.PaginatedRequest;
 import com.library.common.dto.PaginatedResponse;
@@ -23,8 +22,6 @@ import com.library.common.enums.OperationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +35,7 @@ public class CategoryApplicationService {
     private final CategoryRepository categoryRepository;
     private final CategoryDomainService categoryDomainService;
     private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
+    private final BookEntityMapper bookMapper;
 
     @Transactional(readOnly = true)
     @Loggable(
@@ -59,37 +56,6 @@ public class CategoryApplicationService {
 
         return PaginatedResponse.from(categoryResponses);
     }
-
-//    @Transactional(readOnly = true)
-//    @Loggable(
-//            level = LogLevel.DETAILED,
-//            operationType = OperationType.READ,
-//            resourceType = "Category",
-//            logReturnValue = false,
-//            performanceThresholdMs = 1200L,
-//            messagePrefix = "CATEGORY_APP_SERVICE_BOOKS"
-//    )
-//    public PaginatedResponse<BookResponse> getBooksByCategory(Long categoryId, PaginatedRequest paginatedRequest) {
-//        Category category = categoryRepository.findById(new CategoryId(categoryId))
-//                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
-//
-//        // Tạm thời sử dụng BookRepository hiện tại
-//        // Trong tương lai, nên migrate Book sang DDD và sử dụng BookRepository domain interface
-//        Pageable pageable = PageRequest.of(
-//                paginatedRequest.getPage(),
-//                paginatedRequest.getSize()
-//        );
-//
-//        Page<BookResponse> page = bookRepository.findAllByCategoriesAndDeleteFlg(
-//                // Convert từ domain Category sang entity Category
-//                // Đây là giải pháp tạm thời cho đến khi Book được migrate sang DDD
-//                convertDomainCategoryToEntity(category),
-//                false,
-//                pageable
-//        ).map(bookMapper::toDto);
-//
-//        return PaginatedResponse.from(page);
-//    }
 
     @Transactional
     @Loggable(
@@ -156,14 +122,8 @@ public class CategoryApplicationService {
                 .build();
     }
 
-    // Phương thức tạm thời để chuyển đổi giữa domain model và entity model
-    // Sẽ được loại bỏ khi Book được migrate sang DDD
-    private List<com.library.book.model.Category> convertDomainCategoryToEntity(Category domainCategory) {
-        com.library.book.model.Category entityCategory = new com.library.book.model.Category();
-        entityCategory.setId(domainCategory.getId().getValue());
-        entityCategory.setName(domainCategory.getName().getValue());
-        entityCategory.setSlug(domainCategory.getSlug().getValue());
-        entityCategory.setDescription(domainCategory.getDescription().getValue());
-        return List.of(entityCategory);
+    private List<CategoryId> convertDomainCategoryToEntity(Category domainCategory) {
+        return List.of(domainCategory.getId());
     }
+
 }
