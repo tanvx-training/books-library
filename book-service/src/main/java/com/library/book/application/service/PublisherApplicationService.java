@@ -9,8 +9,6 @@ import com.library.book.domain.model.publisher.PublisherId;
 import com.library.book.domain.model.publisher.PublisherName;
 import com.library.book.domain.repository.PublisherRepository;
 import com.library.book.domain.service.PublisherDomainService;
-import com.library.book.repository.BookRepository;
-import com.library.book.utils.mapper.BookMapper;
 import com.library.common.aop.annotation.Loggable;
 import com.library.common.dto.PaginatedRequest;
 import com.library.common.dto.PaginatedResponse;
@@ -29,8 +27,6 @@ public class PublisherApplicationService {
 
     private final PublisherRepository publisherRepository;
     private final PublisherDomainService publisherDomainService;
-    private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
 
     @Transactional(readOnly = true)
     @Loggable(
