@@ -1,7 +1,6 @@
 package com.library.book.interfaces.rest;
 
 import com.library.book.application.dto.request.CategoryCreateRequest;
-import com.library.book.application.dto.response.BookResponse;
 import com.library.book.application.dto.response.CategoryResponse;
 import com.library.book.application.service.CategoryApplicationService;
 import com.library.common.aop.annotation.Loggable;
@@ -57,25 +56,6 @@ public class CategoryController {
                 categoryApplicationService.getCategoryById(categoryId)
         ));
     }
-
-//    @GetMapping("/{categoryId}/books")
-//    @Loggable(
-//            level = LogLevel.DETAILED,
-//            operationType = OperationType.READ,
-//            resourceType = "Category",
-//            logArguments = true,
-//            logReturnValue = false,
-//            performanceThresholdMs = 1500L,
-//            messagePrefix = "CATEGORY_BOOKS",
-//            customTags = {"endpoint=getBooksByCategory", "relationship_query=true"}
-//    )
-//    public ResponseEntity<ApiResponse<PaginatedResponse<BookResponse>>> getBooksByCategory(
-//            @PathVariable("categoryId") Long categoryId,
-//            @Valid @ModelAttribute PaginatedRequest paginatedRequest) {
-//        return ResponseEntity.ok(ApiResponse.success(
-//                categoryApplicationService.getBooksByCategory(categoryId, paginatedRequest)
-//        ));
-//    }
 
     @PostMapping
     @Loggable(

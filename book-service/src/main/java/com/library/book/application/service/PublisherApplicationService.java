@@ -1,7 +1,6 @@
 package com.library.book.application.service;
 
 import com.library.book.application.dto.request.PublisherCreateRequest;
-import com.library.book.application.dto.response.BookResponse;
 import com.library.book.application.dto.response.PublisherResponse;
 import com.library.book.application.exception.PublisherApplicationException;
 import com.library.book.application.exception.PublisherNotFoundException;
@@ -20,8 +19,6 @@ import com.library.common.enums.OperationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,38 +50,6 @@ public class PublisherApplicationService {
 
         return PaginatedResponse.from(publisherResponses);
     }
-
-//    @Transactional(readOnly = true)
-//    @Loggable(
-//            level = LogLevel.DETAILED,
-//            operationType = OperationType.READ,
-//            resourceType = "Publisher",
-//            logReturnValue = false,
-//            performanceThresholdMs = 1200L,
-//            messagePrefix = "PUBLISHER_APP_SERVICE_BOOKS"
-//    )
-//    public PaginatedResponse<BookResponse> getBooksByPublisher(Long publisherId, PaginatedRequest paginatedRequest) {
-//        Publisher publisher = publisherRepository.findById(new PublisherId(publisherId))
-//                .orElseThrow(() -> new PublisherNotFoundException(publisherId));
-//
-//        // Tạm thời sử dụng BookRepository hiện tại
-//        // Trong tương lai, nên migrate Book sang DDD và sử dụng BookRepository domain interface
-//        Pageable pageable = PageRequest.of(
-//                paginatedRequest.getPage(),
-//                paginatedRequest.getSize()
-//        );
-//
-//        Page<BookResponse> page = bookRepository.findAllByPublisherAndDeleteFlg(
-//                // Convert từ domain Publisher sang entity Publisher
-//                // Đây là giải pháp tạm thời cho đến khi Book được migrate sang DDD
-//                convertDomainPublisherToEntity(publisher),
-//                false,
-//                pageable
-//        ).map(bookMapper::toDto);
-//
-//        return PaginatedResponse.from(page);
-//    }
-
 
     @Transactional
     @Loggable(
@@ -138,13 +103,5 @@ public class PublisherApplicationService {
                 .name(publisher.getName().getValue())
                 .address(publisher.getAddress().getValue())
                 .build();
-    }
-
-    private com.library.book.model.Publisher convertDomainPublisherToEntity(Publisher domainPublisher) {
-        com.library.book.model.Publisher entityPublisher = new com.library.book.model.Publisher();
-        entityPublisher.setId(domainPublisher.getId().getValue());
-        entityPublisher.setName(domainPublisher.getName().getValue());
-        entityPublisher.setAddress(domainPublisher.getAddress().getValue());
-        return entityPublisher;
     }
 }
