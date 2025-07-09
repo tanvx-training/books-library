@@ -2,12 +2,12 @@ package com.library.book.interfaces.rest;
 
 import com.library.book.application.dto.request.BookCopyCreateRequest;
 import com.library.book.application.dto.request.BookCopyUpdateRequest;
+import com.library.book.application.dto.response.ApiResponse;
 import com.library.book.application.dto.response.BookCopyResponse;
 import com.library.book.application.service.BookCopyApplicationService;
-import com.library.common.aop.annotation.Loggable;
-import com.library.common.dto.ApiResponse;
-import com.library.common.enums.LogLevel;
-import com.library.common.enums.OperationType;
+import com.library.book.infrastructure.enums.LogLevel;
+import com.library.book.infrastructure.enums.OperationType;
+import com.library.book.infrastructure.logging.Loggable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
