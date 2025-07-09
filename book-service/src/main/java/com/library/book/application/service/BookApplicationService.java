@@ -1,9 +1,11 @@
 package com.library.book.application.service;
 
 import com.library.book.application.dto.request.BookCreateRequest;
+import com.library.book.application.dto.request.PaginatedRequest;
 import com.library.book.application.dto.response.AuthorResponse;
 import com.library.book.application.dto.response.BookResponse;
 import com.library.book.application.dto.response.CategoryResponse;
+import com.library.book.application.dto.response.PaginatedResponse;
 import com.library.book.application.dto.response.PublisherResponse;
 import com.library.book.application.exception.BookApplicationException;
 import com.library.book.application.exception.BookNotFoundException;
@@ -27,11 +29,9 @@ import com.library.book.domain.repository.BookRepository;
 import com.library.book.domain.repository.CategoryRepository;
 import com.library.book.domain.repository.PublisherRepository;
 import com.library.book.domain.service.BookDomainService;
-import com.library.common.aop.annotation.Loggable;
-import com.library.common.dto.PaginatedRequest;
-import com.library.common.dto.PaginatedResponse;
-import com.library.common.enums.LogLevel;
-import com.library.common.enums.OperationType;
+import com.library.book.infrastructure.enums.LogLevel;
+import com.library.book.infrastructure.enums.OperationType;
+import com.library.book.infrastructure.logging.Loggable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

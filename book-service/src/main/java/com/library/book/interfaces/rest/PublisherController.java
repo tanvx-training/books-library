@@ -1,15 +1,14 @@
 package com.library.book.interfaces.rest;
 
 import com.library.book.application.dto.request.PublisherCreateRequest;
-import com.library.book.application.dto.response.BookResponse;
 import com.library.book.application.dto.response.PublisherResponse;
 import com.library.book.application.service.PublisherApplicationService;
-import com.library.common.aop.annotation.Loggable;
-import com.library.common.dto.ApiResponse;
-import com.library.common.dto.PaginatedRequest;
-import com.library.common.dto.PaginatedResponse;
-import com.library.common.enums.LogLevel;
-import com.library.common.enums.OperationType;
+import com.library.book.infrastructure.enums.LogLevel;
+import com.library.book.infrastructure.enums.OperationType;
+import com.library.book.infrastructure.logging.Loggable;
+import com.library.book.application.dto.request.PaginatedRequest;
+import com.library.book.application.dto.response.PaginatedResponse;
+import com.library.book.application.dto.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

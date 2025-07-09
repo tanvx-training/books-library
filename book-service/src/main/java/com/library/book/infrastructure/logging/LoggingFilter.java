@@ -1,8 +1,6 @@
-package com.library.common.aop.logging;
+package com.library.book.infrastructure.logging;
 
-import com.library.common.constants.LoggingConstants;
-import com.library.common.utils.logging.LoggingContextManager;
-import com.library.common.utils.logging.MDCContextManager;
+import com.library.book.infrastructure.enums.LogLevel;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,10 +14,19 @@ import java.io.IOException;
  */
 public class LoggingFilter implements Filter {
 
+    public static final String CLIENT_IP = "clientIp";
+    public static final String REQUEST_RECEIVED = "HTTP request received";
+    public static final String REQUEST_COMPLETED = "HTTP request completed";
+    public static final String REQUEST_FAILED = "HTTP request failed";
+
+    // Performance Thresholds (in milliseconds)
+    public static final long SLOW_REQUEST_THRESHOLD = 1000L;
+    public static final long VERY_SLOW_REQUEST_THRESHOLD = 5000L;
+
     private static final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         logger.info("LoggingFilter initialized");
     }
 
@@ -27,14 +34,11 @@ public class LoggingFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) 
             throws IOException, ServletException {
         
-        if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
+        if (!(request instanceof HttpServletRequest httpRequest) || !(response instanceof HttpServletResponse httpResponse)) {
             chain.doFilter(request, response);
             return;
         }
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        
         long startTime = System.currentTimeMillis();
 
         try {
@@ -46,12 +50,12 @@ public class LoggingFilter implements Filter {
             MDCContextManager.setServiceName(serviceName);
 
             // Log incoming request (basic level)
-            if (LoggingContextManager.shouldLog(com.library.common.enums.LogLevel.BASIC)) {
+            if (LoggingContextManager.shouldLog(LogLevel.BASIC)) {
                 logger.info("{} - {} {} from {} (User-Agent: {})", 
-                    LoggingConstants.REQUEST_RECEIVED,
+                    REQUEST_RECEIVED,
                     httpRequest.getMethod(), 
                     httpRequest.getRequestURL(),
-                    MDCContextManager.getCurrentContext().get(LoggingConstants.CLIENT_IP),
+                    MDCContextManager.getCurrentContext().get(CLIENT_IP),
                     httpRequest.getHeader("User-Agent"));
             }
 
@@ -73,7 +77,7 @@ public class LoggingFilter implements Filter {
             logRequestCompletion(httpRequest, httpResponse, executionTime, false);
             
             logger.error("{} - {} {} failed after {}ms: {}", 
-                LoggingConstants.REQUEST_FAILED,
+                REQUEST_FAILED,
                 httpRequest.getMethod(), 
                 httpRequest.getRequestURL(),
                 executionTime,
@@ -107,24 +111,24 @@ public class LoggingFilter implements Filter {
             int statusCode = response.getStatus();
             MDCContextManager.addCustomProperty("responseStatus", String.valueOf(statusCode));
 
-            if (LoggingContextManager.shouldLog(com.library.common.enums.LogLevel.BASIC)) {
-                if (executionTime > LoggingConstants.VERY_SLOW_REQUEST_THRESHOLD) {
+            if (LoggingContextManager.shouldLog(LogLevel.BASIC)) {
+                if (executionTime > VERY_SLOW_REQUEST_THRESHOLD) {
                     logger.warn("{} - {} {} completed with status {} in {}ms (VERY SLOW)", 
-                        LoggingConstants.REQUEST_COMPLETED,
+                        REQUEST_COMPLETED,
                         request.getMethod(), 
                         request.getRequestURL(),
                         statusCode,
                         executionTime);
-                } else if (executionTime > LoggingConstants.SLOW_REQUEST_THRESHOLD) {
+                } else if (executionTime > SLOW_REQUEST_THRESHOLD) {
                     logger.warn("{} - {} {} completed with status {} in {}ms (SLOW)", 
-                        LoggingConstants.REQUEST_COMPLETED,
+                        REQUEST_COMPLETED,
                         request.getMethod(), 
                         request.getRequestURL(),
                         statusCode,
                         executionTime);
                 } else {
                     logger.info("{} - {} {} completed with status {} in {}ms", 
-                        LoggingConstants.REQUEST_COMPLETED,
+                        REQUEST_COMPLETED,
                         request.getMethod(), 
                         request.getRequestURL(),
                         statusCode,

@@ -1,7 +1,9 @@
 package com.library.book.application.service;
 
 import com.library.book.application.dto.request.CategoryCreateRequest;
+import com.library.book.application.dto.request.PaginatedRequest;
 import com.library.book.application.dto.response.CategoryResponse;
+import com.library.book.application.dto.response.PaginatedResponse;
 import com.library.book.application.exception.CategoryApplicationException;
 import com.library.book.application.exception.CategoryNotFoundException;
 import com.library.book.domain.exception.CategoryDomainException;
@@ -13,12 +15,10 @@ import com.library.book.domain.model.category.CategorySlug;
 import com.library.book.domain.repository.BookRepository;
 import com.library.book.domain.repository.CategoryRepository;
 import com.library.book.domain.service.CategoryDomainService;
+import com.library.book.infrastructure.enums.LogLevel;
+import com.library.book.infrastructure.enums.OperationType;
+import com.library.book.infrastructure.logging.Loggable;
 import com.library.book.infrastructure.persistence.mapper.BookEntityMapper;
-import com.library.common.aop.annotation.Loggable;
-import com.library.common.dto.PaginatedRequest;
-import com.library.common.dto.PaginatedResponse;
-import com.library.common.enums.LogLevel;
-import com.library.common.enums.OperationType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
