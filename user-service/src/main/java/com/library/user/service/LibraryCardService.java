@@ -1,6 +1,6 @@
 package com.library.user.service;
 
-import com.library.user.utils.enums.LibraryCardStatus;
+import com.library.user.infrastructure.enums.LibraryCardStatus;
 import com.library.user.dto.request.CreateLibraryCardRequestDTO;
 import com.library.user.dto.request.RenewLibraryCardRequestDTO;
 import com.library.user.dto.request.UpdateLibraryCardStatusRequestDTO;

@@ -1,7 +1,7 @@
 package com.library.user.repository;
 
-import com.library.user.model.RefreshToken;
-import com.library.user.model.User;
+import com.library.user.infrastructure.persistence.entity.RefreshToken;
+import com.library.user.infrastructure.persistence.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;

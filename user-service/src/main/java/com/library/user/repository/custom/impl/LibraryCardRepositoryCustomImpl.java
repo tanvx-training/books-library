@@ -3,7 +3,7 @@ package com.library.user.repository.custom.impl;
 import com.library.common.aop.annotation.Loggable;
 import com.library.common.enums.LogLevel;
 import com.library.common.enums.OperationType;
-import com.library.user.model.LibraryCard;
+import com.library.user.infrastructure.persistence.entity.LibraryCard;
 import com.library.user.repository.custom.LibraryCardRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

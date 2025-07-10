@@ -1,6 +1,6 @@
 package com.library.user.service;
 
-import com.library.user.model.RefreshToken;
+import com.library.user.infrastructure.persistence.entity.RefreshToken;
 
 import java.util.Optional;
 

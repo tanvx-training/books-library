@@ -1,6 +1,6 @@
 package com.library.user.repository.custom;
 
-import com.library.user.model.LibraryCard;
+import com.library.user.infrastructure.persistence.entity.LibraryCard;
 
 import java.time.LocalDate;
 import java.util.List;

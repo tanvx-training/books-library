@@ -1,6 +1,6 @@
 package com.library.user.utils.mapper;
 
-import com.library.user.model.LibraryCard;
+import com.library.user.infrastructure.persistence.entity.LibraryCard;
 import com.library.user.dto.response.LibraryCardResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

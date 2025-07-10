@@ -1,6 +1,6 @@
 package com.library.user.service.impl;
 
-import com.library.user.model.User;
+import com.library.user.infrastructure.persistence.entity.User;
 import com.library.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

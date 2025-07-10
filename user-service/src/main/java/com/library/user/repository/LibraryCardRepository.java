@@ -1,6 +1,6 @@
 package com.library.user.repository;
 
-import com.library.user.model.LibraryCard;
+import com.library.user.infrastructure.persistence.entity.LibraryCard;
 import com.library.user.repository.custom.LibraryCardRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

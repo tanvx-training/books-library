@@ -1,6 +1,6 @@
 package com.library.user.repository.custom;
 
-import com.library.user.model.User;
+import com.library.user.infrastructure.persistence.entity.User;
 
 import java.util.List;
 import java.util.Optional;

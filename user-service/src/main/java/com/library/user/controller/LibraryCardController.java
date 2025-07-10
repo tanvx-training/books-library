@@ -4,7 +4,7 @@ import com.library.common.aop.annotation.Loggable;
 import com.library.common.dto.ApiResponse;
 import com.library.common.enums.LogLevel;
 import com.library.common.enums.OperationType;
-import com.library.user.utils.enums.LibraryCardStatus;
+import com.library.user.infrastructure.enums.LibraryCardStatus;
 import com.library.user.service.LibraryCardService;
 import com.library.user.dto.request.CreateLibraryCardRequestDTO;
 import com.library.user.dto.request.RenewLibraryCardRequestDTO;

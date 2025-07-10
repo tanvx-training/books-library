@@ -1,6 +1,6 @@
 package com.library.user.utils.mapper;
 
-import com.library.user.model.User;
+import com.library.user.infrastructure.persistence.entity.User;
 import com.library.user.dto.request.RegisterRequestDTO;
 import com.library.user.dto.response.UserDetailResponseDTO;
 import com.library.user.dto.response.UserResponseDTO;

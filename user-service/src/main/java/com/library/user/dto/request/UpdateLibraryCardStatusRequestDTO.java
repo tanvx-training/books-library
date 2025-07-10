@@ -2,7 +2,7 @@ package com.library.user.dto.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.library.user.utils.enums.LibraryCardStatus;
+import com.library.user.infrastructure.enums.LibraryCardStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

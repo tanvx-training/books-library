@@ -1,6 +1,6 @@
 package com.library.user.repository;
 
-import com.library.user.model.Role;
+import com.library.user.infrastructure.persistence.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

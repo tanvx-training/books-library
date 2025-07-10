@@ -3,7 +3,7 @@ package com.library.user.repository.custom.impl;
 import com.library.common.aop.annotation.Loggable;
 import com.library.common.enums.LogLevel;
 import com.library.common.enums.OperationType;
-import com.library.user.model.User;
+import com.library.user.infrastructure.persistence.entity.User;
 import com.library.user.repository.custom.UserRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
