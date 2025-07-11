@@ -1,8 +1,6 @@
 package com.library.user.infrastructure.logging;
 
-import com.library.book.infrastructure.enums.LogLevel;
-import com.library.book.infrastructure.logging.LoggingContextManager;
-import com.library.book.infrastructure.logging.MDCContextManager;
+import com.library.user.infrastructure.enums.LogLevel;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;

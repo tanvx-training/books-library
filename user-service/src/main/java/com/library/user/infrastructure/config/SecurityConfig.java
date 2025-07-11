@@ -1,7 +1,6 @@
 package com.library.user.infrastructure.config;
 
-import com.library.user.aop.filter.JwtAuthenticationFilter;
-import com.library.user.utils.constant.SecurityConstants;
+import com.library.user.application.filter.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +23,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    // API endpoints
+    public static final String AUTH_LOGIN_URL = "/api/auth/login";
+    public static final String AUTH_REGISTER_URL = "/api/auth/register";
+    public static final String AUTH_REFRESH_URL = "/api/auth/refresh";
+    public static final String AUTH_LOGOUT_URL = "/api/auth/logout";
+    public static final String AUTH_JWKS_URL = "/api/auth/.well-known/jwks.json";
+
     private final UserDetailsService userDetailsService;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -40,10 +46,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         // Public endpoints that don't require authentication
                         .requestMatchers(
-                                SecurityConstants.AUTH_LOGIN_URL,
-                                SecurityConstants.AUTH_REGISTER_URL,
-                                SecurityConstants.AUTH_REFRESH_URL,
-                                SecurityConstants.AUTH_JWKS_URL
+                                AUTH_LOGIN_URL,
+                                AUTH_REGISTER_URL,
+                                AUTH_REFRESH_URL,
+                                AUTH_JWKS_URL
                         ).permitAll()
                         .requestMatchers(HttpMethod.POST ,"/api/users/**")
                         .hasRole("ADMIN")

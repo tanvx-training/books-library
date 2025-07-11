@@ -1,9 +1,9 @@
 package com.library.user.interfaces.rest.exception;
 
-import com.library.book.application.dto.response.ApiError;
-import com.library.book.application.dto.response.ApiResponse;
-import com.library.book.application.dto.response.ApiValidationError;
-import com.library.book.domain.exception.DomainException;
+import com.library.user.application.dto.response.ApiError;
+import com.library.user.application.dto.response.ApiResponse;
+import com.library.user.application.dto.response.ApiValidationError;
+import com.library.user.domain.exception.DomainException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
 package com.library.user.infrastructure.logging;
 
-import com.library.book.infrastructure.enums.LogLevel;
-import com.library.book.infrastructure.enums.OperationType;
+import com.library.user.infrastructure.enums.LogLevel;
+import com.library.user.infrastructure.enums.OperationType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

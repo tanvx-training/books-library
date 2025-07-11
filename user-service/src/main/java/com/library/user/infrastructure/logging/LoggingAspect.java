@@ -1,9 +1,7 @@
 package com.library.user.infrastructure.logging;
 
-import com.library.book.infrastructure.enums.LogLevel;
-import com.library.book.infrastructure.enums.OperationType;
-import com.library.book.infrastructure.logging.LoggingContextManager;
-import com.library.book.infrastructure.logging.MDCContextManager;
+import com.library.user.infrastructure.enums.LogLevel;
+import com.library.user.infrastructure.enums.OperationType;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -45,7 +43,7 @@ public class LoggingAspect {
     /**
      * Pointcut for methods annotated with @Loggable
      */
-    @Pointcut("@annotation(com.library.book.infrastructure.logging.Loggable)")
+    @Pointcut("@annotation(com.library.user.infrastructure.logging.Loggable)")
     public void loggableMethod() {}
 
     /**

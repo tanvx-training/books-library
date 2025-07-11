@@ -1,7 +1,6 @@
 package com.library.user.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.library.book.application.dto.response.ApiValidationError;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

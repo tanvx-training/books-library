@@ -1,6 +1,6 @@
 package com.library.user.infrastructure.logging;
 
-import com.library.book.infrastructure.enums.LogLevel;
+import com.library.user.infrastructure.enums.LogLevel;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
 
