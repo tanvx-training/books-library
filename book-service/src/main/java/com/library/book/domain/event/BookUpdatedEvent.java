@@ -11,10 +11,12 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class BookCreatedEvent extends AuditEvent {
-
-    public BookCreatedEvent(String bookId, String bookData) {
-        super("BOOK_CREATED", "Book", bookId);
-        setNewValue(bookData);
+public class BookUpdatedEvent extends AuditEvent {
+    
+    public BookUpdatedEvent(String bookId, String oldData, String newData, String changes) {
+        super("BOOK_UPDATED", "Book", bookId);
+        setOldValue(oldData);
+        setNewValue(newData);
+        setChanges(changes);
     }
 }
