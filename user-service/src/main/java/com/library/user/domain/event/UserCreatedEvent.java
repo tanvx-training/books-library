@@ -3,6 +3,7 @@ package com.library.user.domain.event;
 import com.library.user.domain.model.shared.DomainEvent;
 import com.library.user.domain.model.user.Role;
 import com.library.user.domain.model.user.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class UserCreatedEvent extends DomainEvent {
     private final Long id;
     private final String username;

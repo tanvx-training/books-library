@@ -3,12 +3,16 @@ package com.library.user.domain.event;
 import com.library.user.domain.model.shared.DomainEvent;
 import com.library.user.domain.model.user.Role;
 import com.library.user.domain.model.user.User;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
+@Builder
+@RequiredArgsConstructor
 public class UserUpdatedEvent extends DomainEvent {
     private final Long id;
     private final String username;
