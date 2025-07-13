@@ -40,7 +40,7 @@ public class UserEntityMapper {
             jpaEntity.setPhone(user.getPhone().getValue());
         }
 
-        jpaEntity.setActive(user.isActive());
+        jpaEntity.setDeleteFlg(user.isActive());
 
         // Convert roles
         Set<RoleJpaEntity> roleEntities = new HashSet<>();
@@ -93,7 +93,7 @@ public class UserEntityMapper {
                 lastName,
                 phone,
                 roles,
-                jpaEntity.isActive()
+                jpaEntity.isDeleteFlg()
         );
     }
 }

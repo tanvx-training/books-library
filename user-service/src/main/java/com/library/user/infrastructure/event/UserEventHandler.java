@@ -1,5 +1,7 @@
 package com.library.user.infrastructure.event;
 
+import com.library.user.domain.event.CardCreatedEvent;
+import com.library.user.domain.event.KafkaEvent;
 import com.library.user.domain.event.LibraryCardCreatedEvent;
 import com.library.user.domain.event.LibraryCardRenewedEvent;
 import com.library.user.domain.event.UserCreatedEvent;
@@ -8,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.event.KafkaEvent;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -42,8 +43,8 @@ public class UserEventHandler {
                 .build();
 
         // Create Kafka event
-        KafkaEvent kafkaEvent =
-                KafkaEvent.create(EventType.USER_CREATED, SOURCE, commonEvent);
+        KafkaEvent<UserCreatedEvent> kafkaEvent =
+                KafkaEvent.create(USER_CREATED, SOURCE, commonEvent);
 
         // Send to Kafka
         kafkaTemplate.send(USER_TOPIC, kafkaEvent);
@@ -55,19 +56,17 @@ public class UserEventHandler {
         log.info("Handling UserUpdatedEvent for user ID: {}", event.getId());
 
         // Convert domain event to common event format
-        com.library.common.event.UserUpdatedEvent commonEvent = com.library.common.event.UserUpdatedEvent.builder()
-                .userId(event.getId())
+        UserUpdatedEvent commonEvent = UserUpdatedEvent.builder()
+                .id(event.getId())
                 .email(event.getEmail())
                 .firstName(event.getFirstName())
                 .lastName(event.getLastName())
                 .username(event.getUsername())
-                .emailChanged(false) // Determine this based on event data if needed
-                .passwordChanged(false) // Determine this based on event data if needed
                 .build();
 
         // Create Kafka event
-        KafkaEvent<com.library.common.event.UserUpdatedEvent> kafkaEvent =
-                KafkaEvent.create(EventType.USER_UPDATED, SOURCE, commonEvent);
+        KafkaEvent<UserUpdatedEvent> kafkaEvent =
+                KafkaEvent.create(USER_UPDATED, SOURCE, commonEvent);
 
         // Send to Kafka
         kafkaTemplate.send(USER_TOPIC, kafkaEvent);
@@ -79,7 +78,7 @@ public class UserEventHandler {
         log.info("Handling LibraryCardCreatedEvent for card ID: {}", event.getId());
 
         // Convert domain event to common event format
-        com.library.common.event.CardCreatedEvent commonEvent = com.library.common.event.CardCreatedEvent.builder()
+        CardCreatedEvent commonEvent = CardCreatedEvent.builder()
                 .userId(event.getUserId())
                 .cardNumber(event.getCardNumber())
                 .issueDate(event.getIssueDate())
@@ -88,8 +87,8 @@ public class UserEventHandler {
                 .build();
 
         // Create Kafka event
-        KafkaEvent<com.library.common.event.CardCreatedEvent> kafkaEvent =
-                KafkaEvent.create(EventType.CARD_CREATED, SOURCE, commonEvent);
+        KafkaEvent<CardCreatedEvent> kafkaEvent =
+                KafkaEvent.create(CARD_CREATED, SOURCE, commonEvent);
 
         // Send to Kafka
         kafkaTemplate.send(CARD_TOPIC, kafkaEvent);
