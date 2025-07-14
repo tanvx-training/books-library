@@ -23,10 +23,19 @@ public class UserEntityMapper {
             jpaEntity.setId(user.getId().getValue());
         }
 
+        // Set keycloakId if available
+        if (user.getKeycloakId() != null && user.getKeycloakId().getValue() != null) {
+            jpaEntity.setKeycloakId(user.getKeycloakId().getValue());
+        }
+
         // Set other properties
         jpaEntity.setUsername(user.getUsername().getValue());
         jpaEntity.setEmail(user.getEmail().getValue());
-        jpaEntity.setPassword(user.getPassword().getValue());
+        
+        // Password may be null for Keycloak users
+        if (user.getPassword() != null && user.getPassword().getValue() != null) {
+            jpaEntity.setPassword(user.getPassword().getValue());
+        }
 
         if (user.getFirstName() != null && user.getFirstName().getValue() != null) {
             jpaEntity.setFirstName(user.getFirstName().getValue());
@@ -40,7 +49,7 @@ public class UserEntityMapper {
             jpaEntity.setPhone(user.getPhone().getValue());
         }
 
-        jpaEntity.setDeleteFlg(user.isActive());
+        jpaEntity.setDeleteFlg(!user.isActive());
 
         // Convert roles
         Set<RoleJpaEntity> roleEntities = new HashSet<>();
@@ -59,41 +68,48 @@ public class UserEntityMapper {
      * Convert JPA entity to domain entity
      */
     public User toDomainEntity(UserJpaEntity jpaEntity) {
-        // Create value objects
-        UserId id = UserId.of(jpaEntity.getId());
-        Username username = Username.of(jpaEntity.getUsername());
-        Email email = Email.of(jpaEntity.getEmail());
-        PasswordHash password = PasswordHash.of(jpaEntity.getPassword());
+        // Create a base user object
+        User user = new User();
 
-        // Optional value objects
-        FirstName firstName = jpaEntity.getFirstName() != null && !jpaEntity.getFirstName().isEmpty()
-                ? FirstName.of(jpaEntity.getFirstName())
-                : FirstName.of(null);
+        // Set ID
+        if (jpaEntity.getId() != null) {
+            user.setId(UserId.of(jpaEntity.getId()));
+        }
 
-        LastName lastName = jpaEntity.getLastName() != null && !jpaEntity.getLastName().isEmpty()
-                ? LastName.of(jpaEntity.getLastName())
-                : LastName.of(null);
+        // Set keycloakId if available
+        if (jpaEntity.getKeycloakId() != null) {
+            user.setKeycloakId(KeycloakId.of(jpaEntity.getKeycloakId()));
+        }
 
-        Phone phone = jpaEntity.getPhone() != null && !jpaEntity.getPhone().isEmpty()
-                ? Phone.of(jpaEntity.getPhone())
-                : Phone.of(null);
+        // Set other properties
+        user.setUsername(new Username(jpaEntity.getUsername()));
+        user.setEmail(new Email(jpaEntity.getEmail()));
+        
+        // Password may be null for Keycloak users
+        if (jpaEntity.getPassword() != null) {
+            user.setPassword(new PasswordHash(jpaEntity.getPassword()));
+        }
+
+        if (jpaEntity.getFirstName() != null) {
+            user.setFirstName(new FirstName(jpaEntity.getFirstName()));
+        }
+
+        if (jpaEntity.getLastName() != null) {
+            user.setLastName(new LastName(jpaEntity.getLastName()));
+        }
+
+        if (jpaEntity.getPhone() != null) {
+            user.setPhone(new Phone(jpaEntity.getPhone()));
+        }
+
+        user.setActive(!jpaEntity.isDeleteFlg());
 
         // Convert roles
         Set<Role> roles = jpaEntity.getRoles().stream()
-                .map(roleEntity -> Role.of(roleEntity.getId(), roleEntity.getName()))
+                .map(roleEntity -> new Role(roleEntity.getId(), roleEntity.getName()))
                 .collect(Collectors.toSet());
+        user.setRoles(roles);
 
-        // Reconstitute the domain entity
-        return User.reconstitute(
-                id,
-                username,
-                email,
-                password,
-                firstName,
-                lastName,
-                phone,
-                roles,
-                jpaEntity.isDeleteFlg()
-        );
+        return user;
     }
 }

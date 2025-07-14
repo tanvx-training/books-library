@@ -1,6 +1,7 @@
 package com.library.user.domain.repository;
 
 import com.library.user.domain.model.user.Email;
+import com.library.user.domain.model.user.KeycloakId;
 import com.library.user.domain.model.user.User;
 import com.library.user.domain.model.user.UserId;
 import com.library.user.domain.model.user.Username;
@@ -17,6 +18,8 @@ public interface UserRepository {
     Optional<User> findByEmail(Email email);
 
     Optional<User> findByUsername(Username username);
+    
+    Optional<User> findByKeycloakId(KeycloakId keycloakId);
 
     List<User> findAll();
 
@@ -29,4 +32,6 @@ public interface UserRepository {
     boolean existsByUsername(Username username);
 
     boolean existsByEmail(Email email);
+    
+    boolean existsByKeycloakId(KeycloakId keycloakId);
 }

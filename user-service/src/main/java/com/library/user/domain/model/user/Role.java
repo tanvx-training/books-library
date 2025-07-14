@@ -3,13 +3,15 @@ package com.library.user.domain.model.user;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Getter
 @NoArgsConstructor
-public class Role {
+public class Role implements Serializable {
     private Long id;
     private String name;
 
-    private Role(Long id, String name) {
+    public Role(Long id, String name) {
         this.id = id;
         this.name = name;
     }

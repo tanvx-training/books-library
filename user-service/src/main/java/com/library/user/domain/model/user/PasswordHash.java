@@ -6,30 +6,23 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Embeddable
 @Getter
 @EqualsAndHashCode
 @NoArgsConstructor
-public class PasswordHash {
+public class PasswordHash implements Serializable {
     private String value;
 
-    private PasswordHash(String value) {
+    public PasswordHash(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new InvalidUserDataException("password", "Password cannot be empty");
+        }
         this.value = value;
     }
 
-    public static PasswordHash of(String passwordHash) {
-        validate(passwordHash);
-        return new PasswordHash(passwordHash);
-    }
-
-    private static void validate(String passwordHash) {
-        if (passwordHash == null || passwordHash.trim().isEmpty()) {
-            throw new InvalidUserDataException("password", "Password không được để trống");
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "[PROTECTED]";
+    public static PasswordHash of(String value) {
+        return new PasswordHash(value);
     }
 }

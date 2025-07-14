@@ -16,4 +16,10 @@ public class InvalidUserDataException extends DomainException {
         this.field = field;
         this.reason = reason;
     }
+    
+    public InvalidUserDataException(String message) {
+        super(message);
+        this.field = null;
+        this.reason = message;
+    }
 }

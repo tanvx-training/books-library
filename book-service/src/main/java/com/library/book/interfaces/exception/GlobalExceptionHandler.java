@@ -1,4 +1,4 @@
-package com.library.book.interfaces.rest.exception;
+package com.library.book.interfaces.exception;
 
 import com.library.book.domain.exception.DomainException;
 import com.library.book.application.dto.response.ApiError;

@@ -1,4 +1,4 @@
-package com.library.book.interfaces.rest.exception;
+package com.library.book.interfaces.exception;
 
 import com.library.book.application.exception.CategoryApplicationException;
 import com.library.book.application.exception.CategoryNotFoundException;

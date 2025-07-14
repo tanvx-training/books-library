@@ -30,6 +30,9 @@ public class UserJpaEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "keycloak_id", unique = true, length = 36)
+    private String keycloakId;
+
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
 

@@ -17,6 +17,12 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_URL:http://localhost:8080}/auth/realms/${KEYCLOAK_REALM:library}
+          jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8080}/auth/realms/${KEYCLOAK_REALM:library}/protocol/openid-connect/certs
 
   kafka:
     bootstrap-servers: ${KAFKA_SERVER:localhost:9092}
@@ -49,6 +55,11 @@ app:
   library-card:
     default-validity-years: ${LIBRARY_CARD_DEFAULT_VALIDITY_YEARS:1}
     expiring-soon-days: ${LIBRARY_CARD_EXPIRING_SOON_DAYS:30}
+  keycloak:
+    realm: ${KEYCLOAK_REALM:library}
+    auth-server-url: ${KEYCLOAK_URL:http://localhost:8080}/auth
+    client-id: ${KEYCLOAK_CLIENT_ID:user-service}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret}
 
 logging:
   level:
