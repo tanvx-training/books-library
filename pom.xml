@@ -23,7 +23,6 @@
         <module>book-service</module>
         <module>notification-service</module>
         <module>lending-service</module>
-        <module>common-module</module>
         <module>history-service</module>
     </modules>
     

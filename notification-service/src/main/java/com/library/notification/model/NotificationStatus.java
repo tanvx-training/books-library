@@ -1,4 +1,4 @@
-package com.library.common.enums;
+package com.library.notification.model;
 
 /**
  * Enum representing the different statuses of a notification
