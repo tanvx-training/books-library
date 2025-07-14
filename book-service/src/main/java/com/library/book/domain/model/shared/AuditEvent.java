@@ -1,4 +1,4 @@
-package com.library.book.domain.event;
+package com.library.book.domain.model.shared;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

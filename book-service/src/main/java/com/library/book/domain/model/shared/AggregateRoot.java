@@ -6,13 +6,13 @@ import java.util.List;
 
 public abstract class AggregateRoot {
 
-    private final List<DomainEvent> domainEvents = new ArrayList<>();
+    private final List<AuditEvent> domainEvents = new ArrayList<>();
 
-    protected void registerEvent(DomainEvent event) {
+    protected void registerEvent(AuditEvent event) {
         domainEvents.add(event);
     }
 
-    public List<DomainEvent> getDomainEvents() {
+    public List<AuditEvent> getDomainEvents() {
         return Collections.unmodifiableList(domainEvents);
     }
 

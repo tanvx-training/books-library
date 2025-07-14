@@ -23,7 +23,7 @@ public class Author extends AggregateRoot {
         author.biography = biography;
         author.deleted = false;
 
-        author.registerEvent(new AuthorCreatedEvent(author.id));
+        author.registerEvent(new AuthorCreatedEvent());
         return author;
     }
 
