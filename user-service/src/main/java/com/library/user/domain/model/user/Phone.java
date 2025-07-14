@@ -6,33 +6,30 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+import java.util.regex.Pattern;
+
 @Embeddable
 @Getter
 @EqualsAndHashCode
 @NoArgsConstructor
-public class Phone {
+public class Phone implements Serializable {
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\+?[0-9]{10,15}$");
     private String value;
 
-    private Phone(String value) {
+    public Phone(String value) {
+        if (value != null && !value.trim().isEmpty()) {
+            if (!PHONE_PATTERN.matcher(value).matches()) {
+                throw new InvalidUserDataException("phone", "Invalid phone number format");
+            }
+            if (value.length() > 20) {
+                throw new InvalidUserDataException("phone", "Phone number cannot exceed 20 characters");
+            }
+        }
         this.value = value;
     }
 
-    public static Phone of(String phone) {
-        if (phone == null || phone.trim().isEmpty()) {
-            return new Phone(null);
-        }
-        validate(phone);
-        return new Phone(phone);
-    }
-
-    private static void validate(String phone) {
-        if (phone.length() > 20) {
-            throw new InvalidUserDataException("phone", "Số điện thoại không được vượt quá 20 ký tự");
-        }
-    }
-
-    @Override
-    public String toString() {
-        return value != null ? value : "";
+    public static Phone of(String value) {
+        return new Phone(value);
     }
 }

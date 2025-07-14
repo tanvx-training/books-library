@@ -6,33 +6,23 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Embeddable
 @Getter
 @EqualsAndHashCode
 @NoArgsConstructor
-public class FirstName {
+public class FirstName implements Serializable {
     private String value;
 
-    private FirstName(String value) {
+    public FirstName(String value) {
+        if (value != null && value.length() > 50) {
+            throw new InvalidUserDataException("firstName", "First name cannot exceed 50 characters");
+        }
         this.value = value;
     }
 
-    public static FirstName of(String firstName) {
-        if (firstName == null || firstName.trim().isEmpty()) {
-            return new FirstName(null);
-        }
-        validate(firstName);
-        return new FirstName(firstName);
-    }
-
-    private static void validate(String firstName) {
-        if (firstName.length() > 50) {
-            throw new InvalidUserDataException("firstName", "Tên không được vượt quá 50 ký tự");
-        }
-    }
-
-    @Override
-    public String toString() {
-        return value != null ? value : "";
+    public static FirstName of(String value) {
+        return new FirstName(value);
     }
 }

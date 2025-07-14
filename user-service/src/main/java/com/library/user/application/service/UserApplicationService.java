@@ -20,7 +20,6 @@ import com.library.user.domain.repository.UserRepository;
 import com.library.user.domain.service.UserDomainService;
 import com.library.user.infrastructure.enums.LogLevel;
 import com.library.user.infrastructure.enums.OperationType;
-import com.library.user.infrastructure.event.DomainEventPublisher;
 import com.library.user.infrastructure.logging.Loggable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,7 +41,6 @@ public class UserApplicationService {
     private final UserRepository userRepository;
     private final LibraryCardRepository libraryCardRepository;
     private final UserDtoMapper userDtoMapper;
-    private final DomainEventPublisher eventPublisher;
 
     /**
      * Get all users with pagination

@@ -50,7 +50,7 @@ public class Book extends AggregateRoot {
         book.categoryIds = new ArrayList<>(categoryIds);
         book.deleted = false;
 
-        book.registerEvent(new BookCreatedEvent(book.id));
+        book.registerEvent(new BookCreatedEvent(book.id.toString(), null));
         return book;
     }
 

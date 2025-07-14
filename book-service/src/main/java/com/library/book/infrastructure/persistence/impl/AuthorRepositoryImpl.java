@@ -10,8 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import com.library.book.infrastructure.persistence.repository.AuthorJpaRepository;
 
@@ -52,10 +51,9 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     }
 
     @Override
-    public Page<Author> findAll(int page, int size) {
+    public Page<Author> findAll(Pageable pageable) {
         try {
-            PageRequest pageRequest = PageRequest.of(page, size, Sort.by("name"));
-            return authorJpaRepository.findAllByDeleteFlg(false, pageRequest)
+            return authorJpaRepository.findAllByDeleteFlg(false, pageable)
                     .map(authorEntityMapper::toDomainEntity);
         } catch (DataAccessException e) {
             log.error("Error finding all authors", e);

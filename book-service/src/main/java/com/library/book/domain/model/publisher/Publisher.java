@@ -24,7 +24,7 @@ public class Publisher extends AggregateRoot {
         publisher.deleted = false;
 
         // Register domain event
-        publisher.registerEvent(new PublisherCreatedEvent(publisher.id));
+        publisher.registerEvent(new PublisherCreatedEvent());
 
         return publisher;
     }

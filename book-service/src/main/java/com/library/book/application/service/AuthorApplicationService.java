@@ -39,8 +39,8 @@ public class AuthorApplicationService {
             messagePrefix = "AUTHOR_APP_SERVICE_LIST"
     )
     public PaginatedResponse<AuthorResponse> getAllAuthors(PaginatedRequest paginatedRequest) {
-        Page<AuthorResponse> authorResponses = authorRepository.findAll(paginatedRequest.getPage(),
-                        paginatedRequest.getSize())
+        Page<AuthorResponse> authorResponses = authorRepository.findAll(
+                paginatedRequest.toPageable())
                 .map(this::mapToAuthorResponse);
         return PaginatedResponse.from(authorResponses);
     }

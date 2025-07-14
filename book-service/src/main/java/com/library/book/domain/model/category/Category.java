@@ -25,7 +25,7 @@ public class Category extends AggregateRoot {
         category.deleted = false;
 
         // Register domain event
-        category.registerEvent(new CategoryCreatedEvent(category.id));
+        category.registerEvent(new CategoryCreatedEvent());
 
         return category;
     }

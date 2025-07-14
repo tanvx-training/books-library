@@ -1,5 +1,6 @@
 package com.library.book.domain.event;
 
+import com.library.book.domain.model.shared.AuditEvent;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

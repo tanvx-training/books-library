@@ -1,6 +1,8 @@
 package com.library.user.infrastructure.persistence.impl;
 
+import com.library.user.domain.exception.UserNotFoundException;
 import com.library.user.domain.model.user.Email;
+import com.library.user.domain.model.user.KeycloakId;
 import com.library.user.domain.model.user.User;
 import com.library.user.domain.model.user.UserId;
 import com.library.user.domain.model.user.Username;
@@ -12,8 +14,9 @@ import com.library.user.infrastructure.persistence.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -31,15 +34,12 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User save(User user) {
         try {
-            UserJpaEntity jpaEntity = userEntityMapper.toJpaEntity(user);
-            UserJpaEntity savedEntity = userJpaRepository.save(jpaEntity);
+            UserJpaEntity userJpaEntity = userEntityMapper.toJpaEntity(user);
+            UserJpaEntity savedEntity = userJpaRepository.save(userJpaEntity);
             return userEntityMapper.toDomainEntity(savedEntity);
         } catch (DataAccessException e) {
             log.error("Error saving user", e);
             throw new UserPersistenceException("Failed to save user", e);
-        } catch (Exception e) {
-            log.error("Unexpected error when saving user", e);
-            throw new UserPersistenceException("Unexpected error when saving user", e);
         }
     }
 
@@ -75,11 +75,23 @@ public class UserRepositoryImpl implements UserRepository {
             throw new UserPersistenceException("Failed to find user by username: " + username.getValue(), e);
         }
     }
+    
+    @Override
+    public Optional<User> findByKeycloakId(KeycloakId keycloakId) {
+        try {
+            return userJpaRepository.findByKeycloakId(keycloakId.getValue())
+                    .map(userEntityMapper::toDomainEntity);
+        } catch (DataAccessException e) {
+            log.error("Error finding user by keycloakId: {}", keycloakId.getValue(), e);
+            throw new UserPersistenceException("Failed to find user by keycloakId: " + keycloakId.getValue(), e);
+        }
+    }
 
     @Override
     public List<User> findAll() {
         try {
-            return userJpaRepository.findAll().stream()
+            List<UserJpaEntity> userJpaEntities = userJpaRepository.findAll();
+            return userJpaEntities.stream()
                     .map(userEntityMapper::toDomainEntity)
                     .collect(Collectors.toList());
         } catch (DataAccessException e) {
@@ -91,8 +103,9 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public List<User> findAll(int page, int size) {
         try {
-            PageRequest pageRequest = PageRequest.of(page, size, Sort.by("username"));
-            return userJpaRepository.findAll(pageRequest).stream()
+            Pageable pageable = PageRequest.of(page, size);
+            Page<UserJpaEntity> userPage = userJpaRepository.findAll(pageable);
+            return userPage.getContent().stream()
                     .map(userEntityMapper::toDomainEntity)
                     .collect(Collectors.toList());
         } catch (DataAccessException e) {
@@ -117,7 +130,7 @@ public class UserRepositoryImpl implements UserRepository {
             userJpaRepository.deleteById(user.getId().getValue());
         } catch (DataAccessException e) {
             log.error("Error deleting user with ID: {}", user.getId().getValue(), e);
-            throw new UserPersistenceException("Failed to delete user", e);
+            throw new UserPersistenceException("Failed to delete user with ID: " + user.getId().getValue(), e);
         }
     }
 
@@ -138,6 +151,16 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (DataAccessException e) {
             log.error("Error checking if email exists: {}", email.getValue(), e);
             throw new UserPersistenceException("Failed to check if email exists", e);
+        }
+    }
+    
+    @Override
+    public boolean existsByKeycloakId(KeycloakId keycloakId) {
+        try {
+            return userJpaRepository.existsByKeycloakId(keycloakId.getValue());
+        } catch (DataAccessException e) {
+            log.error("Error checking if keycloakId exists: {}", keycloakId.getValue(), e);
+            throw new UserPersistenceException("Failed to check if keycloakId exists", e);
         }
     }
 }

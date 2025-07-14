@@ -1,13 +1,11 @@
 package com.library.book.domain.event;
 
-import com.library.book.domain.model.author.AuthorId;
-import com.library.book.domain.model.shared.DomainEvent;
+import com.library.book.domain.model.shared.AuditEvent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class AuthorCreatedEvent extends DomainEvent {
+public class AuthorCreatedEvent extends AuditEvent {
 
-    private final AuthorId authorId;
 }
