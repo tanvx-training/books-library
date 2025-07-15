@@ -1,18 +1,19 @@
 -- user-service
 CREATE TABLE users
 (
-    id         SERIAL PRIMARY KEY,
-    username   VARCHAR(50) UNIQUE                    NOT NULL,
-    email      VARCHAR(100) UNIQUE                   NOT NULL,
-    password   VARCHAR(100)                          NOT NULL,
-    first_name VARCHAR(50),
-    last_name  VARCHAR(50),
-    phone      VARCHAR(20),
-    created_at TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    created_by VARCHAR(20) DEFAULT 'SYSTEM'          NOT NULL,
-    updated_at TIMESTAMP,
-    updated_by VARCHAR(20),
-    delete_flg BOOLEAN     DEFAULT FALSE
+    id          BIGINT PRIMARY KEY,
+    keycloak_id VARCHAR(36) NOT NULL UNIQUE, -- Cột quan trọng nhất để liên kết
+    username    VARCHAR(50) UNIQUE,          -- Có thể giữ lại để tham chiếu, đồng bộ từ Keycloak
+    email       VARCHAR(100) UNIQUE,         -- Đồng bộ từ Keycloak
+    first_name  VARCHAR(50),
+    last_name   VARCHAR(50),
+    phone_number VARCHAR(20) NULL,
+    is_active   BOOLEAN     DEFAULT true,
+    created_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_by  VARCHAR(36) NULL,            -- Thay đổi thành VARCHAR để lưu keycloak_id của người tạo
+    updated_by  VARCHAR(36) NULL,            -- Thay đổi thành VARCHAR để lưu keycloak_id của người cập nhật
+    delete_flg  BOOLEAN     DEFAULT FALSE
 );
 
 CREATE TABLE roles
@@ -35,16 +36,16 @@ CREATE TABLE user_roles
 
 CREATE TABLE library_cards
 (
-    id          SERIAL PRIMARY KEY,
-    user_id     INT REFERENCES users (id),
+    id          BIGINT PRIMARY KEY,
     card_number VARCHAR(20) UNIQUE                    NOT NULL,
+    user_id     BIGINT REFERENCES users (id),
     issue_date  DATE                                  NOT NULL,
     expiry_date DATE                                  NOT NULL,
     status      VARCHAR(20)                           NOT NULL,
     created_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    created_by  VARCHAR(20) DEFAULT 'SYSTEM'          NOT NULL,
-    updated_at  TIMESTAMP,
-    updated_by  VARCHAR(20),
+    updated_at  TIMESTAMP   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_by  VARCHAR(36) NULL,                     -- Thay đổi thành VARCHAR để lưu keycloak_id
+    updated_by  VARCHAR(36) NULL,                     -- Thay đổi thành VARCHAR để lưu keycloak_id
     delete_flg  BOOLEAN     DEFAULT FALSE
 );
 

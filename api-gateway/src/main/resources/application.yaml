@@ -8,6 +8,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8080/realms/library-realm
       client:
         registration:
           keycloak:
@@ -21,6 +22,9 @@ spring:
             issuer-uri: http://localhost:8080/realms/library-realm
             jwk-set-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/certs
             user-name-attribute: preferred_username
+            authorization-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/auth
+            token-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/token
+            user-info-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/userinfo
   cloud:
     gateway:
       default-filters:

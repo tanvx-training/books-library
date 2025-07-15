@@ -49,8 +49,13 @@ public class SecurityConfig {
                                 AUTH_LOGIN_URL,
                                 AUTH_REGISTER_URL,
                                 AUTH_REFRESH_URL,
-                                AUTH_JWKS_URL
+                                AUTH_JWKS_URL,
+                                "/api/auth/health",
+                                "/actuator/**"
                         ).permitAll()
+                        // Auth endpoints for user context
+                        .requestMatchers("/api/auth/**").authenticated()
+                        // User management endpoints
                         .requestMatchers(HttpMethod.POST ,"/api/users/**")
                         .hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET ,"/api/users/**")

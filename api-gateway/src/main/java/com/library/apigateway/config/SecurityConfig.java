@@ -1,15 +1,20 @@
 package com.library.apigateway.config;
 
+import com.library.apigateway.filter.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -27,7 +32,10 @@ import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebFluxSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+    
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -37,6 +45,7 @@ public class SecurityConfig {
             .authorizeExchange(exchanges -> exchanges
                 // Public endpoints
                 .pathMatchers("/auth/**", "/actuator/**", "/api/auth/**").permitAll()
+                .pathMatchers("/login/oauth2/code/**").permitAll()
                 // Secured endpoints with specific roles
                 .pathMatchers("/api/books/admin/**").hasRole("ADMIN")
                 .pathMatchers("/api/users/admin/**").hasRole("ADMIN")
@@ -45,10 +54,21 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> {})
             .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor()))
-            );
+                .jwt(jwt -> jwt
+                    .jwtDecoder(reactiveJwtDecoder())
+                    .jwtAuthenticationConverter(grantedAuthoritiesExtractor())
+                )
+            )
+            .addFilterBefore(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
         
         return http.build();
+    }
+    
+    @Bean
+    public ReactiveJwtDecoder reactiveJwtDecoder() {
+        return NimbusReactiveJwtDecoder
+                .withJwkSetUri("http://localhost:8080/realms/library-realm/protocol/openid-connect/certs")
+                .build();
     }
     
     @Bean
