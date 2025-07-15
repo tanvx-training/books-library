@@ -11,13 +11,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CategoryCreateRequest {
-    @NotBlank(message = "Tên thể loại không được để trống")
-    @Size(max = 256, message = "Tên thể loại không được vượt quá 256 ký tự")
+
+    @NotBlank(message = "Category name must not be blank")
+    @Size(max = 256, message = "Category name must not exceed 256 characters")
     private String name;
 
-    @NotBlank(message = "Slug không được để trống")
-    @Size(max = 256, message = "Slug không được vượt quá 256 ký tự")
-    @Pattern(regexp = "^[a-z0-9-]+$", message = "Slug chỉ được chứa chữ thường, số và dấu gạch ngang")
+    @NotBlank(message = "Slug must not be blank")
+    @Size(max = 256, message = "Slug must not exceed 256 characters")
+    @Pattern(regexp = "^[a-z0-9-]+$", message = "Slug may only contain lowercase letters, numbers, and hyphens")
     private String slug;
 
     private String description;

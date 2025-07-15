@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthorCreateRequest {
-    @NotBlank(message = "Tên tác giả không được để trống")
-    @Size(max = 100, message = "Tên tác giả không được vượt quá 100 ký tự")
+
+    @NotBlank(message = "Author name must not be blank")
+    @Size(max = 100, message = "Author name must not exceed 100 characters")
     private String name;
 
     private String biography;

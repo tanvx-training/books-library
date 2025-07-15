@@ -69,11 +69,11 @@ public class PublisherExceptionHandler {
 
     @ExceptionHandler(PublisherApplicationException.class)
     public ResponseEntity<ApiResponse<Object>> handlePublisherApplicationException(PublisherApplicationException ex) {
-        log.error("Publisher application exception", ex);
+        log.error("Publisher application exception: {}", ex.getMessage());
 
         ApiError apiError = new ApiError(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "An error occurred while processing publisher data",
+                ex.getMessage(),
                 null
         );
 
@@ -82,7 +82,7 @@ public class PublisherExceptionHandler {
 
     @ExceptionHandler(PublisherPersistenceException.class)
     public ResponseEntity<ApiResponse<Object>> handlePublisherPersistenceException(PublisherPersistenceException ex) {
-        log.error("Publisher persistence exception", ex);
+        log.error("Publisher persistence exception: {}", ex.getMessage());
 
         ApiError apiError = new ApiError(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

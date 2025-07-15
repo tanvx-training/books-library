@@ -10,14 +10,17 @@ import org.springframework.http.HttpStatus;
 @JsonInclude(JsonInclude.Include.NON_NULL) // Không serialize các trường có giá trị null
 public class ApiResponse<T> {
 
+    private static final int SUCCESS = 1;
+    private static final int FAIL = 0;
+
     private int status;
     private String message;
     private T data;
     private ApiError error;
 
     // Constructor cho các trường hợp private để ép buộc sử dụng static factory methods
-    private ApiResponse(HttpStatus status, String message, T data) {
-        this.status = status.value();
+    private ApiResponse(int status, String message, T data) {
+        this.status = status;
         this.message = message;
         this.data = data;
     }
@@ -28,7 +31,7 @@ public class ApiResponse<T> {
     }
 
     private ApiResponse(ApiError error) {
-        this.status = error.getStatus();
+        this.status = FAIL;
         this.message = error.getMessage();
         this.error = error;
     }
@@ -37,15 +40,15 @@ public class ApiResponse<T> {
     // --- Các Factory Method cho Success Response ---
 
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(HttpStatus.OK, "Success", data);
+        return new ApiResponse<>(SUCCESS, "Success", data);
     }
 
     public static <T> ApiResponse<T> success(HttpStatus status, T data) {
-        return new ApiResponse<>(status, status.getReasonPhrase(), data);
+        return new ApiResponse<>(SUCCESS, status.getReasonPhrase(), data);
     }
 
     public static <T> ApiResponse<T> success(HttpStatus status, String message, T data) {
-        return new ApiResponse<>(status, message, data);
+        return new ApiResponse<>(SUCCESS, message, data);
     }
 
     public static ApiResponse<Void> success(HttpStatus status, String message) {

@@ -37,23 +37,20 @@ public class PublisherController {
         ));
     }
 
-//    @GetMapping("/{publisherId}/books")
-//    @Loggable(
-//            level = LogLevel.DETAILED,
-//            operationType = OperationType.READ,
-//            resourceType = "Publisher",
-//            logReturnValue = false,
-//            performanceThresholdMs = 1500L,
-//            messagePrefix = "PUBLISHER_BOOKS",
-//            customTags = {"endpoint=getBooksByPublisher", "relationship_query=true"}
-//    )
-//    public ResponseEntity<ApiResponse<PaginatedResponse<BookResponse>>> getBooksByPublisher(
-//            @PathVariable("publisherId") Long publisherId,
-//            @Valid @ModelAttribute PaginatedRequest paginatedRequest) {
-//        return ResponseEntity.ok(ApiResponse.success(
-//                publisherApplicationService.getBooksByPublisher(publisherId, paginatedRequest)
-//        ));
-//    }
+    @GetMapping("/{publisherId}")
+    @Loggable(
+            level = LogLevel.BASIC,
+            operationType = OperationType.READ,
+            resourceType = "Publisher",
+            messagePrefix = "PUBLISHER_DETAIL",
+            customTags = {"endpoint=getPublisherById"}
+    )
+    public ResponseEntity<ApiResponse<PublisherResponse>> getPublisherById(
+            @PathVariable("publisherId") Long publisherId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                publisherApplicationService.getPublisherById(publisherId)
+        ));
+    }
 
     @PostMapping
     @Loggable(
