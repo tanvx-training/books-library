@@ -77,25 +77,38 @@ public class BookApplicationService {
             performanceThresholdMs = 1500L,
             messagePrefix = "BOOK_APP_SERVICE_CREATE"
     )
-    public BookResponse createBook(BookCreateRequest request) {
+    public BookResponse createBook(BookCreateRequest request, UserContextService.UserContext userContext) {
         try {
+            // Validate user permissions
+            if (userContext == null || !userContext.canManageBooks()) {
+                throw new BookApplicationException("User does not have permission to create books");
+            }
+            
             // Check if ISBN already exists
             if (bookRepository.existsByIsbn(request.getIsbn())) {
                 throw new BookApplicationException("Book with ISBN " + request.getIsbn() + " already exists");
             }
 
-            Book book = bookDomainService.createNewBook(
-                    request.getTitle(),
-                    request.getIsbn(),
-                    request.getPublisherId(),
-                    request.getPublicationYear(),
-                    request.getDescription(),
-                    request.getCoverImageUrl(),
-                    request.getAuthorIds(),
-                    request.getCategoryIds()
-            );
+            // Use factory for book creation
+            com.library.book.domain.factory.BookFactory.BookCreationRequest factoryRequest = 
+                com.library.book.domain.factory.BookFactory.BookCreationRequest.builder()
+                    .title(request.getTitle())
+                    .isbn(request.getIsbn())
+                    .publisherId(request.getPublisherId())
+                    .publicationYear(request.getPublicationYear())
+                    .description(request.getDescription())
+                    .coverImageUrl(request.getCoverImageUrl())
+                    .authorIds(request.getAuthorIds())
+                    .categoryIds(request.getCategoryIds())
+                    .build();
+
+            com.library.book.domain.factory.BookFactory bookFactory = 
+                new com.library.book.domain.factory.BookFactory(authorRepository, categoryRepository, publisherRepository);
+            Book book = bookFactory.createBook(factoryRequest);
 
             Book savedBook = bookRepository.save(book);
+            
+            log.info("Book created: {} by user: {}", savedBook.getTitle().getValue(), userContext.getUsername());
 
             // Handle domain events if needed
             // eventPublisher.publish(savedBook.getDomainEvents());
@@ -151,8 +164,13 @@ public class BookApplicationService {
             performanceThresholdMs = 1500L,
             messagePrefix = "BOOK_APP_SERVICE_UPDATE"
     )
-    public BookResponse updateBook(Long id, BookCreateRequest request) {
+    public BookResponse updateBook(Long id, BookCreateRequest request, UserContextService.UserContext userContext) {
         try {
+            // Validate user permissions
+            if (userContext == null || !userContext.canManageBooks()) {
+                throw new BookApplicationException("User does not have permission to update books");
+            }
+            
             Book book = bookRepository.findById(new BookId(id))
                     .orElseThrow(() -> new BookNotFoundException(id));
 
@@ -211,13 +229,25 @@ public class BookApplicationService {
             performanceThresholdMs = 1000L,
             messagePrefix = "BOOK_APP_SERVICE_DELETE"
     )
-    public void deleteBook(Long id) {
+    public void deleteBook(Long id, UserContextService.UserContext userContext) {
         try {
+            // Validate user permissions
+            if (userContext == null || !userContext.canManageBooks()) {
+                throw new BookApplicationException("User does not have permission to delete books");
+            }
+            
             Book book = bookRepository.findById(new BookId(id))
                     .orElseThrow(() -> new BookNotFoundException(id));
             
+            // Check if book can be safely deleted using domain service
+            if (!bookDomainService.canBookBeDeleted(new BookId(id))) {
+                throw new BookApplicationException("Cannot delete book with active borrowings");
+            }
+            
             book.markAsDeleted();
             bookRepository.save(book);
+            
+            log.info("Book deleted: {} by user: {}", book.getTitle().getValue(), userContext.getUsername());
         } catch (Exception e) {
             log.error("Error deleting book with id {}", id, e);
             throw new BookApplicationException("Failed to delete book", e);

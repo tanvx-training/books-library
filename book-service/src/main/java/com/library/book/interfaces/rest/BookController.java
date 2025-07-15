@@ -3,14 +3,17 @@ package com.library.book.interfaces.rest;
 import com.library.book.application.dto.request.BookCreateRequest;
 import com.library.book.application.dto.response.BookResponse;
 import com.library.book.application.service.BookApplicationService;
+import com.library.book.application.service.UserContextService.UserContext;
 import com.library.book.infrastructure.enums.LogLevel;
 import com.library.book.infrastructure.enums.OperationType;
 import com.library.book.infrastructure.logging.Loggable;
 import com.library.book.application.dto.request.PaginatedRequest;
 import com.library.book.application.dto.response.PaginatedResponse;
 import com.library.book.application.dto.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -89,9 +92,16 @@ public class BookController {
             customTags = {"endpoint=createBook", "content_management=true"}
     )
     public ResponseEntity<ApiResponse<BookResponse>> createBook(
-            @RequestBody @Valid BookCreateRequest bookCreateRequest) {
+            @RequestBody @Valid BookCreateRequest bookCreateRequest,
+            HttpServletRequest httpRequest) {
+        
+        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
+        if (userContext == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
         return ResponseEntity.ok(ApiResponse.success(
-                bookApplicationService.createBook(bookCreateRequest)
+                bookApplicationService.createBook(bookCreateRequest, userContext)
         ));
     }
 
@@ -106,9 +116,16 @@ public class BookController {
     )
     public ResponseEntity<ApiResponse<BookResponse>> updateBook(
             @PathVariable("bookId") Long bookId,
-            @RequestBody @Valid BookCreateRequest bookUpdateRequest) {
+            @RequestBody @Valid BookCreateRequest bookUpdateRequest,
+            HttpServletRequest httpRequest) {
+        
+        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
+        if (userContext == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
         return ResponseEntity.ok(ApiResponse.success(
-                bookApplicationService.updateBook(bookId, bookUpdateRequest)
+                bookApplicationService.updateBook(bookId, bookUpdateRequest, userContext)
         ));
     }
 
@@ -122,8 +139,15 @@ public class BookController {
             customTags = {"endpoint=deleteBook", "content_management=true"}
     )
     public ResponseEntity<ApiResponse<Void>> deleteBook(
-            @PathVariable("bookId") Long bookId) {
-        bookApplicationService.deleteBook(bookId);
+            @PathVariable("bookId") Long bookId,
+            HttpServletRequest httpRequest) {
+        
+        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
+        if (userContext == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        bookApplicationService.deleteBook(bookId, userContext);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 } 

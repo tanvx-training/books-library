@@ -1,63 +1,151 @@
 package com.library.book.domain.service;
 
-import com.library.book.domain.model.author.AuthorId;
-import com.library.book.domain.model.book.*;
-import com.library.book.domain.model.category.CategoryId;
-import com.library.book.domain.model.publisher.PublisherId;
+import com.library.book.domain.model.book.Book;
+import com.library.book.domain.model.book.BookId;
+import com.library.book.domain.model.bookcopy.BookCopy;
+import com.library.book.domain.repository.BookCopyRepository;
+import com.library.book.domain.repository.BookRepository;
+import com.library.book.domain.specification.BookAvailabilitySpecification;
+import com.library.book.domain.specification.BookSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
+/**
+ * Domain service for Book-related business logic
+ */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookDomainService {
-
-    public Book createNewBook(
-            String title,
-            String isbn,
-            Long publisherId,
-            Integer publicationYear,
-            String description,
-            String coverImageUrl,
-            List<Long> authorIds,
-            List<Long> categoryIds
-    ) {
-        BookTitle bookTitle = BookTitle.of(title);
-        ISBN bookIsbn = ISBN.of(isbn);
-        PublisherId bookPublisherId = new PublisherId(publisherId);
+    
+    private final BookRepository bookRepository;
+    private final BookCopyRepository bookCopyRepository;
+    
+    /**
+     * Check if a book is available for borrowing
+     */
+    public boolean isBookAvailableForBorrowing(BookId bookId) {
+        Optional<Book> bookOpt = bookRepository.findById(bookId);
+        if (!bookOpt.isPresent()) {
+            return false;
+        }
         
-        PublicationYear bookPublicationYear = publicationYear != null 
-                ? PublicationYear.of(publicationYear)
-                : PublicationYear.empty();
-                
-        Description bookDescription = StringUtils.hasText(description)
-                ? Description.of(description)
-                : Description.empty();
-                
-        CoverImageUrl bookCoverImageUrl = StringUtils.hasText(coverImageUrl)
-                ? CoverImageUrl.of(coverImageUrl)
-                : CoverImageUrl.empty();
-                
-        List<AuthorId> bookAuthorIds = authorIds.stream()
-                .map(AuthorId::new)
-                .collect(Collectors.toList());
-                
-        List<CategoryId> bookCategoryIds = categoryIds.stream()
-                .map(CategoryId::new)
-                .collect(Collectors.toList());
-
-        return Book.create(
-                bookTitle,
-                bookIsbn,
-                bookPublisherId,
-                bookPublicationYear,
-                bookDescription,
-                bookCoverImageUrl,
-                bookAuthorIds,
-                bookCategoryIds
-        );
+        Book book = bookOpt.get();
+        BookSpecification availabilitySpec = new BookAvailabilitySpecification(bookCopyRepository);
+        
+        return availabilitySpec.isSatisfiedBy(book);
+    }
+    
+    /**
+     * Get available copies count for a book
+     */
+    public long getAvailableCopiesCount(BookId bookId) {
+        return bookCopyRepository.countAvailableCopiesByBookId(bookId);
+    }
+    
+    /**
+     * Get total copies count for a book
+     */
+    public long getTotalCopiesCount(BookId bookId) {
+        return bookCopyRepository.countByBookId(bookId);
+    }
+    
+    /**
+     * Find the best available copy for borrowing
+     */
+    public Optional<BookCopy> findBestAvailableCopy(BookId bookId) {
+        List<BookCopy> availableCopies = bookCopyRepository.findAvailableCopiesByBookId(bookId);
+        
+        if (availableCopies.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        // Prioritize copies in better condition
+        return availableCopies.stream()
+            .filter(copy -> copy.canBeBorrowed())
+            .min((copy1, copy2) -> {
+                // Sort by condition (better condition first)
+                int conditionComparison = copy1.getCondition().compareTo(copy2.getCondition());
+                if (conditionComparison != 0) {
+                    return conditionComparison;
+                }
+                // Then by copy number (lower number first)
+                return copy1.getCopyNumber().getValue().compareTo(copy2.getCopyNumber().getValue());
+            });
+    }
+    
+    /**
+     * Check if a book can be safely deleted
+     */
+    public boolean canBookBeDeleted(BookId bookId) {
+        List<BookCopy> copies = bookCopyRepository.findByBookId(bookId);
+        
+        // Book can be deleted if no copies are currently borrowed
+        return copies.stream().noneMatch(copy -> 
+            copy.getStatus().name().equals("BORROWED"));
+    }
+    
+    /**
+     * Get books that need attention (overdue copies, maintenance needed, etc.)
+     */
+    public List<BookCopy> getBooksNeedingAttention() {
+        LocalDateTime now = LocalDateTime.now();
+        return bookCopyRepository.findOverdueCopies(now);
+    }
+    
+    /**
+     * Get books due soon for reminder notifications
+     */
+    public List<BookCopy> getBooksDueSoon(int daysAhead) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime futureDate = now.plusDays(daysAhead);
+        return bookCopyRepository.findCopiesDueSoon(now, futureDate);
+    }
+    
+    /**
+     * Calculate book popularity score based on borrowing history
+     */
+    public double calculateBookPopularityScore(BookId bookId) {
+        // This is a simplified calculation
+        // In a real system, you might consider:
+        // - Number of times borrowed
+        // - Recent borrowing frequency
+        // - User ratings
+        // - Reservation requests
+        
+        long totalCopies = getTotalCopiesCount(bookId);
+        long availableCopies = getAvailableCopiesCount(bookId);
+        
+        if (totalCopies == 0) {
+            return 0.0;
+        }
+        
+        // Higher score means more popular (more copies are borrowed)
+        double borrowedRatio = (double) (totalCopies - availableCopies) / totalCopies;
+        return borrowedRatio * 100; // Convert to percentage
+    }
+    
+    /**
+     * Validate business rules for book operations
+     */
+    public void validateBookBusinessRules(Book book) {
+        if (book == null) {
+            throw new IllegalArgumentException("Book cannot be null");
+        }
+        
+        if (book.getAuthorIds().isEmpty()) {
+            throw new IllegalArgumentException("Book must have at least one author");
+        }
+        
+        if (book.getCategoryIds().isEmpty()) {
+            throw new IllegalArgumentException("Book must have at least one category");
+        }
+        
+        // Add more business rules as needed
     }
 } 
