@@ -5,6 +5,8 @@ import com.library.book.application.dto.response.PaginatedResponse;
 import com.library.book.application.dto.response.PublisherResponse;
 import com.library.book.application.exception.PublisherApplicationException;
 import com.library.book.application.exception.PublisherNotFoundException;
+import com.library.book.domain.exception.AuthorDomainException;
+import com.library.book.domain.exception.InvalidPublisherDataException;
 import com.library.book.domain.model.publisher.Publisher;
 import com.library.book.domain.model.publisher.PublisherId;
 import com.library.book.domain.model.publisher.PublisherName;
@@ -73,6 +75,12 @@ public class PublisherApplicationService {
             // eventPublisher.publish(savedPublisher.getDomainEvents());
 
             return mapToPublisherResponse(savedPublisher);
+        } catch (InvalidPublisherDataException e) {
+            log.error("Invalid publisher data: {}", e.getMessage());
+            throw e; // Rethrow để được xử lý bởi exception handler
+        } catch (AuthorDomainException e) {
+            log.error("Domain exception when creating publisher: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("Error creating publisher", e);
             throw new PublisherApplicationException("Failed to create publisher", e);

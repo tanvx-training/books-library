@@ -15,24 +15,24 @@ import java.util.List;
 @NoArgsConstructor
 public class BookCreateRequest {
 
-    @NotBlank(message = "Tiêu đề không được để trống")
-    @Size(max = 200, message = "Tiêu đề không được vượt quá 200 ký tự")
+    @NotBlank(message = "Title must not be blank")
+    @Size(max = 200, message = "Title must not exceed 200 characters")
     private String title;
 
-    @NotBlank(message = "ISBN không được để trống")
-    @Size(max = 20, message = "ISBN không được vượt quá 20 ký tự")
+    @NotBlank(message = "ISBN must not be blank")
+    @Size(max = 20, message = "ISBN must not exceed 20 characters")
     private String isbn;
 
-    @NotNull(message = "Nhà xuất bản không được để trống")
+    @NotNull(message = "Publisher must not be null")
     private Long publisherId;
 
     private Integer publicationYear;
     private String description;
     private String coverImageUrl;
 
-    @NotEmpty(message = "Tác giả không được để trống")
+    @NotEmpty(message = "At least one author must be specified")
     private List<Long> authorIds;
 
-    @NotEmpty(message = "Thể loại không được để trống")
+    @NotEmpty(message = "At least one category must be specified")
     private List<Long> categoryIds;
 } 

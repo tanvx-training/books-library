@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PublisherCreateRequest {
-    @NotBlank(message = "Tên nhà xuất bản không được để trống")
-    @Size(max = 256, message = "Tên nhà xuất bản không được vượt quá 256 ký tự")
+
+    @NotBlank(message = "Publisher name must not be blank")
+    @Size(max = 256, message = "Publisher name must not exceed 256 characters")
     private String name;
 
     private String address;

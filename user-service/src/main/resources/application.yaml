@@ -21,8 +21,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_URL:http://localhost:8080}/auth/realms/${KEYCLOAK_REALM:library}
-          jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8080}/auth/realms/${KEYCLOAK_REALM:library}/protocol/openid-connect/certs
+          issuer-uri: ${KEYCLOAK_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:library-realm}
+          jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:library-realm}/protocol/openid-connect/certs
 
   kafka:
     bootstrap-servers: ${KAFKA_SERVER:localhost:9092}
@@ -55,11 +55,14 @@ app:
   library-card:
     default-validity-years: ${LIBRARY_CARD_DEFAULT_VALIDITY_YEARS:1}
     expiring-soon-days: ${LIBRARY_CARD_EXPIRING_SOON_DAYS:30}
-  keycloak:
-    realm: ${KEYCLOAK_REALM:library}
-    auth-server-url: ${KEYCLOAK_URL:http://localhost:8080}/auth
-    client-id: ${KEYCLOAK_CLIENT_ID:user-service}
-    client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret}
+
+keycloak:
+  server-url: ${KEYCLOAK_URL:http://localhost:8080}
+  realm: ${KEYCLOAK_REALM:library-realm}
+  admin:
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:admin-cli}
+    username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+    password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
 
 logging:
   level:
