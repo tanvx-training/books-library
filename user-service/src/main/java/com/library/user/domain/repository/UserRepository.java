@@ -34,4 +34,19 @@ public interface UserRepository {
     boolean existsByEmail(Email email);
     
     boolean existsByKeycloakId(KeycloakId keycloakId);
+    
+    // Specification-based queries
+    List<User> findBySpecification(com.library.user.domain.specification.UserSpecification specification);
+    
+    List<User> findBySpecification(com.library.user.domain.specification.UserSpecification specification, 
+                                  org.springframework.data.domain.Pageable pageable);
+    
+    long countBySpecification(com.library.user.domain.specification.UserSpecification specification);
+    
+    // Complex business queries
+    List<User> findUsersWithOverdueBooks();
+    
+    List<User> findUsersEligibleForCardRenewal();
+    
+    List<User> findInactiveUsers(java.time.LocalDateTime since);
 }

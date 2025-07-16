@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -161,6 +162,90 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (DataAccessException e) {
             log.error("Error checking if keycloakId exists: {}", keycloakId.getValue(), e);
             throw new UserPersistenceException("Failed to check if keycloakId exists", e);
+        }
+    }
+
+    @Override
+    public List<User> findBySpecification(com.library.user.domain.specification.UserSpecification specification) {
+        try {
+            List<UserJpaEntity> entities = userJpaRepository.findAll();
+            return entities.stream()
+                .map(userEntityMapper::toDomainEntity)
+                .filter(specification::isSatisfiedBy)
+                .collect(Collectors.toList());
+        } catch (DataAccessException e) {
+            log.error("Error finding users by specification", e);
+            throw new UserPersistenceException("Failed to find users by specification", e);
+        }
+    }
+
+    @Override
+    public List<User> findBySpecification(com.library.user.domain.specification.UserSpecification specification, 
+                                        org.springframework.data.domain.Pageable pageable) {
+        try {
+            Page<UserJpaEntity> entityPage = userJpaRepository.findAll(pageable);
+            return entityPage.getContent().stream()
+                .map(userEntityMapper::toDomainEntity)
+                .filter(specification::isSatisfiedBy)
+                .collect(Collectors.toList());
+        } catch (DataAccessException e) {
+            log.error("Error finding users by specification with pagination", e);
+            throw new UserPersistenceException("Failed to find users by specification with pagination", e);
+        }
+    }
+
+    @Override
+    public long countBySpecification(com.library.user.domain.specification.UserSpecification specification) {
+        try {
+            List<UserJpaEntity> entities = userJpaRepository.findAll();
+            return entities.stream()
+                .map(userEntityMapper::toDomainEntity)
+                .filter(specification::isSatisfiedBy)
+                .count();
+        } catch (DataAccessException e) {
+            log.error("Error counting users by specification", e);
+            throw new UserPersistenceException("Failed to count users by specification", e);
+        }
+    }
+
+    @Override
+    public List<User> findUsersWithOverdueBooks() {
+        try {
+            // This would typically involve a complex query joining with lending service data
+            // For now, we'll return an empty list as this requires integration with lending service
+            log.info("Finding users with overdue books - integration with lending service required");
+            return new ArrayList<>();
+        } catch (DataAccessException e) {
+            log.error("Error finding users with overdue books", e);
+            throw new UserPersistenceException("Failed to find users with overdue books", e);
+        }
+    }
+
+    @Override
+    public List<User> findUsersEligibleForCardRenewal() {
+        try {
+            // This would involve querying users whose library cards are expiring soon
+            // For now, we'll return an empty list as this requires integration with library card data
+            log.info("Finding users eligible for card renewal - integration with library card service required");
+            return new ArrayList<>();
+        } catch (DataAccessException e) {
+            log.error("Error finding users eligible for card renewal", e);
+            throw new UserPersistenceException("Failed to find users eligible for card renewal", e);
+        }
+    }
+
+    @Override
+    public List<User> findInactiveUsers(java.time.LocalDateTime since) {
+        try {
+            // This would involve querying users who haven't been active since a certain date
+            // For now, we'll use a simple query based on updated_at field
+            List<UserJpaEntity> entities = userJpaRepository.findByUpdatedAtBefore(since);
+            return entities.stream()
+                .map(userEntityMapper::toDomainEntity)
+                .collect(Collectors.toList());
+        } catch (DataAccessException e) {
+            log.error("Error finding inactive users since: {}", since, e);
+            throw new UserPersistenceException("Failed to find inactive users", e);
         }
     }
 }

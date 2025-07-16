@@ -1,4 +1,4 @@
-package com.library.user.interfaces.rest.exception;
+package com.library.user.interfaces.exception;
 
 import com.library.user.application.dto.response.ApiError;
 import com.library.user.application.dto.response.ApiResponse;

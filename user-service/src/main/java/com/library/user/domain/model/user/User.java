@@ -138,6 +138,15 @@ public class User extends AggregateRoot {
 
         registerEvent(new UserUpdatedEvent(this));
     }
+    
+    // Method to update email with validation
+    public void updateEmail(Email newEmail) {
+        if (newEmail == null) {
+            throw new InvalidUserDataException("Email cannot be null");
+        }
+        this.email = newEmail;
+        registerEvent(new UserUpdatedEvent(this));
+    }
 
     // Method to update password
     public void updatePassword(PasswordHash newPassword) {

@@ -68,47 +68,41 @@ public class UserEntityMapper {
      * Convert JPA entity to domain entity
      */
     public User toDomainEntity(UserJpaEntity jpaEntity) {
-        // Create a base user object
-        User user = new User();
-
-        // Set ID
-        if (jpaEntity.getId() != null) {
-            user.setId(UserId.of(jpaEntity.getId()));
-        }
-
-        // Set keycloakId if available
-        if (jpaEntity.getKeycloakId() != null) {
-            user.setKeycloakId(KeycloakId.of(jpaEntity.getKeycloakId()));
-        }
-
-        // Set other properties
-        user.setUsername(new Username(jpaEntity.getUsername()));
-        user.setEmail(new Email(jpaEntity.getEmail()));
+        // Use the reconstitute method to create domain entity from persistence data
+        UserId userId = jpaEntity.getId() != null ? UserId.of(jpaEntity.getId()) : null;
+        Username username = new Username(jpaEntity.getUsername());
+        Email email = new Email(jpaEntity.getEmail());
         
         // Password may be null for Keycloak users
-        if (jpaEntity.getPassword() != null) {
-            user.setPassword(new PasswordHash(jpaEntity.getPassword()));
-        }
+        PasswordHash password = jpaEntity.getPassword() != null ? 
+            new PasswordHash(jpaEntity.getPassword()) : null;
 
-        if (jpaEntity.getFirstName() != null) {
-            user.setFirstName(new FirstName(jpaEntity.getFirstName()));
-        }
+        FirstName firstName = jpaEntity.getFirstName() != null ? 
+            new FirstName(jpaEntity.getFirstName()) : null;
+        
+        LastName lastName = jpaEntity.getLastName() != null ? 
+            new LastName(jpaEntity.getLastName()) : null;
 
-        if (jpaEntity.getLastName() != null) {
-            user.setLastName(new LastName(jpaEntity.getLastName()));
-        }
-
-        if (jpaEntity.getPhone() != null) {
-            user.setPhone(new Phone(jpaEntity.getPhone()));
-        }
-
-        user.setActive(!jpaEntity.isDeleteFlg());
+        Phone phone = jpaEntity.getPhone() != null ? 
+            new Phone(jpaEntity.getPhone()) : null;
 
         // Convert roles
         Set<Role> roles = jpaEntity.getRoles().stream()
                 .map(roleEntity -> new Role(roleEntity.getId(), roleEntity.getName()))
                 .collect(Collectors.toSet());
-        user.setRoles(roles);
+
+        boolean active = !jpaEntity.isDeleteFlg();
+
+        // Use reconstitute method to create the user
+        User user = User.reconstitute(
+            userId, username, email, password, 
+            firstName, lastName, phone, roles, active
+        );
+
+        // Set keycloakId if available (this is a public method)
+        if (jpaEntity.getKeycloakId() != null) {
+            user.setKeycloakId(KeycloakId.of(jpaEntity.getKeycloakId()));
+        }
 
         return user;
     }
