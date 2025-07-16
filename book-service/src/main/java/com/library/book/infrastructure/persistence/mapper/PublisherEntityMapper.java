@@ -28,7 +28,10 @@ public class PublisherEntityMapper {
         // Sử dụng reflection hoặc constructor riêng để tạo Publisher từ JPA entity
         Publisher publisher = Publisher.create(
                 PublisherName.of(jpaEntity.getName()),
-                Address.of(jpaEntity.getAddress())
+                Address.of(jpaEntity.getAddress()),
+                null, // ContactInfo - will be set via reflection
+                null, // EstablishedDate - will be set via reflection
+                "system" // Default user for reconstruction
         );
 
         // Reflection để set ID (trong thực tế nên có setter package-private)

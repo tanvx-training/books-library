@@ -27,7 +27,8 @@ public class AuthorEntityMapper {
 
         Author author = Author.create(
                 AuthorName.of(jpaEntity.getName()),
-                Biography.of(jpaEntity.getBiography())
+                Biography.of(jpaEntity.getBiography()),
+                "system" // Default user for reconstruction
         );
 
         // Reflection để set ID (trong thực tế nên có setter package-private)
