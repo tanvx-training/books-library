@@ -42,8 +42,8 @@ public class SecurityConfig {
                                 // Secured endpoints with specific roles
 //                .requestMatchers("/api/books/admin/**").hasRole("ADMIN")
                                 // All other endpoints require authentication
-//                .anyRequest().authenticated()
-                                .anyRequest().permitAll() // bypass
+                .anyRequest().authenticated()
+//                                .anyRequest().permitAll() // bypass
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))

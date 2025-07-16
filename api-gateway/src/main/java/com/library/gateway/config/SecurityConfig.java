@@ -1,7 +1,6 @@
-package com.library.apigateway.config;
+package com.library.gateway.config;
 
-import com.library.apigateway.filter.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.lang.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,14 +27,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebFluxSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-    
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -47,8 +44,8 @@ public class SecurityConfig {
                 .pathMatchers("/auth/**", "/actuator/**", "/api/auth/**").permitAll()
                 .pathMatchers("/login/oauth2/code/**").permitAll()
                 // Secured endpoints with specific roles
-                .pathMatchers("/api/books/admin/**").hasRole("ADMIN")
-                .pathMatchers("/api/users/admin/**").hasRole("ADMIN")
+//                .pathMatchers("/api/v1/books/admin/**").hasRole("ADMIN")
+//                .pathMatchers("/api/users/admin/**").hasRole("ADMIN")
                 // All other endpoints require authentication
                 .anyExchange().authenticated()
             )
@@ -58,8 +55,7 @@ public class SecurityConfig {
                     .jwtDecoder(reactiveJwtDecoder())
                     .jwtAuthenticationConverter(grantedAuthoritiesExtractor())
                 )
-            )
-            .addFilterBefore(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+            );
         
         return http.build();
     }
@@ -104,41 +100,37 @@ public class SecurityConfig {
             Collection<GrantedAuthority> authorities = extractRealmRoles(jwt);
             
             // Extract client roles if needed
-            authorities.addAll(extractResourceRoles(jwt, "api-gateway"));
+            authorities.addAll(extractResourceRoles(jwt));
             
             return authorities;
         }
         
         private Collection<GrantedAuthority> extractRealmRoles(Jwt jwt) {
             Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
-            if (realmAccess == null || !realmAccess.containsKey("roles")) {
+            return getGrantedAuthorities(realmAccess);
+        }
+
+        private Collection<GrantedAuthority> getGrantedAuthorities(Map<String, Object> realmAccess) {
+            if (Objects.isNull(realmAccess) || !realmAccess.containsKey("roles")) {
                 return Collections.emptyList();
             }
-            
+
             @SuppressWarnings("unchecked")
             List<String> roles = (List<String>) realmAccess.get("roles");
             return roles.stream()
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
                     .collect(Collectors.toList());
         }
-        
-        private Collection<GrantedAuthority> extractResourceRoles(Jwt jwt, String clientId) {
+
+        private Collection<GrantedAuthority> extractResourceRoles(Jwt jwt) {
             Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
-            if (resourceAccess == null || !resourceAccess.containsKey(clientId)) {
+            if (resourceAccess == null || !resourceAccess.containsKey("api-gateway")) {
                 return Collections.emptyList();
             }
             
             @SuppressWarnings("unchecked")
-            Map<String, Object> clientResource = (Map<String, Object>) resourceAccess.get(clientId);
-            if (clientResource == null || !clientResource.containsKey("roles")) {
-                return Collections.emptyList();
-            }
-            
-            @SuppressWarnings("unchecked")
-            List<String> roles = (List<String>) clientResource.get("roles");
-            return roles.stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                    .collect(Collectors.toList());
+            Map<String, Object> clientResource = (Map<String, Object>) resourceAccess.get("api-gateway");
+            return getGrantedAuthorities(clientResource);
         }
     }
 } 

@@ -33,19 +33,19 @@ spring:
         - id: book-service
           uri: lb://BOOK-SERVICE
           predicates:
-            - Path=/api/books/**
+            - Path=/api/v1/books/**,/api/v1/authors/**
           filters:
             - RemoveRequestHeader=Cookie
         - id: user-service
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/api/users/**,/api/auth/**
+            - Path=/api/v1/users/**,/api/v1/auth/**
           filters:
             - RemoveRequestHeader=Cookie
         - id: notification-service
           uri: lb://NOTIFICATION-SERVICE
           predicates:
-            - Path=/api/notifications/**
+            - Path=/api/v1/notifications/**
           filters:
             - RemoveRequestHeader=Cookie
         # Keycloak routes
