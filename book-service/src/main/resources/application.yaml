@@ -52,56 +52,6 @@ logging:
     com.library: DEBUG
     org.springframework: INFO
 
-# Swagger/OpenAPI Configuration
-springdoc:
-  api-docs:
-    path: /api-docs
-    enabled: true
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    operationsSorter: method
-    tagsSorter: alpha
-    tryItOutEnabled: true
-    filter: true
-    displayRequestDuration: true
-    displayOperationId: false
-    defaultModelsExpandDepth: 2
-    defaultModelExpandDepth: 2
-    docExpansion: none
-    persistAuthorization: true
-    supportedSubmitMethods:
-      - get
-      - post
-      - put
-      - delete
-      - patch
-    oauth:
-      clientId: book-service
-      clientSecret: ""
-      realm: library-realm
-      appName: "Library Management System - Book Service"
-      scopeSeparator: " "
-      additionalQueryStringParams:
-        audience: book-service
-  show-actuator: false
-  group-configs:
-    - group: 'books'
-      display-name: 'Book Management'
-      paths-to-match: '/api/v1/books/**'
-    - group: 'authors'
-      display-name: 'Author Management'
-      paths-to-match: '/api/v1/authors/**'
-    - group: 'publishers'
-      display-name: 'Publisher Management'
-      paths-to-match: '/api/v1/publishers/**'
-    - group: 'categories'
-      display-name: 'Category Management'
-      paths-to-match: '/api/v1/categories/**'
-    - group: 'book-copies'
-      display-name: 'Book Copy Management'
-      paths-to-match: '/api/book-copies/**'
-
 # Application Information
 info:
   app:

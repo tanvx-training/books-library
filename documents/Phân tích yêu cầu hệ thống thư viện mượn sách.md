@@ -63,7 +63,7 @@ Hệ thống thư viện mượn sách được xây dựng theo mô hình micro
 - Đóng vai trò là cổng vào duy nhất cho client
 - Định tuyến request đến các services tương ứng
 - Xử lý cross-cutting concerns như authentication, logging
-- Cung cấp API documentation (Swagger/OpenAPI)
+- Cung cấp API documentation
 - Rate limiting và circuit breaking
 
 ### 3. Common Library
