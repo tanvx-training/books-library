@@ -32,4 +32,7 @@ public abstract class AuditEvent {
         this.entityId = entityId;
         this.timestamp = LocalDateTime.now();
     }
+
+    public AuditEvent(String bookCopyStatusChanged, LocalDateTime now) {
+    }
 }

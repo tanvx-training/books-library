@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import com.library.book.infrastructure.persistence.repository.AuthorJpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -68,6 +69,28 @@ public class AuthorRepositoryImpl implements AuthorRepository {
         } catch (DataAccessException e) {
             log.error("Error counting authors", e);
             throw new AuthorPersistenceException("Failed to count authors", e);
+        }
+    }
+
+    @Override
+    public List<Author> findAll() {
+        try {
+            return authorJpaRepository.findAllByDeleteFlg(false).stream()
+                    .map(authorEntityMapper::toDomainEntity)
+                    .collect(java.util.stream.Collectors.toList());
+        } catch (DataAccessException e) {
+            log.error("Error finding all authors", e);
+            throw new AuthorPersistenceException("Failed to find all authors", e);
+        }
+    }
+
+    @Override
+    public boolean existsByName(com.library.book.domain.model.author.AuthorName name) {
+        try {
+            return authorJpaRepository.existsByNameAndDeleteFlg(name.getValue(), false);
+        } catch (DataAccessException e) {
+            log.error("Error checking if author exists by name: {}", name.getValue(), e);
+            throw new AuthorPersistenceException("Failed to check if author exists by name", e);
         }
     }
 

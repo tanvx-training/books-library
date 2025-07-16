@@ -18,12 +18,10 @@ public class BookCopyCreatedEvent extends AuditEvent {
         this.copyNumber = copyNumber;
     }
 
-    @Override
     public String getAggregateId() {
         return bookCopyId.toString();
     }
 
-    @Override
     public String getEventData() {
         return String.format("BookCopy created - ID: %d, BookID: %d, CopyNumber: %s", 
             bookCopyId, bookId, copyNumber);

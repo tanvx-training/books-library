@@ -16,5 +16,11 @@ public class InvalidAuthorDataException extends AuthorDomainException {
         this.field = field;
         this.reason = reason;
     }
+    
+    public InvalidAuthorDataException(String message) {
+        super(message);
+        this.field = null;
+        this.reason = message;
+    }
 
 }

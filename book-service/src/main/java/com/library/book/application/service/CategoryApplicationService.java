@@ -78,7 +78,8 @@ public class CategoryApplicationService {
             Category category = categoryDomainService.createNewCategory(
                     request.getName(),
                     request.getSlug(),
-                    request.getDescription()
+                    request.getDescription(),
+                    "SYSTEM" // TODO: Add user context
             );
 
             Category savedCategory = categoryRepository.save(category);

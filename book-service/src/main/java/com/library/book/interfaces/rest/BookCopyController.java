@@ -77,7 +77,10 @@ public class BookCopyController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        PaginatedRequest paginatedRequest = new PaginatedRequest(page, size);
+        PaginatedRequest paginatedRequest = PaginatedRequest.builder()
+            .page(page)
+            .size(size)
+            .build();
         PaginatedResponse<BookCopyResponse> response = bookCopyApplicationService.getAllBookCopies(paginatedRequest);
         
         return ResponseEntity.ok(response);

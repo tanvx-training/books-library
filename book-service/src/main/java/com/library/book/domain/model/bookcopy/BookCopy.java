@@ -6,6 +6,7 @@ import com.library.book.domain.exception.InvalidBookCopyOperationException;
 import com.library.book.domain.model.book.BookId;
 import com.library.book.domain.model.shared.AggregateRoot;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
  * Represents a physical copy of a book in the library
  */
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BookCopy extends AggregateRoot {
 

@@ -18,6 +18,10 @@ public interface BookCopyEntityMapper {
     @Mapping(target = "copyNumber", source = "copyNumber.value")
     @Mapping(target = "location", source = "location.value")
     @Mapping(target = "deleteFlg", source = "deleted")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
     BookCopyJpaEntity toJpaEntity(BookCopy bookCopy);
     
     @Mapping(target = "id", source = "id", qualifiedByName = "mapToBookCopyId")
@@ -25,6 +29,7 @@ public interface BookCopyEntityMapper {
     @Mapping(target = "copyNumber", source = "copyNumber", qualifiedByName = "mapToCopyNumber")
     @Mapping(target = "location", source = "location", qualifiedByName = "mapToLocation")
     @Mapping(target = "deleted", source = "deleteFlg")
+    @Mapping(target = "domainEvents", ignore = true)
     BookCopy toDomainEntity(BookCopyJpaEntity entity);
     
     @Named("mapToBookCopyId")

@@ -27,7 +27,8 @@ public class CategoryEntityMapper {
         Category category = Category.create(
                 CategoryName.of(jpaEntity.getName()),
                 CategorySlug.of(jpaEntity.getSlug()),
-                CategoryDescription.of(jpaEntity.getDescription())
+                CategoryDescription.of(jpaEntity.getDescription()),
+                "system" // Default user for reconstruction
         );
 
         // Reflection để set ID (trong thực tế nên có setter package-private)

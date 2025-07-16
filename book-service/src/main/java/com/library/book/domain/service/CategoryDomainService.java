@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CategoryDomainService {
 
-    public Category createNewCategory(String name, String slug, String description) {
+    public Category createNewCategory(String name, String slug, String description, String createdByKeycloakId) {
         CategoryName categoryName = CategoryName.of(name);
         CategorySlug categorySlug = CategorySlug.of(slug);
         CategoryDescription categoryDescription = description != null ?
                 CategoryDescription.of(description) : CategoryDescription.empty();
 
-        return Category.create(categoryName, categorySlug, categoryDescription);
+        return Category.create(categoryName, categorySlug, categoryDescription, createdByKeycloakId);
     }
 }

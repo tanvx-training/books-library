@@ -8,6 +8,7 @@ import com.library.book.application.exception.AuthorApplicationException;
 import com.library.book.application.exception.AuthorNotFoundException;
 import com.library.book.domain.exception.AuthorDomainException;
 import com.library.book.domain.exception.InvalidAuthorDataException;
+import com.library.book.domain.factory.AuthorFactory;
 import com.library.book.domain.model.author.Author;
 import com.library.book.domain.model.author.AuthorId;
 import com.library.book.domain.repository.AuthorRepository;
@@ -53,14 +54,26 @@ public class AuthorApplicationService {
             performanceThresholdMs = 1500L,
             messagePrefix = "AUTHOR_APP_SERVICE_CREATE"
     )
-    public AuthorResponse createAuthor(AuthorCreateRequest request) {
+    public AuthorResponse createAuthor(AuthorCreateRequest request, UserContextService.UserContext userContext) {
         try {
-            Author author = authorDomainService.createNewAuthor(
-                    request.getName(),
-                    request.getBiography()
-            );
+            // Validate user permissions
+            if (userContext == null || !userContext.canManageBooks()) {
+                throw new AuthorApplicationException("User does not have permission to create authors");
+            }
+            
+            // Use factory for author creation
+            AuthorFactory.AuthorCreationRequest factoryRequest = AuthorFactory.AuthorCreationRequest.builder()
+                .name(request.getName())
+                .biography(request.getBiography())
+                .createdByKeycloakId(userContext.getKeycloakId())
+                .build();
+            
+            AuthorFactory authorFactory = new AuthorFactory(authorRepository);
+            Author author = authorFactory.createAuthor(factoryRequest);
 
             Author savedAuthor = authorRepository.save(author);
+            
+            log.info("Author created: {} by user: {}", savedAuthor.getName().getValue(), userContext.getUsername());
 
             // Xử lý domain events nếu cần
             // eventPublisher.publish(savedAuthor.getDomainEvents());
@@ -93,11 +106,114 @@ public class AuthorApplicationService {
         return mapToAuthorResponse(author);
     }
 
+    @Transactional
+    @Loggable(
+            level = LogLevel.ADVANCED,
+            operationType = OperationType.UPDATE,
+            resourceType = "Author",
+            performanceThresholdMs = 1000L,
+            messagePrefix = "AUTHOR_APP_SERVICE_UPDATE"
+    )
+    public AuthorResponse updateAuthor(Long id, AuthorCreateRequest request, UserContextService.UserContext userContext) {
+        try {
+            // Validate user permissions
+            if (userContext == null || !userContext.canManageBooks()) {
+                throw new AuthorApplicationException("User does not have permission to update authors");
+            }
+            
+            Author author = authorRepository.findById(new AuthorId(id))
+                    .orElseThrow(() -> new AuthorNotFoundException(id));
+            
+            // Update author information
+            author.updateName(com.library.book.domain.model.author.AuthorName.of(request.getName()), 
+                userContext.getKeycloakId());
+            author.updateBiography(com.library.book.domain.model.author.Biography.of(request.getBiography()), 
+                userContext.getKeycloakId());
+            
+            Author savedAuthor = authorRepository.save(author);
+            
+            log.info("Author updated: {} by user: {}", savedAuthor.getName().getValue(), userContext.getUsername());
+            
+            return mapToAuthorResponse(savedAuthor);
+        } catch (InvalidAuthorDataException e) {
+            log.error("Invalid author data: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error when updating author", e);
+            throw new AuthorApplicationException("Failed to update author", e);
+        }
+    }
+
+    @Transactional
+    @Loggable(
+            level = LogLevel.ADVANCED,
+            operationType = OperationType.DELETE,
+            resourceType = "Author",
+            performanceThresholdMs = 1000L,
+            messagePrefix = "AUTHOR_APP_SERVICE_DELETE"
+    )
+    public void deleteAuthor(Long id, UserContextService.UserContext userContext) {
+        try {
+            // Validate user permissions
+            if (userContext == null || !userContext.canManageBooks()) {
+                throw new AuthorApplicationException("User does not have permission to delete authors");
+            }
+            
+            Author author = authorRepository.findById(new AuthorId(id))
+                    .orElseThrow(() -> new AuthorNotFoundException(id));
+            
+            // Check if author can be deleted using domain service
+            if (!authorDomainService.canAuthorBeDeleted(new AuthorId(id))) {
+                throw new AuthorApplicationException("Cannot delete author with associated books");
+            }
+            
+            author.markAsDeleted(userContext.getKeycloakId());
+            authorRepository.save(author);
+            
+            log.info("Author deleted: {} by user: {}", author.getName().getValue(), userContext.getUsername());
+        } catch (Exception e) {
+            log.error("Error deleting author with id {}", id, e);
+            throw new AuthorApplicationException("Failed to delete author", e);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Loggable(
+            level = LogLevel.DETAILED,
+            operationType = OperationType.READ,
+            resourceType = "Author",
+            performanceThresholdMs = 800L,
+            messagePrefix = "AUTHOR_APP_SERVICE_GET_PROLIFIC"
+    )
+    public java.util.List<AuthorResponse> getProlificAuthors(int minimumBookCount) {
+        java.util.List<Author> prolificAuthors = authorDomainService.getProlificAuthors(minimumBookCount);
+        
+        return prolificAuthors.stream()
+            .map(this::mapToAuthorResponse)
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    @Loggable(
+            level = LogLevel.DETAILED,
+            operationType = OperationType.READ,
+            resourceType = "Author",
+            performanceThresholdMs = 500L,
+            messagePrefix = "AUTHOR_APP_SERVICE_GET_STATISTICS"
+    )
+    public AuthorDomainService.AuthorStatistics getAuthorStatistics(Long id) {
+        return authorDomainService.getAuthorStatistics(new AuthorId(id));
+    }
+
     private AuthorResponse mapToAuthorResponse(Author author) {
         return AuthorResponse.builder()
                 .id(author.getId().getValue())
                 .name(author.getName().getValue())
                 .biography(author.getBiography().getValue())
+                .bookCount(author.getBookCount())
+                .canBeDeleted(author.canBeDeleted())
+                .createdAt(author.getCreatedAt())
+                .updatedAt(author.getUpdatedAt())
                 .build();
     }
 }

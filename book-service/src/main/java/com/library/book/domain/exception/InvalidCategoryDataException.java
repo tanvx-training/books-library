@@ -16,4 +16,10 @@ public class InvalidCategoryDataException extends CategoryDomainException {
         this.field = field;
         this.reason = reason;
     }
+    
+    public InvalidCategoryDataException(String message) {
+        super(message);
+        this.field = null;
+        this.reason = message;
+    }
 }

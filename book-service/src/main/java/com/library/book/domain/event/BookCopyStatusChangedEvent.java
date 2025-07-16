@@ -25,12 +25,10 @@ public class BookCopyStatusChangedEvent extends AuditEvent {
         this.userKeycloakId = userKeycloakId;
     }
 
-    @Override
     public String getAggregateId() {
         return bookCopyId.toString();
     }
 
-    @Override
     public String getEventData() {
         return String.format("BookCopy status changed - ID: %d, From: %s, To: %s, User: %s", 
             bookCopyId, previousStatus, newStatus, userKeycloakId);

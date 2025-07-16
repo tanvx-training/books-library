@@ -66,7 +66,8 @@ public class PublisherApplicationService {
 
             Publisher publisher = publisherDomainService.createNewPublisher(
                     request.getName(),
-                    request.getAddress()
+                    request.getAddress(),
+                    "SYSTEM" // TODO: Add user context
             );
 
             Publisher savedPublisher = publisherRepository.save(publisher);
