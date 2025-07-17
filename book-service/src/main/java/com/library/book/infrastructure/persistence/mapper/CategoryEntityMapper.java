@@ -1,14 +1,14 @@
 package com.library.book.infrastructure.persistence.mapper;
 
 import com.library.book.domain.model.category.*;
-import com.library.book.infrastructure.persistence.entity.CategoryJpaEntity;
+import com.library.book.infrastructure.persistence.entity.CategoryEntity;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CategoryEntityMapper {
 
-    public CategoryJpaEntity toJpaEntity(Category category) {
-        CategoryJpaEntity entity = new CategoryJpaEntity();
+    public CategoryEntity toJpaEntity(Category category) {
+        CategoryEntity entity = new CategoryEntity();
 
         if (category.getId() != null && category.getId().getValue() != null) {
             entity.setId(category.getId().getValue());
@@ -22,7 +22,7 @@ public class CategoryEntityMapper {
         return entity;
     }
 
-    public Category toDomainEntity(CategoryJpaEntity jpaEntity) {
+    public Category toDomainEntity(CategoryEntity jpaEntity) {
         // Sử dụng reflection hoặc constructor riêng để tạo Category từ JPA entity
         Category category = Category.create(
                 CategoryName.of(jpaEntity.getName()),

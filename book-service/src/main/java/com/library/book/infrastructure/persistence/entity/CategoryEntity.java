@@ -12,11 +12,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "publishers")
+@Table(name = "categories")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class PublisherJpaEntity {
+public class CategoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +25,11 @@ public class PublisherJpaEntity {
     @Column(name = "name", nullable = false, length = 256)
     private String name;
 
-    @Column(name = "address")
-    private String address;
+    @Column(name = "slug", nullable = false, length = 256)
+    private String slug;
+
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "delete_flg", nullable = false)
     private boolean deleteFlg;

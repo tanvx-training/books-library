@@ -7,11 +7,13 @@ import com.library.book.domain.model.shared.AggregateRoot;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+@Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Author extends AggregateRoot {
@@ -126,31 +128,5 @@ public class Author extends AggregateRoot {
         if (biography == null) {
             throw new InvalidAuthorDataException("Biography is required");
         }
-    }
-
-    // For JPA/ORM reconstruction
-    public static Author reconstitute(
-            AuthorId id,
-            AuthorName name,
-            Biography biography,
-            Set<Long> bookIds,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt,
-            String createdByKeycloakId,
-            String updatedByKeycloakId,
-            boolean deleted) {
-        
-        Author author = new Author();
-        author.id = id;
-        author.name = name;
-        author.biography = biography;
-        author.bookIds = bookIds != null ? new HashSet<>(bookIds) : new HashSet<>();
-        author.createdAt = createdAt;
-        author.updatedAt = updatedAt;
-        author.createdByKeycloakId = createdByKeycloakId;
-        author.updatedByKeycloakId = updatedByKeycloakId;
-        author.deleted = deleted;
-        
-        return author;
     }
 }

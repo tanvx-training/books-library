@@ -12,24 +12,50 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "books")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class CategoryJpaEntity {
+public class BookEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 256)
-    private String name;
+    @Column(name = "title", nullable = false, length = 200)
+    private String title;
 
-    @Column(name = "slug", nullable = false, length = 256)
-    private String slug;
+    @Column(name = "isbn", unique = true, length = 20)
+    private String isbn;
 
+    @Column(name = "publisher_id")
+    private Long publisherId;
+
+    @Column(name = "publication_year")
+    private Integer publicationYear;
+
+    @Lob
     @Column(name = "description")
     private String description;
+
+    @Column(name = "cover_image_url")
+    private String coverImageUrl;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "book_authors",
+            joinColumns = @JoinColumn(name = "book_id")
+    )
+    @Column(name = "author_id")
+    private java.util.List<Long> authorIds = new java.util.ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(
+            name = "book_categories",
+            joinColumns = @JoinColumn(name = "book_id")
+    )
+    @Column(name = "category_id")
+    private java.util.List<Long> categoryIds = new java.util.ArrayList<>();
 
     @Column(name = "delete_flg", nullable = false)
     private boolean deleteFlg;
@@ -49,4 +75,4 @@ public class CategoryJpaEntity {
     @LastModifiedBy
     @Column(name = "updated_by")
     private String updatedBy;
-}
+} 

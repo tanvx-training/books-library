@@ -1,4 +1,4 @@
-package com.library.book.domain.event;
+package com.library.book.domain.service;
 
 import com.library.book.domain.model.shared.AuditEvent;
 import lombok.RequiredArgsConstructor;

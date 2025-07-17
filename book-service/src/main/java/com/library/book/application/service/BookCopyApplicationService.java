@@ -5,7 +5,7 @@ import com.library.book.application.dto.request.PaginatedRequest;
 import com.library.book.application.dto.response.BookCopyResponse;
 import com.library.book.application.dto.response.PaginatedResponse;
 import com.library.book.application.exception.BookCopyNotFoundException;
-import com.library.book.application.service.UserContextService.UserContext;
+import com.library.book.infrastructure.config.security.JwtAuthenticationService.AuthenticatedUser;
 import com.library.book.domain.factory.BookCopyFactory;
 import com.library.book.domain.model.book.BookId;
 import com.library.book.domain.model.bookcopy.BookCopy;
@@ -44,8 +44,8 @@ public class BookCopyApplicationService {
         performanceThresholdMs = 1000L,
         messagePrefix = "BOOK_COPY_CREATE"
     )
-    public BookCopyResponse createBookCopy(BookCopyCreateRequest request, UserContext userContext) {
-        validateUserCanManageBooks(userContext);
+    public BookCopyResponse createBookCopy(BookCopyCreateRequest request, AuthenticatedUser currentUser) {
+        validateUserCanManageBooks(currentUser);
         
         BookCopyFactory.BookCopyCreationRequest factoryRequest = BookCopyFactory.BookCopyCreationRequest.builder()
             .bookId(request.getBookId())
@@ -57,7 +57,7 @@ public class BookCopyApplicationService {
         BookCopy bookCopy = bookCopyFactory.createBookCopy(factoryRequest);
         BookCopy savedBookCopy = bookCopyRepository.save(bookCopy);
         
-        log.info("Book copy created: {} by user: {}", savedBookCopy.getId(), userContext.getUsername());
+        log.info("Book copy created: {} by user: {}", savedBookCopy.getId(), currentUser.getUsername());
         
         return mapToBookCopyResponse(savedBookCopy);
     }
@@ -74,19 +74,19 @@ public class BookCopyApplicationService {
             Long bookId, 
             int numberOfCopies, 
             String locationPrefix,
-            UserContext userContext) {
+            AuthenticatedUser currentUser) {
         
-        validateUserCanManageBooks(userContext);
+        validateUserCanManageBooks(currentUser);
         
         List<BookCopy> bookCopies = bookCopyFactory.createMultipleCopies(
             bookId, numberOfCopies, null, locationPrefix);
         
         List<BookCopy> savedCopies = bookCopies.stream()
             .map(bookCopyRepository::save)
-            .collect(Collectors.toList());
+            .toList();
         
         log.info("Created {} book copies for book {} by user: {}", 
-            numberOfCopies, bookId, userContext.getUsername());
+            numberOfCopies, bookId, currentUser.getUsername());
         
         return savedCopies.stream()
             .map(this::mapToBookCopyResponse)
@@ -101,20 +101,20 @@ public class BookCopyApplicationService {
         performanceThresholdMs = 1000L,
         messagePrefix = "BOOK_COPY_BORROW"
     )
-    public void borrowBookCopy(Long bookCopyId, UserContext userContext, int loanPeriodDays) {
-        validateUserCanBorrowBooks(userContext);
+    public void borrowBookCopy(Long bookCopyId, AuthenticatedUser currentUser, int loanPeriodDays) {
+        validateUserCanBorrowBooks(currentUser);
         
         // Check if user has overdue books
-        if (bookCopyDomainService.hasOverdueBooks(userContext.getKeycloakId())) {
+        if (bookCopyDomainService.hasOverdueBooks(currentUser.getKeycloakId())) {
             throw new IllegalStateException("Cannot borrow books while having overdue items");
         }
         
         bookCopyDomainService.borrowBookCopy(
             new BookCopyId(bookCopyId), 
-            userContext.getKeycloakId(), 
+            currentUser.getKeycloakId(), 
             loanPeriodDays);
         
-        log.info("Book copy {} borrowed by user: {}", bookCopyId, userContext.getUsername());
+        log.info("Book copy {} borrowed by user: {}", bookCopyId, currentUser.getUsername());
     }
     
     @Transactional
@@ -125,18 +125,18 @@ public class BookCopyApplicationService {
         performanceThresholdMs = 1000L,
         messagePrefix = "BOOK_COPY_RETURN"
     )
-    public void returnBookCopy(Long bookCopyId, UserContext userContext) {
+    public void returnBookCopy(Long bookCopyId, AuthenticatedUser currentUser) {
         BookCopy bookCopy = bookCopyRepository.findById(new BookCopyId(bookCopyId))
             .orElseThrow(() -> new BookCopyNotFoundException(bookCopyId));
         
         // Validate user can return this book (either the borrower or librarian/admin)
-        if (!bookCopy.isBorrowedBy(userContext.getKeycloakId()) && !userContext.canManageBooks()) {
+        if (!bookCopy.isBorrowedBy(currentUser.getKeycloakId()) && !currentUser.canManageBooks()) {
             throw new IllegalStateException("You can only return books you have borrowed");
         }
         
         bookCopyDomainService.returnBookCopy(new BookCopyId(bookCopyId));
         
-        log.info("Book copy {} returned by user: {}", bookCopyId, userContext.getUsername());
+        log.info("Book copy {} returned by user: {}", bookCopyId, currentUser.getUsername());
     }
     
     @Transactional
@@ -147,14 +147,14 @@ public class BookCopyApplicationService {
         performanceThresholdMs = 1000L,
         messagePrefix = "BOOK_COPY_RESERVE"
     )
-    public void reserveBookCopy(Long bookCopyId, UserContext userContext) {
-        validateUserCanBorrowBooks(userContext);
+    public void reserveBookCopy(Long bookCopyId, AuthenticatedUser currentUser) {
+        validateUserCanBorrowBooks(currentUser);
         
         bookCopyDomainService.reserveBookCopy(
             new BookCopyId(bookCopyId), 
-            userContext.getKeycloakId());
+            currentUser.getKeycloakId());
         
-        log.info("Book copy {} reserved by user: {}", bookCopyId, userContext.getUsername());
+        log.info("Book copy {} reserved by user: {}", bookCopyId, currentUser.getUsername());
     }
     
     @Transactional(readOnly = true)
@@ -196,8 +196,8 @@ public class BookCopyApplicationService {
         performanceThresholdMs = 800L,
         messagePrefix = "BOOK_COPY_GET_USER_BORROWED"
     )
-    public List<BookCopyResponse> getUserBorrowedBooks(UserContext userContext) {
-        List<BookCopy> borrowedCopies = bookCopyDomainService.getUserBorrowedCopies(userContext.getKeycloakId());
+    public List<BookCopyResponse> getUserBorrowedBooks(AuthenticatedUser currentUser) {
+        List<BookCopy> borrowedCopies = bookCopyDomainService.getUserBorrowedCopies(currentUser.getKeycloakId());
         
         return borrowedCopies.stream()
             .map(this::mapToBookCopyResponse)
@@ -225,14 +225,14 @@ public class BookCopyApplicationService {
         return bookCopyDomainService.getBookCopyStatistics(new BookId(bookId));
     }
     
-    private void validateUserCanManageBooks(UserContext userContext) {
-        if (userContext == null || !userContext.canManageBooks()) {
+    private void validateUserCanManageBooks(AuthenticatedUser currentUser) {
+        if (currentUser == null || !currentUser.canManageBooks()) {
             throw new IllegalStateException("User does not have permission to manage books");
         }
     }
     
-    private void validateUserCanBorrowBooks(UserContext userContext) {
-        if (userContext == null || !userContext.canBorrowBooks()) {
+    private void validateUserCanBorrowBooks(AuthenticatedUser currentUser) {
+        if (currentUser == null || !currentUser.canBorrowBooks()) {
             throw new IllegalStateException("User does not have permission to borrow books");
         }
     }

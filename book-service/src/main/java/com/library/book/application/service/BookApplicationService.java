@@ -29,6 +29,7 @@ import com.library.book.domain.repository.BookRepository;
 import com.library.book.domain.repository.CategoryRepository;
 import com.library.book.domain.repository.PublisherRepository;
 import com.library.book.domain.service.BookDomainService;
+import com.library.book.infrastructure.config.security.JwtAuthenticationService;
 import com.library.book.infrastructure.enums.LogLevel;
 import com.library.book.infrastructure.enums.OperationType;
 import com.library.book.infrastructure.logging.Loggable;
@@ -77,10 +78,10 @@ public class BookApplicationService {
             performanceThresholdMs = 1500L,
             messagePrefix = "BOOK_APP_SERVICE_CREATE"
     )
-    public BookResponse createBook(BookCreateRequest request, UserContextService.UserContext userContext) {
+    public BookResponse createBook(BookCreateRequest request, JwtAuthenticationService.AuthenticatedUser currentUser) {
         try {
             // Validate user permissions
-            if (userContext == null || !userContext.canManageBooks()) {
+            if (currentUser == null || !currentUser.canManageBooks()) {
                 throw new BookApplicationException("User does not have permission to create books");
             }
             
@@ -108,7 +109,7 @@ public class BookApplicationService {
 
             Book savedBook = bookRepository.save(book);
             
-            log.info("Book created: {} by user: {}", savedBook.getTitle().getValue(), userContext.getUsername());
+            log.info("Book created: {} by user: {}", savedBook.getTitle().getValue(), currentUser.getUsername());
 
             // Handle domain events if needed
             // eventPublisher.publish(savedBook.getDomainEvents());
@@ -164,10 +165,10 @@ public class BookApplicationService {
             performanceThresholdMs = 1500L,
             messagePrefix = "BOOK_APP_SERVICE_UPDATE"
     )
-    public BookResponse updateBook(Long id, BookCreateRequest request, UserContextService.UserContext userContext) {
+    public BookResponse updateBook(Long id, BookCreateRequest request, JwtAuthenticationService.AuthenticatedUser currentUser) {
         try {
             // Validate user permissions
-            if (userContext == null || !userContext.canManageBooks()) {
+            if (currentUser == null || !currentUser.canManageBooks()) {
                 throw new BookApplicationException("User does not have permission to update books");
             }
             
@@ -229,10 +230,10 @@ public class BookApplicationService {
             performanceThresholdMs = 1000L,
             messagePrefix = "BOOK_APP_SERVICE_DELETE"
     )
-    public void deleteBook(Long id, UserContextService.UserContext userContext) {
+    public void deleteBook(Long id, JwtAuthenticationService.AuthenticatedUser currentUser) {
         try {
             // Validate user permissions
-            if (userContext == null || !userContext.canManageBooks()) {
+            if (currentUser == null || !currentUser.canManageBooks()) {
                 throw new BookApplicationException("User does not have permission to delete books");
             }
             
@@ -247,7 +248,10 @@ public class BookApplicationService {
             book.markAsDeleted();
             bookRepository.save(book);
             
-            log.info("Book deleted: {} by user: {}", book.getTitle().getValue(), userContext.getUsername());
+            log.info("Book deleted: {} by user: {}", book.getTitle().getValue(), currentUser.getUsername());
+        } catch (BookApplicationException e) {
+            log.error("Book application exception: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("Error deleting book with id {}", id, e);
             throw new BookApplicationException("Failed to delete book", e);

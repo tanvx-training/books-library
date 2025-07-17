@@ -5,7 +5,7 @@ import com.library.book.domain.model.book.BookId;
 import com.library.book.domain.model.category.CategoryId;
 import com.library.book.domain.repository.BookRepository;
 import com.library.book.infrastructure.exception.BookPersistenceException;
-import com.library.book.infrastructure.persistence.entity.BookJpaEntity;
+import com.library.book.infrastructure.persistence.entity.BookEntity;
 import com.library.book.infrastructure.persistence.mapper.BookEntityMapper;
 import com.library.book.infrastructure.persistence.repository.BookJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class BookRepositoryImpl implements BookRepository {
     @Override
     public Book save(Book book) {
         try {
-            BookJpaEntity entity = bookEntityMapper.toJpaEntity(book);
+            BookEntity entity = bookEntityMapper.toJpaEntity(book);
             bookJpaRepository.save(entity);
             return bookEntityMapper.toDomainEntity(entity);
         } catch (DataAccessException e) {
@@ -117,7 +117,7 @@ public class BookRepositoryImpl implements BookRepository {
     public void delete(Book book) {
         try {
             // Soft delete
-            BookJpaEntity entity = bookEntityMapper.toJpaEntity(book);
+            BookEntity entity = bookEntityMapper.toJpaEntity(book);
             entity.setDeleteFlg(true);
             bookJpaRepository.save(entity);
         } catch (DataAccessException e) {

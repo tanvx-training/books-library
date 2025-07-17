@@ -1,6 +1,12 @@
 package com.library.book.infrastructure.persistence.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
@@ -12,50 +18,21 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "books")
+@Table(name = "authors")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class BookJpaEntity {
+public class AuthorEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false, length = 200)
-    private String title;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-    @Column(name = "isbn", unique = true, length = 20)
-    private String isbn;
-
-    @Column(name = "publisher_id")
-    private Long publisherId;
-
-    @Column(name = "publication_year")
-    private Integer publicationYear;
-
-    @Lob
-    @Column(name = "description")
-    private String description;
-
-    @Column(name = "cover_image_url")
-    private String coverImageUrl;
-
-    @ElementCollection
-    @CollectionTable(
-            name = "book_authors",
-            joinColumns = @JoinColumn(name = "book_id")
-    )
-    @Column(name = "author_id")
-    private java.util.List<Long> authorIds = new java.util.ArrayList<>();
-
-    @ElementCollection
-    @CollectionTable(
-            name = "book_categories",
-            joinColumns = @JoinColumn(name = "book_id")
-    )
-    @Column(name = "category_id")
-    private java.util.List<Long> categoryIds = new java.util.ArrayList<>();
+    @Column(name = "biography")
+    private String biography;
 
     @Column(name = "delete_flg", nullable = false)
     private boolean deleteFlg;
@@ -75,4 +52,4 @@ public class BookJpaEntity {
     @LastModifiedBy
     @Column(name = "updated_by")
     private String updatedBy;
-} 
+}

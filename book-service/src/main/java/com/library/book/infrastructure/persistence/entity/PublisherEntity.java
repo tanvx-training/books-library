@@ -1,12 +1,6 @@
 package com.library.book.infrastructure.persistence.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
@@ -18,21 +12,21 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "authors")
+@Table(name = "publishers")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class AuthorJpaEntity {
+public class PublisherEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 256)
     private String name;
 
-    @Column(name = "biography")
-    private String biography;
+    @Column(name = "address")
+    private String address;
 
     @Column(name = "delete_flg", nullable = false)
     private boolean deleteFlg;

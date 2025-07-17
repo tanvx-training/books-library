@@ -3,28 +3,18 @@ package com.library.book.interfaces.rest;
 import com.library.book.application.dto.request.BookCreateRequest;
 import com.library.book.application.dto.response.BookResponse;
 import com.library.book.application.service.BookApplicationService;
-import com.library.book.application.service.UserContextService.UserContext;
 import com.library.book.infrastructure.enums.LogLevel;
 import com.library.book.infrastructure.enums.OperationType;
 import com.library.book.infrastructure.logging.Loggable;
+import com.library.book.infrastructure.config.security.JwtAuthenticationService;
+import com.library.book.infrastructure.config.security.RequireBookManagement;
 import com.library.book.application.dto.request.PaginatedRequest;
 import com.library.book.application.dto.response.PaginatedResponse;
 import com.library.book.application.dto.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookController {
 
     private final BookApplicationService bookApplicationService;
+    private final JwtAuthenticationService jwtAuthenticationService;
 
     @GetMapping
     @Loggable(
@@ -83,6 +74,7 @@ public class BookController {
     }
 
     @PostMapping
+    @RequireBookManagement
     @Loggable(
             level = LogLevel.DETAILED,
             operationType = OperationType.CREATE,
@@ -92,20 +84,17 @@ public class BookController {
             customTags = {"endpoint=createBook", "content_management=true"}
     )
     public ResponseEntity<ApiResponse<BookResponse>> createBook(
-            @RequestBody @Valid BookCreateRequest bookCreateRequest,
-            HttpServletRequest httpRequest) {
+            @RequestBody @Valid BookCreateRequest bookCreateRequest) {
         
-        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
-        if (userContext == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        JwtAuthenticationService.AuthenticatedUser currentUser = jwtAuthenticationService.getCurrentUser();
         
         return ResponseEntity.ok(ApiResponse.success(
-                bookApplicationService.createBook(bookCreateRequest, userContext)
+                bookApplicationService.createBook(bookCreateRequest, currentUser)
         ));
     }
 
     @PutMapping("/{bookId}")
+    @RequireBookManagement
     @Loggable(
             level = LogLevel.DETAILED,
             operationType = OperationType.UPDATE,
@@ -116,20 +105,17 @@ public class BookController {
     )
     public ResponseEntity<ApiResponse<BookResponse>> updateBook(
             @PathVariable("bookId") Long bookId,
-            @RequestBody @Valid BookCreateRequest bookUpdateRequest,
-            HttpServletRequest httpRequest) {
+            @RequestBody @Valid BookCreateRequest bookUpdateRequest) {
         
-        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
-        if (userContext == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        JwtAuthenticationService.AuthenticatedUser currentUser = jwtAuthenticationService.getCurrentUser();
         
         return ResponseEntity.ok(ApiResponse.success(
-                bookApplicationService.updateBook(bookId, bookUpdateRequest, userContext)
+                bookApplicationService.updateBook(bookId, bookUpdateRequest, currentUser)
         ));
     }
 
     @DeleteMapping("/{bookId}")
+    @RequireBookManagement
     @Loggable(
             level = LogLevel.DETAILED,
             operationType = OperationType.DELETE,
@@ -138,16 +124,11 @@ public class BookController {
             messagePrefix = "BOOK_DELETION",
             customTags = {"endpoint=deleteBook", "content_management=true"}
     )
-    public ResponseEntity<ApiResponse<Void>> deleteBook(
-            @PathVariable("bookId") Long bookId,
-            HttpServletRequest httpRequest) {
+    public ResponseEntity<ApiResponse<Void>> deleteBook(@PathVariable("bookId") Long bookId) {
         
-        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
-        if (userContext == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        JwtAuthenticationService.AuthenticatedUser currentUser = jwtAuthenticationService.getCurrentUser();
         
-        bookApplicationService.deleteBook(bookId, userContext);
+        bookApplicationService.deleteBook(bookId, currentUser);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
-} 
+}

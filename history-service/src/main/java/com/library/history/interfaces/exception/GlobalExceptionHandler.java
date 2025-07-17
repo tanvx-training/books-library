@@ -1,4 +1,4 @@
-package com.library.history.interfaces.rest.exception;
+package com.library.history.interfaces.exception;
 
 import com.library.history.application.dto.response.ApiError;
 import com.library.history.application.dto.response.ApiResponse;

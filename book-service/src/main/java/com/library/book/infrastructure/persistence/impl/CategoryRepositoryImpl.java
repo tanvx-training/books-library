@@ -6,7 +6,7 @@ import com.library.book.domain.model.category.CategoryName;
 import com.library.book.domain.model.category.CategorySlug;
 import com.library.book.domain.repository.CategoryRepository;
 import com.library.book.infrastructure.exception.CategoryPersistenceException;
-import com.library.book.infrastructure.persistence.entity.CategoryJpaEntity;
+import com.library.book.infrastructure.persistence.entity.CategoryEntity;
 import com.library.book.infrastructure.persistence.mapper.CategoryEntityMapper;
 import com.library.book.infrastructure.persistence.repository.CategoryJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +30,8 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     @Override
     public Category save(Category category) {
         try {
-            CategoryJpaEntity entity = categoryEntityMapper.toJpaEntity(category);
-            CategoryJpaEntity savedEntity = categoryJpaRepository.save(entity);
+            CategoryEntity entity = categoryEntityMapper.toJpaEntity(category);
+            CategoryEntity savedEntity = categoryJpaRepository.save(entity);
             return categoryEntityMapper.toDomainEntity(savedEntity);
         } catch (DataAccessException e) {
             log.error("Error saving category", e);
@@ -89,7 +89,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     public void delete(Category category) {
         try {
             // Soft delete
-            CategoryJpaEntity entity = categoryEntityMapper.toJpaEntity(category);
+            CategoryEntity entity = categoryEntityMapper.toJpaEntity(category);
             entity.setDeleteFlg(true);
             categoryJpaRepository.save(entity);
         } catch (DataAccessException e) {

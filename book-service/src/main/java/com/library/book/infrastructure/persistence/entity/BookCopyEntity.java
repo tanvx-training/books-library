@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "book_copies")
-public class BookCopyJpaEntity implements Serializable {
+public class BookCopyEntity implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

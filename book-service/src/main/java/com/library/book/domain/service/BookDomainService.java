@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class BookDomainService {
      */
     public boolean isBookAvailableForBorrowing(BookId bookId) {
         Optional<Book> bookOpt = bookRepository.findById(bookId);
-        if (!bookOpt.isPresent()) {
+        if (bookOpt.isEmpty()) {
             return false;
         }
         
@@ -66,17 +67,11 @@ public class BookDomainService {
         }
         
         // Prioritize copies in better condition
+        // Sort by condition (better condition first)
+        // Then by copy number (lower number first)
         return availableCopies.stream()
-            .filter(copy -> copy.canBeBorrowed())
-            .min((copy1, copy2) -> {
-                // Sort by condition (better condition first)
-                int conditionComparison = copy1.getCondition().compareTo(copy2.getCondition());
-                if (conditionComparison != 0) {
-                    return conditionComparison;
-                }
-                // Then by copy number (lower number first)
-                return copy1.getCopyNumber().getValue().compareTo(copy2.getCopyNumber().getValue());
-            });
+            .filter(BookCopy::canBeBorrowed)
+            .min(Comparator.comparing(BookCopy::getCondition).thenComparing(copy -> copy.getCopyNumber().getValue()));
     }
     
     /**

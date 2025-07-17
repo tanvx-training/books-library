@@ -1,4 +1,4 @@
-package com.library.book.infrastructure.config;
+package com.library.book.infrastructure.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,13 +37,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                                // Public endpoints
-                                .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                                // Secured endpoints with specific roles
-//                .requestMatchers("/api/books/admin/**").hasRole("ADMIN")
-                                // All other endpoints require authentication
-                .anyRequest().authenticated()
-//                                .anyRequest().permitAll() // bypass
+                        .requestMatchers("/actuator/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
@@ -83,32 +78,28 @@ public class SecurityConfig {
             Collection<GrantedAuthority> authorities = extractRealmRoles(jwt);
 
             // Extract client roles if needed
-            authorities.addAll(extractResourceRoles(jwt, "book-service"));
+            authorities.addAll(extractResourceRoles(jwt));
 
             return authorities;
         }
 
         private Collection<GrantedAuthority> extractRealmRoles(Jwt jwt) {
             Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
-            if (realmAccess == null || !realmAccess.containsKey("roles")) {
-                return Collections.emptyList();
-            }
-
-            @SuppressWarnings("unchecked")
-            List<String> roles = (List<String>) realmAccess.get("roles");
-            return roles.stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                    .collect(Collectors.toList());
+            return getGrantedAuthorities(realmAccess);
         }
 
-        private Collection<GrantedAuthority> extractResourceRoles(Jwt jwt, String clientId) {
+        private Collection<GrantedAuthority> extractResourceRoles(Jwt jwt) {
             Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
-            if (resourceAccess == null || !resourceAccess.containsKey(clientId)) {
+            if (resourceAccess == null || !resourceAccess.containsKey("book-service")) {
                 return Collections.emptyList();
             }
 
             @SuppressWarnings("unchecked")
-            Map<String, Object> clientResource = (Map<String, Object>) resourceAccess.get(clientId);
+            Map<String, Object> clientResource = (Map<String, Object>) resourceAccess.get("book-service");
+            return getGrantedAuthorities(clientResource);
+        }
+
+        private Collection<GrantedAuthority> getGrantedAuthorities(Map<String, Object> clientResource) {
             if (clientResource == null || !clientResource.containsKey("roles")) {
                 return Collections.emptyList();
             }

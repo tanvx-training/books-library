@@ -2,7 +2,7 @@ package com.library.book.infrastructure.persistence.mapper;
 
 import com.library.book.domain.model.book.BookId;
 import com.library.book.domain.model.bookcopy.*;
-import com.library.book.infrastructure.persistence.entity.BookCopyJpaEntity;
+import com.library.book.infrastructure.persistence.entity.BookCopyEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -22,7 +22,7 @@ public interface BookCopyEntityMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
-    BookCopyJpaEntity toJpaEntity(BookCopy bookCopy);
+    BookCopyEntity toJpaEntity(BookCopy bookCopy);
     
     @Mapping(target = "id", source = "id", qualifiedByName = "mapToBookCopyId")
     @Mapping(target = "bookId", source = "bookId", qualifiedByName = "mapToBookId")
@@ -30,7 +30,7 @@ public interface BookCopyEntityMapper {
     @Mapping(target = "location", source = "location", qualifiedByName = "mapToLocation")
     @Mapping(target = "deleted", source = "deleteFlg")
     @Mapping(target = "domainEvents", ignore = true)
-    BookCopy toDomainEntity(BookCopyJpaEntity entity);
+    BookCopy toDomainEntity(BookCopyEntity entity);
     
     @Named("mapToBookCopyId")
     default BookCopyId mapToBookCopyId(Long id) {

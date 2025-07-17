@@ -1,5 +1,6 @@
 package com.library.book.domain.factory;
 
+import com.library.book.domain.exception.BookDomainException;
 import com.library.book.domain.model.author.AuthorId;
 import com.library.book.domain.model.book.*;
 import com.library.book.domain.model.category.CategoryId;
@@ -74,46 +75,46 @@ public class BookFactory {
     
     private void validateBookCreationRequest(BookCreationRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Book creation request cannot be null");
+            throw new BookDomainException("Book creation request cannot be null");
         }
         
         if (!StringUtils.hasText(request.getTitle())) {
-            throw new IllegalArgumentException("Book title is required");
+            throw new BookDomainException("Book title is required");
         }
         
         if (!StringUtils.hasText(request.getIsbn())) {
-            throw new IllegalArgumentException("Book ISBN is required");
+            throw new BookDomainException("Book ISBN is required");
         }
         
         if (request.getPublisherId() == null) {
-            throw new IllegalArgumentException("Publisher ID is required");
+            throw new BookDomainException("Publisher ID is required");
         }
         
         if (request.getAuthorIds() == null || request.getAuthorIds().isEmpty()) {
-            throw new IllegalArgumentException("At least one author is required");
+            throw new BookDomainException("At least one author is required");
         }
         
         if (request.getCategoryIds() == null || request.getCategoryIds().isEmpty()) {
-            throw new IllegalArgumentException("At least one category is required");
+            throw new BookDomainException("At least one category is required");
         }
     }
     
     private void validateReferences(BookCreationRequest request) {
         // Validate publisher exists
-        if (!publisherRepository.findById(new com.library.book.domain.model.publisher.PublisherId(request.getPublisherId())).isPresent()) {
-            throw new IllegalArgumentException("Publisher with ID " + request.getPublisherId() + " does not exist");
+        if (publisherRepository.findById(new PublisherId(request.getPublisherId())).isEmpty()) {
+            throw new BookDomainException("Publisher with ID " + request.getPublisherId() + " does not exist");
         }
         
         // Validate all authors exist
         for (Long authorId : request.getAuthorIds()) {
-            if (!authorRepository.findById(new AuthorId(authorId)).isPresent()) {
-                throw new IllegalArgumentException("Author with ID " + authorId + " does not exist");
+            if (authorRepository.findById(new AuthorId(authorId)).isEmpty()) {
+                throw new BookDomainException("Author with ID " + authorId + " does not exist");
             }
         }
         
         // Validate all categories exist
         for (Long categoryId : request.getCategoryIds()) {
-            if (!categoryRepository.findById(new CategoryId(categoryId)).isPresent()) {
+            if (categoryRepository.findById(new CategoryId(categoryId)).isEmpty()) {
                 throw new IllegalArgumentException("Category with ID " + categoryId + " does not exist");
             }
         }

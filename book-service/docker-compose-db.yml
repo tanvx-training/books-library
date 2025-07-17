@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Book Service
+  book-service-db:
+    image: postgres:15-alpine
+    container_name: book-service-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: book_service
+      POSTGRES_USER: book_service_user
+      POSTGRES_PASSWORD: book_service_password_2024
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8"
+    ports:
+      - "5433:5432"  # Using 5433 to avoid conflicts with system PostgreSQL
+    volumes:
+      # Persistent data storage
+      - book_service_postgres_data:/var/lib/postgresql/data
+      # Initialization scripts
+      - ./scripts/setup-database.sql:/docker-entrypoint-initdb.d/01-setup.sql
+      - ./src/main/resources/db/migration/V1__Create_book_service_tables.sql:/docker-entrypoint-initdb.d/02-schema.sql
+      - ./src/main/resources/db/migration/V2__Insert_sample_data.sql:/docker-entrypoint-initdb.d/03-data.sql
+    networks:
+      - book-service-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U book_service_user -d book_service"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # pgAdmin for database management (optional)
+  book-service-pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: book-service-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@bookservice.local
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - book_service_pgadmin_data:/var/lib/pgadmin
+    networks:
+      - book-service-network
+    depends_on:
+      - book-service-db
+
+volumes:
+  book_service_postgres_data:
+    driver: local
+  book_service_pgadmin_data:
+    driver: local
+
+networks:
+  book-service-network:
+    driver: bridge

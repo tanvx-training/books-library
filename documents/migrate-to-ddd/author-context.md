@@ -467,7 +467,7 @@ public class AuthorJpaEntity {
 ```java
 package com.library.book.infrastructure.persistence.repository;
 
-import com.library.book.infrastructure.persistence.entity.AuthorJpaEntity;
+import com.library.book.infrastructure.persistence.entity.AuthorEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -487,7 +487,7 @@ import com.library.book.domain.model.author.Author;
 import com.library.book.domain.model.author.AuthorId;
 import com.library.book.domain.model.author.AuthorName;
 import com.library.book.domain.model.author.Biography;
-import com.library.book.infrastructure.persistence.entity.AuthorJpaEntity;
+import com.library.book.infrastructure.persistence.entity.AuthorEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -565,7 +565,7 @@ import com.library.book.domain.model.author.Author;
 import com.library.book.domain.model.author.AuthorId;
 import com.library.book.domain.repository.AuthorRepository;
 import com.library.book.infrastructure.exception.AuthorPersistenceException;
-import com.library.book.infrastructure.persistence.entity.AuthorJpaEntity;
+import com.library.book.infrastructure.persistence.entity.AuthorEntity;
 import com.library.book.infrastructure.persistence.mapper.AuthorEntityMapper;
 import com.library.book.infrastructure.persistence.repository.AuthorJpaRepository;
 import lombok.RequiredArgsConstructor;

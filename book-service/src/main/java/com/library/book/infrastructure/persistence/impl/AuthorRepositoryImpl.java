@@ -4,7 +4,7 @@ import com.library.book.domain.model.author.Author;
 import com.library.book.domain.model.author.AuthorId;
 import com.library.book.domain.repository.AuthorRepository;
 import com.library.book.infrastructure.exception.AuthorPersistenceException;
-import com.library.book.infrastructure.persistence.entity.AuthorJpaEntity;
+import com.library.book.infrastructure.persistence.entity.AuthorEntity;
 import com.library.book.infrastructure.persistence.mapper.AuthorEntityMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     @Override
     public Author save(Author author) {
         try {
-            AuthorJpaEntity entity = authorEntityMapper.toJpaEntity(author);
+            AuthorEntity entity = authorEntityMapper.toJpaEntity(author);
             authorJpaRepository.save(entity);
             return authorEntityMapper.toDomainEntity(entity);
         } catch (DataAccessException e) {
@@ -98,7 +98,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     public void delete(Author author) {
         try {
             // Soft delete
-            AuthorJpaEntity entity = authorEntityMapper.toJpaEntity(author);
+            AuthorEntity entity = authorEntityMapper.toJpaEntity(author);
             entity.setDeleteFlg(true);
             authorJpaRepository.save(entity);
         } catch (DataAccessException e) {

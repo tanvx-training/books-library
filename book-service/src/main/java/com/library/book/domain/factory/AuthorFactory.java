@@ -1,5 +1,6 @@
 package com.library.book.domain.factory;
 
+import com.library.book.domain.exception.InvalidAuthorDataException;
 import com.library.book.domain.model.author.Author;
 import com.library.book.domain.model.author.AuthorName;
 import com.library.book.domain.model.author.Biography;
@@ -26,7 +27,7 @@ public class AuthorFactory {
         // Check if author with same name already exists
         AuthorName authorName = AuthorName.of(request.getName());
         if (authorRepository.existsByName(authorName)) {
-            throw new IllegalArgumentException("Author with name '" + request.getName() + "' already exists");
+            throw new InvalidAuthorDataException("Author with name '" + request.getName() + "' already exists");
         }
         
         Biography biography = StringUtils.hasText(request.getBiography())
@@ -44,7 +45,7 @@ public class AuthorFactory {
             String createdByKeycloakId) {
         
         if (authorNames == null || authorNames.isEmpty()) {
-            throw new IllegalArgumentException("Author names list cannot be null or empty");
+            throw new InvalidAuthorDataException("Author names list cannot be null or empty");
         }
         
         java.util.List<Author> authors = new java.util.ArrayList<>();
@@ -70,15 +71,15 @@ public class AuthorFactory {
     
     private void validateAuthorCreationRequest(AuthorCreationRequest request) {
         if (request == null) {
-            throw new IllegalArgumentException("Author creation request cannot be null");
+            throw new InvalidAuthorDataException("Author creation request cannot be null");
         }
         
         if (!StringUtils.hasText(request.getName())) {
-            throw new IllegalArgumentException("Author name is required");
+            throw new InvalidAuthorDataException("Author name is required");
         }
         
         if (!StringUtils.hasText(request.getCreatedByKeycloakId())) {
-            throw new IllegalArgumentException("Created by user ID is required");
+            throw new InvalidAuthorDataException("Created by user ID is required");
         }
     }
     

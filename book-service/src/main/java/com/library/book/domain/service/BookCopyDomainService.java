@@ -28,7 +28,7 @@ public class BookCopyDomainService {
      */
     public void borrowBookCopy(BookCopyId bookCopyId, String borrowerKeycloakId, int loanPeriodDays) {
         Optional<BookCopy> bookCopyOpt = bookCopyRepository.findById(bookCopyId);
-        if (!bookCopyOpt.isPresent()) {
+        if (bookCopyOpt.isEmpty()) {
             throw new IllegalArgumentException("Book copy not found: " + bookCopyId);
         }
         
@@ -47,7 +47,7 @@ public class BookCopyDomainService {
      */
     public void returnBookCopy(BookCopyId bookCopyId) {
         Optional<BookCopy> bookCopyOpt = bookCopyRepository.findById(bookCopyId);
-        if (!bookCopyOpt.isPresent()) {
+        if (bookCopyOpt.isEmpty()) {
             throw new IllegalArgumentException("Book copy not found: " + bookCopyId);
         }
         
@@ -66,7 +66,7 @@ public class BookCopyDomainService {
      */
     public void reserveBookCopy(BookCopyId bookCopyId, String reserverKeycloakId) {
         Optional<BookCopy> bookCopyOpt = bookCopyRepository.findById(bookCopyId);
-        if (!bookCopyOpt.isPresent()) {
+        if (bookCopyOpt.isEmpty()) {
             throw new IllegalArgumentException("Book copy not found: " + bookCopyId);
         }
         
@@ -128,7 +128,7 @@ public class BookCopyDomainService {
      */
     public double calculateOverdueFine(BookCopyId bookCopyId, double dailyFineRate) {
         Optional<BookCopy> bookCopyOpt = bookCopyRepository.findById(bookCopyId);
-        if (!bookCopyOpt.isPresent()) {
+        if (bookCopyOpt.isEmpty()) {
             return 0.0;
         }
         

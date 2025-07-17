@@ -5,7 +5,7 @@ import com.library.book.domain.model.publisher.PublisherId;
 import com.library.book.domain.model.publisher.PublisherName;
 import com.library.book.domain.repository.PublisherRepository;
 import com.library.book.infrastructure.exception.PublisherPersistenceException;
-import com.library.book.infrastructure.persistence.entity.PublisherJpaEntity;
+import com.library.book.infrastructure.persistence.entity.PublisherEntity;
 import com.library.book.infrastructure.persistence.mapper.PublisherEntityMapper;
 import com.library.book.infrastructure.persistence.repository.PublisherJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +29,8 @@ public class PublisherRepositoryImpl implements PublisherRepository {
     @Override
     public Publisher save(Publisher publisher) {
         try {
-            PublisherJpaEntity entity = publisherEntityMapper.toJpaEntity(publisher);
-            PublisherJpaEntity savedEntity = publisherJpaRepository.save(entity);
+            PublisherEntity entity = publisherEntityMapper.toJpaEntity(publisher);
+            PublisherEntity savedEntity = publisherJpaRepository.save(entity);
             return publisherEntityMapper.toDomainEntity(savedEntity);
         } catch (DataAccessException e) {
             log.error("Error saving publisher", e);
@@ -88,7 +88,7 @@ public class PublisherRepositoryImpl implements PublisherRepository {
     public void delete(Publisher publisher) {
         try {
             // Soft delete
-            PublisherJpaEntity entity = publisherEntityMapper.toJpaEntity(publisher);
+            PublisherEntity entity = publisherEntityMapper.toJpaEntity(publisher);
             entity.setDeleteFlg(true);
             publisherJpaRepository.save(entity);
         } catch (DataAccessException e) {

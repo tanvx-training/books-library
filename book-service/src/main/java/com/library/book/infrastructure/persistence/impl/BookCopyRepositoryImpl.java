@@ -6,7 +6,7 @@ import com.library.book.domain.model.bookcopy.BookCopyId;
 import com.library.book.domain.model.bookcopy.BookCopyStatus;
 import com.library.book.domain.repository.BookCopyRepository;
 import com.library.book.infrastructure.exception.BookPersistenceException;
-import com.library.book.infrastructure.persistence.entity.BookCopyJpaEntity;
+import com.library.book.infrastructure.persistence.entity.BookCopyEntity;
 import com.library.book.infrastructure.persistence.mapper.BookCopyEntityMapper;
 import com.library.book.infrastructure.persistence.repository.BookCopyJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +36,8 @@ public class BookCopyRepositoryImpl implements BookCopyRepository {
     @Override
     public BookCopy save(BookCopy bookCopy) {
         try {
-            BookCopyJpaEntity entity = bookCopyEntityMapper.toJpaEntity(bookCopy);
-            BookCopyJpaEntity savedEntity = bookCopyJpaRepository.save(entity);
+            BookCopyEntity entity = bookCopyEntityMapper.toJpaEntity(bookCopy);
+            BookCopyEntity savedEntity = bookCopyJpaRepository.save(entity);
             return bookCopyEntityMapper.toDomainEntity(savedEntity);
         } catch (DataAccessException e) {
             log.error("Error saving book copy", e);
@@ -59,7 +59,7 @@ public class BookCopyRepositoryImpl implements BookCopyRepository {
     @Override
     public List<BookCopy> findByBookId(BookId bookId) {
         try {
-            List<BookCopyJpaEntity> entities = bookCopyJpaRepository.findByBookIdAndDeleteFlgFalse(bookId.getValue());
+            List<BookCopyEntity> entities = bookCopyJpaRepository.findByBookIdAndDeleteFlgFalse(bookId.getValue());
             return entities.stream()
                 .map(bookCopyEntityMapper::toDomainEntity)
                 .collect(Collectors.toList());
@@ -72,7 +72,7 @@ public class BookCopyRepositoryImpl implements BookCopyRepository {
     @Override
     public List<BookCopy> findAvailableCopiesByBookId(BookId bookId) {
         try {
-            List<BookCopyJpaEntity> entities = bookCopyJpaRepository.findAvailableCopiesByBookId(bookId.getValue());
+            List<BookCopyEntity> entities = bookCopyJpaRepository.findAvailableCopiesByBookId(bookId.getValue());
             return entities.stream()
                 .map(bookCopyEntityMapper::toDomainEntity)
                 .collect(Collectors.toList());
@@ -86,7 +86,7 @@ public class BookCopyRepositoryImpl implements BookCopyRepository {
     public Page<BookCopy> findByStatus(BookCopyStatus status, int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<BookCopyJpaEntity> entityPage = bookCopyJpaRepository.findByStatusAndDeleteFlgFalse(status, pageable);
+            Page<BookCopyEntity> entityPage = bookCopyJpaRepository.findByStatusAndDeleteFlgFalse(status, pageable);
             return entityPage.map(bookCopyEntityMapper::toDomainEntity);
         } catch (DataAccessException e) {
             log.error("Error finding book copies by status: {}", status, e);
@@ -97,7 +97,7 @@ public class BookCopyRepositoryImpl implements BookCopyRepository {
     @Override
     public List<BookCopy> findBorrowedByUser(String userKeycloakId) {
         try {
-            List<BookCopyJpaEntity> entities = bookCopyJpaRepository.findBorrowedByUser(userKeycloakId);
+            List<BookCopyEntity> entities = bookCopyJpaRepository.findBorrowedByUser(userKeycloakId);
             return entities.stream()
                 .map(bookCopyEntityMapper::toDomainEntity)
                 .collect(Collectors.toList());
@@ -110,7 +110,7 @@ public class BookCopyRepositoryImpl implements BookCopyRepository {
     @Override
     public List<BookCopy> findOverdueCopies(LocalDateTime currentDate) {
         try {
-            List<BookCopyJpaEntity> entities = bookCopyJpaRepository.findOverdueCopies(currentDate);
+            List<BookCopyEntity> entities = bookCopyJpaRepository.findOverdueCopies(currentDate);
             return entities.stream()
                 .map(bookCopyEntityMapper::toDomainEntity)
                 .collect(Collectors.toList());
@@ -123,7 +123,7 @@ public class BookCopyRepositoryImpl implements BookCopyRepository {
     @Override
     public List<BookCopy> findCopiesDueSoon(LocalDateTime fromDate, LocalDateTime toDate) {
         try {
-            List<BookCopyJpaEntity> entities = bookCopyJpaRepository.findCopiesDueSoon(fromDate, toDate);
+            List<BookCopyEntity> entities = bookCopyJpaRepository.findCopiesDueSoon(fromDate, toDate);
             return entities.stream()
                 .map(bookCopyEntityMapper::toDomainEntity)
                 .collect(Collectors.toList());
@@ -167,7 +167,7 @@ public class BookCopyRepositoryImpl implements BookCopyRepository {
     public Page<BookCopy> findAll(int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<BookCopyJpaEntity> entityPage = bookCopyJpaRepository.findByDeleteFlgFalse(pageable);
+            Page<BookCopyEntity> entityPage = bookCopyJpaRepository.findByDeleteFlgFalse(pageable);
             return entityPage.map(bookCopyEntityMapper::toDomainEntity);
         } catch (DataAccessException e) {
             log.error("Error finding all book copies with pagination", e);

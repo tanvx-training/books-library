@@ -13,6 +13,7 @@ import com.library.book.domain.model.author.Author;
 import com.library.book.domain.model.author.AuthorId;
 import com.library.book.domain.repository.AuthorRepository;
 import com.library.book.domain.service.AuthorDomainService;
+import com.library.book.infrastructure.config.security.JwtAuthenticationService;
 import com.library.book.infrastructure.enums.LogLevel;
 import com.library.book.infrastructure.enums.OperationType;
 import com.library.book.infrastructure.logging.Loggable;
@@ -54,10 +55,10 @@ public class AuthorApplicationService {
             performanceThresholdMs = 1500L,
             messagePrefix = "AUTHOR_APP_SERVICE_CREATE"
     )
-    public AuthorResponse createAuthor(AuthorCreateRequest request, UserContextService.UserContext userContext) {
+    public AuthorResponse createAuthor(AuthorCreateRequest request, JwtAuthenticationService.AuthenticatedUser currentUser) {
         try {
             // Validate user permissions
-            if (userContext == null || !userContext.canManageBooks()) {
+            if (currentUser == null || !currentUser.canManageBooks()) {
                 throw new AuthorApplicationException("User does not have permission to create authors");
             }
             
@@ -65,7 +66,7 @@ public class AuthorApplicationService {
             AuthorFactory.AuthorCreationRequest factoryRequest = AuthorFactory.AuthorCreationRequest.builder()
                 .name(request.getName())
                 .biography(request.getBiography())
-                .createdByKeycloakId(userContext.getKeycloakId())
+                .createdByKeycloakId(currentUser.getKeycloakId())
                 .build();
             
             AuthorFactory authorFactory = new AuthorFactory(authorRepository);
@@ -73,7 +74,7 @@ public class AuthorApplicationService {
 
             Author savedAuthor = authorRepository.save(author);
             
-            log.info("Author created: {} by user: {}", savedAuthor.getName().getValue(), userContext.getUsername());
+            log.info("Author created: {} by user: {}", savedAuthor.getName().getValue(), currentUser.getUsername());
 
             // Xử lý domain events nếu cần
             // eventPublisher.publish(savedAuthor.getDomainEvents());
@@ -114,10 +115,10 @@ public class AuthorApplicationService {
             performanceThresholdMs = 1000L,
             messagePrefix = "AUTHOR_APP_SERVICE_UPDATE"
     )
-    public AuthorResponse updateAuthor(Long id, AuthorCreateRequest request, UserContextService.UserContext userContext) {
+    public AuthorResponse updateAuthor(Long id, AuthorCreateRequest request, JwtAuthenticationService.AuthenticatedUser currentUser) {
         try {
             // Validate user permissions
-            if (userContext == null || !userContext.canManageBooks()) {
+            if (currentUser == null || !currentUser.canManageBooks()) {
                 throw new AuthorApplicationException("User does not have permission to update authors");
             }
             
@@ -126,13 +127,13 @@ public class AuthorApplicationService {
             
             // Update author information
             author.updateName(com.library.book.domain.model.author.AuthorName.of(request.getName()), 
-                userContext.getKeycloakId());
+                currentUser.getKeycloakId());
             author.updateBiography(com.library.book.domain.model.author.Biography.of(request.getBiography()), 
-                userContext.getKeycloakId());
+                currentUser.getKeycloakId());
             
             Author savedAuthor = authorRepository.save(author);
             
-            log.info("Author updated: {} by user: {}", savedAuthor.getName().getValue(), userContext.getUsername());
+            log.info("Author updated: {} by user: {}", savedAuthor.getName().getValue(), currentUser.getUsername());
             
             return mapToAuthorResponse(savedAuthor);
         } catch (InvalidAuthorDataException e) {
@@ -152,10 +153,10 @@ public class AuthorApplicationService {
             performanceThresholdMs = 1000L,
             messagePrefix = "AUTHOR_APP_SERVICE_DELETE"
     )
-    public void deleteAuthor(Long id, UserContextService.UserContext userContext) {
+    public void deleteAuthor(Long id, JwtAuthenticationService.AuthenticatedUser currentUser) {
         try {
             // Validate user permissions
-            if (userContext == null || !userContext.canManageBooks()) {
+            if (currentUser == null || !currentUser.canManageBooks()) {
                 throw new AuthorApplicationException("User does not have permission to delete authors");
             }
             
@@ -167,10 +168,10 @@ public class AuthorApplicationService {
                 throw new AuthorApplicationException("Cannot delete author with associated books");
             }
             
-            author.markAsDeleted(userContext.getKeycloakId());
+            author.markAsDeleted(currentUser.getKeycloakId());
             authorRepository.save(author);
             
-            log.info("Author deleted: {} by user: {}", author.getName().getValue(), userContext.getUsername());
+            log.info("Author deleted: {} by user: {}", author.getName().getValue(), currentUser.getUsername());
         } catch (Exception e) {
             log.error("Error deleting author with id {}", id, e);
             throw new AuthorApplicationException("Failed to delete author", e);

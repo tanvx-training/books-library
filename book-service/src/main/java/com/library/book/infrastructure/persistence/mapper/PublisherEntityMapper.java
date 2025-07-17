@@ -4,14 +4,14 @@ import com.library.book.domain.model.publisher.Address;
 import com.library.book.domain.model.publisher.Publisher;
 import com.library.book.domain.model.publisher.PublisherId;
 import com.library.book.domain.model.publisher.PublisherName;
-import com.library.book.infrastructure.persistence.entity.PublisherJpaEntity;
+import com.library.book.infrastructure.persistence.entity.PublisherEntity;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PublisherEntityMapper {
 
-    public PublisherJpaEntity toJpaEntity(Publisher publisher) {
-        PublisherJpaEntity entity = new PublisherJpaEntity();
+    public PublisherEntity toJpaEntity(Publisher publisher) {
+        PublisherEntity entity = new PublisherEntity();
 
         if (publisher.getId() != null && publisher.getId().getValue() != null) {
             entity.setId(publisher.getId().getValue());
@@ -24,7 +24,7 @@ public class PublisherEntityMapper {
         return entity;
     }
 
-    public Publisher toDomainEntity(PublisherJpaEntity jpaEntity) {
+    public Publisher toDomainEntity(PublisherEntity jpaEntity) {
         // Sử dụng reflection hoặc constructor riêng để tạo Publisher từ JPA entity
         Publisher publisher = Publisher.create(
                 PublisherName.of(jpaEntity.getName()),

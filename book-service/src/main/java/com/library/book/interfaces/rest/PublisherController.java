@@ -6,6 +6,7 @@ import com.library.book.application.service.PublisherApplicationService;
 import com.library.book.infrastructure.enums.LogLevel;
 import com.library.book.infrastructure.enums.OperationType;
 import com.library.book.infrastructure.logging.Loggable;
+import com.library.book.infrastructure.config.security.RequireBookManagement;
 import com.library.book.application.dto.request.PaginatedRequest;
 import com.library.book.application.dto.response.PaginatedResponse;
 import com.library.book.application.dto.response.ApiResponse;
@@ -53,6 +54,7 @@ public class PublisherController {
     }
 
     @PostMapping
+    @RequireBookManagement
     @Loggable(
             level = LogLevel.DETAILED,
             operationType = OperationType.CREATE,

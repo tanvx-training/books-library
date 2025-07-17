@@ -1,7 +1,7 @@
 package com.library.book.infrastructure.persistence.repository;
 
 import com.library.book.domain.model.bookcopy.BookCopyStatus;
-import com.library.book.infrastructure.persistence.entity.BookCopyJpaEntity;
+import com.library.book.infrastructure.persistence.entity.BookCopyEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,45 +16,45 @@ import java.util.List;
  * JPA Repository for BookCopy
  */
 @Repository
-public interface BookCopyJpaRepository extends JpaRepository<BookCopyJpaEntity, Long> {
+public interface BookCopyJpaRepository extends JpaRepository<BookCopyEntity, Long> {
     
     /**
      * Find all copies of a specific book
      */
-    List<BookCopyJpaEntity> findByBookIdAndDeleteFlgFalse(Long bookId);
+    List<BookCopyEntity> findByBookIdAndDeleteFlgFalse(Long bookId);
     
     /**
      * Find available copies of a specific book
      */
-    @Query("SELECT bc FROM BookCopyJpaEntity bc WHERE bc.bookId = :bookId " +
+    @Query("SELECT bc FROM BookCopyEntity bc WHERE bc.bookId = :bookId " +
            "AND bc.status = 'AVAILABLE' AND bc.deleteFlg = false")
-    List<BookCopyJpaEntity> findAvailableCopiesByBookId(@Param("bookId") Long bookId);
+    List<BookCopyEntity> findAvailableCopiesByBookId(@Param("bookId") Long bookId);
     
     /**
      * Find copies by status
      */
-    Page<BookCopyJpaEntity> findByStatusAndDeleteFlgFalse(BookCopyStatus status, Pageable pageable);
+    Page<BookCopyEntity> findByStatusAndDeleteFlgFalse(BookCopyStatus status, Pageable pageable);
     
     /**
      * Find copies borrowed by a specific user
      */
-    @Query("SELECT bc FROM BookCopyJpaEntity bc WHERE bc.currentBorrowerKeycloakId = :keycloakId " +
+    @Query("SELECT bc FROM BookCopyEntity bc WHERE bc.currentBorrowerKeycloakId = :keycloakId " +
            "AND bc.status = 'BORROWED' AND bc.deleteFlg = false")
-    List<BookCopyJpaEntity> findBorrowedByUser(@Param("keycloakId") String keycloakId);
+    List<BookCopyEntity> findBorrowedByUser(@Param("keycloakId") String keycloakId);
     
     /**
      * Find overdue copies
      */
-    @Query("SELECT bc FROM BookCopyJpaEntity bc WHERE bc.status = 'BORROWED' " +
+    @Query("SELECT bc FROM BookCopyEntity bc WHERE bc.status = 'BORROWED' " +
            "AND bc.dueDate < :currentDate AND bc.deleteFlg = false")
-    List<BookCopyJpaEntity> findOverdueCopies(@Param("currentDate") LocalDateTime currentDate);
+    List<BookCopyEntity> findOverdueCopies(@Param("currentDate") LocalDateTime currentDate);
     
     /**
      * Find copies due soon
      */
-    @Query("SELECT bc FROM BookCopyJpaEntity bc WHERE bc.status = 'BORROWED' " +
+    @Query("SELECT bc FROM BookCopyEntity bc WHERE bc.status = 'BORROWED' " +
            "AND bc.dueDate BETWEEN :fromDate AND :toDate AND bc.deleteFlg = false")
-    List<BookCopyJpaEntity> findCopiesDueSoon(
+    List<BookCopyEntity> findCopiesDueSoon(
         @Param("fromDate") LocalDateTime fromDate, 
         @Param("toDate") LocalDateTime toDate);
     
@@ -66,7 +66,7 @@ public interface BookCopyJpaRepository extends JpaRepository<BookCopyJpaEntity, 
     /**
      * Count available copies for a book
      */
-    @Query("SELECT COUNT(bc) FROM BookCopyJpaEntity bc WHERE bc.bookId = :bookId " +
+    @Query("SELECT COUNT(bc) FROM BookCopyEntity bc WHERE bc.bookId = :bookId " +
            "AND bc.status = 'AVAILABLE' AND bc.deleteFlg = false")
     long countAvailableCopiesByBookId(@Param("bookId") Long bookId);
     
@@ -78,5 +78,5 @@ public interface BookCopyJpaRepository extends JpaRepository<BookCopyJpaEntity, 
     /**
      * Find all with pagination (excluding deleted)
      */
-    Page<BookCopyJpaEntity> findByDeleteFlgFalse(Pageable pageable);
+    Page<BookCopyEntity> findByDeleteFlgFalse(Pageable pageable);
 }

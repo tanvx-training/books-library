@@ -4,7 +4,7 @@ import com.library.book.domain.model.author.AuthorId;
 import com.library.book.domain.model.book.*;
 import com.library.book.domain.model.category.CategoryId;
 import com.library.book.domain.model.publisher.PublisherId;
-import com.library.book.infrastructure.persistence.entity.BookJpaEntity;
+import com.library.book.infrastructure.persistence.entity.BookEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 @Component
 public class BookEntityMapper {
 
-    public BookJpaEntity toJpaEntity(Book book) {
-        BookJpaEntity entity = new BookJpaEntity();
+    public BookEntity toJpaEntity(Book book) {
+        BookEntity entity = new BookEntity();
         
         if (book.getId() != null && book.getId().getValue() != null) {
             entity.setId(book.getId().getValue());
@@ -43,7 +43,7 @@ public class BookEntityMapper {
         return entity;
     }
 
-    public Book toDomainEntity(BookJpaEntity jpaEntity) {
+    public Book toDomainEntity(BookEntity jpaEntity) {
         Book book = Book.create(
                 BookTitle.of(jpaEntity.getTitle()),
                 ISBN.of(jpaEntity.getIsbn()),

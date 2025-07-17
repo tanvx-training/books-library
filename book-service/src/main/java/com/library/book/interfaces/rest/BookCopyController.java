@@ -5,9 +5,10 @@ import com.library.book.application.dto.request.PaginatedRequest;
 import com.library.book.application.dto.response.BookCopyResponse;
 import com.library.book.application.dto.response.PaginatedResponse;
 import com.library.book.application.service.BookCopyApplicationService;
-import com.library.book.application.service.UserContextService.UserContext;
 import com.library.book.domain.service.BookCopyDomainService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.library.book.infrastructure.config.security.JwtAuthenticationService;
+import com.library.book.infrastructure.config.security.RequireAuthentication;
+import com.library.book.infrastructure.config.security.RequireBookManagement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,28 +29,29 @@ import java.util.Map;
 public class BookCopyController {
     
     private final BookCopyApplicationService bookCopyApplicationService;
+    private final JwtAuthenticationService jwtAuthenticationService;
     
     @PostMapping
+    @RequireBookManagement
     public ResponseEntity<BookCopyResponse> createBookCopy(
-            @Valid @RequestBody BookCopyCreateRequest request,
-            HttpServletRequest httpRequest) {
+            @Valid @RequestBody BookCopyCreateRequest request) {
         
-        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
-        BookCopyResponse response = bookCopyApplicationService.createBookCopy(request, userContext);
+        JwtAuthenticationService.AuthenticatedUser currentUser = jwtAuthenticationService.getCurrentUser();
+        BookCopyResponse response = bookCopyApplicationService.createBookCopy(request, currentUser);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
     @PostMapping("/bulk")
+    @RequireBookManagement
     public ResponseEntity<List<BookCopyResponse>> createMultipleBookCopies(
             @RequestParam Long bookId,
             @RequestParam int numberOfCopies,
-            @RequestParam(required = false) String locationPrefix,
-            HttpServletRequest httpRequest) {
+            @RequestParam(required = false) String locationPrefix) {
         
-        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
+        JwtAuthenticationService.AuthenticatedUser currentUser = jwtAuthenticationService.getCurrentUser();
         List<BookCopyResponse> responses = bookCopyApplicationService.createMultipleBookCopies(
-            bookId, numberOfCopies, locationPrefix, userContext);
+            bookId, numberOfCopies, locationPrefix, currentUser);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(responses);
     }
@@ -81,71 +83,58 @@ public class BookCopyController {
     }
     
     @GetMapping("/my-borrowed")
-    public ResponseEntity<List<BookCopyResponse>> getMyBorrowedBooks(HttpServletRequest httpRequest) {
-        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
-        if (userContext == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+    @RequireAuthentication
+    public ResponseEntity<List<BookCopyResponse>> getMyBorrowedBooks() {
+        JwtAuthenticationService.AuthenticatedUser currentUser = jwtAuthenticationService.getCurrentUser();
         
-        List<BookCopyResponse> responses = bookCopyApplicationService.getUserBorrowedBooks(userContext);
+        List<BookCopyResponse> responses = bookCopyApplicationService.getUserBorrowedBooks(currentUser);
         return ResponseEntity.ok(responses);
     }
     
     @PostMapping("/{id}/borrow")
+    @RequireAuthentication
     public ResponseEntity<Map<String, String>> borrowBookCopy(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "14") int loanPeriodDays,
-            HttpServletRequest httpRequest) {
+            @RequestParam(defaultValue = "14") int loanPeriodDays) {
         
-        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
-        if (userContext == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        JwtAuthenticationService.AuthenticatedUser currentUser = jwtAuthenticationService.getCurrentUser();
         
-        bookCopyApplicationService.borrowBookCopy(id, userContext, loanPeriodDays);
+        bookCopyApplicationService.borrowBookCopy(id, currentUser, loanPeriodDays);
         
         return ResponseEntity.ok(Map.of(
             "message", "Book copy borrowed successfully",
             "bookCopyId", id.toString(),
-            "borrower", userContext.getUsername()
+            "borrower", currentUser.getUsername()
         ));
     }
     
     @PostMapping("/{id}/return")
-    public ResponseEntity<Map<String, String>> returnBookCopy(
-            @PathVariable Long id,
-            HttpServletRequest httpRequest) {
+    @RequireAuthentication
+    public ResponseEntity<Map<String, String>> returnBookCopy(@PathVariable Long id) {
         
-        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
-        if (userContext == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        JwtAuthenticationService.AuthenticatedUser currentUser = jwtAuthenticationService.getCurrentUser();
         
-        bookCopyApplicationService.returnBookCopy(id, userContext);
+        bookCopyApplicationService.returnBookCopy(id, currentUser);
         
         return ResponseEntity.ok(Map.of(
             "message", "Book copy returned successfully",
             "bookCopyId", id.toString(),
-            "returnedBy", userContext.getUsername()
+            "returnedBy", currentUser.getUsername()
         ));
     }
     
     @PostMapping("/{id}/reserve")
-    public ResponseEntity<Map<String, String>> reserveBookCopy(
-            @PathVariable Long id,
-            HttpServletRequest httpRequest) {
+    @RequireAuthentication
+    public ResponseEntity<Map<String, String>> reserveBookCopy(@PathVariable Long id) {
         
-        UserContext userContext = (UserContext) httpRequest.getAttribute("userContext");
-        if (userContext == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        JwtAuthenticationService.AuthenticatedUser currentUser = jwtAuthenticationService.getCurrentUser();
         
-        bookCopyApplicationService.reserveBookCopy(id, userContext);
+        bookCopyApplicationService.reserveBookCopy(id, currentUser);
         
         return ResponseEntity.ok(Map.of(
             "message", "Book copy reserved successfully",
             "bookCopyId", id.toString(),
-            "reserver", userContext.getUsername()
+            "reserver", currentUser.getUsername()
         ));
     }
     

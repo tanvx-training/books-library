@@ -6,6 +6,8 @@ import com.library.book.domain.repository.AuthorRepository;
 import com.library.book.domain.repository.BookRepository;
 import com.library.book.domain.specification.AuthorSpecification;
 import com.library.book.domain.specification.AuthorWithBooksSpecification;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,7 @@ public class AuthorDomainService {
      */
     public boolean canAuthorBeDeleted(AuthorId authorId) {
         Optional<Author> authorOpt = authorRepository.findById(authorId);
-        if (!authorOpt.isPresent()) {
+        if (authorOpt.isEmpty()) {
             return false;
         }
         
@@ -66,7 +68,7 @@ public class AuthorDomainService {
      */
     public double calculateAuthorProductivityScore(AuthorId authorId) {
         Optional<Author> authorOpt = authorRepository.findById(authorId);
-        if (!authorOpt.isPresent()) {
+        if (authorOpt.isEmpty()) {
             return 0.0;
         }
         
@@ -86,7 +88,7 @@ public class AuthorDomainService {
      */
     public List<Author> findSimilarAuthors(AuthorId authorId, int tolerance) {
         Optional<Author> authorOpt = authorRepository.findById(authorId);
-        if (!authorOpt.isPresent()) {
+        if (authorOpt.isEmpty()) {
             return List.of();
         }
         
@@ -104,7 +106,7 @@ public class AuthorDomainService {
      */
     public AuthorStatistics getAuthorStatistics(AuthorId authorId) {
         Optional<Author> authorOpt = authorRepository.findById(authorId);
-        if (!authorOpt.isPresent()) {
+        if (authorOpt.isEmpty()) {
             return null;
         }
         
@@ -137,8 +139,8 @@ public class AuthorDomainService {
     /**
      * Statistics DTO for authors
      */
-    @lombok.Data
-    @lombok.Builder
+    @Data
+    @Builder
     public static class AuthorStatistics {
         private Long authorId;
         private String authorName;
