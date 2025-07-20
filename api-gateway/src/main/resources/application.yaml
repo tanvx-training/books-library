@@ -30,10 +30,16 @@ spring:
       default-filters:
         - TokenRelay
       routes:
-        - id: book-service
-          uri: lb://BOOK-SERVICE
+        - id: catalog-service
+          uri: lb://CATALOG-SERVICE
           predicates:
             - Path=/api/v1/books/**,/api/v1/authors/**
+          filters:
+            - RemoveRequestHeader=Cookie
+        - id: dashboard-service
+          uri: lb://DASHBOARD-SERVICE
+          predicates:
+            - Path=/api/v1/audit-logs/**
           filters:
             - RemoveRequestHeader=Cookie
         - id: user-service
