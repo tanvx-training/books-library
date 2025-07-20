@@ -17,13 +17,15 @@
     <packaging>pom</packaging>
 
     <modules>
+        <!-- Spring Cloud -->
         <module>eureka-server</module>
         <module>api-gateway</module>
-        <module>user-service</module>
-        <module>book-service</module>
+        <!-- Business Module -->
         <module>notification-service</module>
-        <module>lending-service</module>
-        <module>history-service</module>
+        <module>loan-service</module>
+        <module>member-service</module>
+        <module>catalog-service</module>
+        <module>dashboard-service</module>
     </modules>
     
     <properties>
