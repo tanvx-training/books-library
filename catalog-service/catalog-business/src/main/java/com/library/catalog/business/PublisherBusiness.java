@@ -1,22 +1,22 @@
 package com.library.catalog.business;
 
 import com.library.catalog.business.dto.request.CreatePublisherRequest;
+import com.library.catalog.business.dto.request.PublisherSearchRequest;
 import com.library.catalog.business.dto.request.UpdatePublisherRequest;
 import com.library.catalog.business.dto.response.PublisherResponse;
 import com.library.catalog.business.dto.response.PagedPublisherResponse;
-import org.springframework.data.domain.Pageable;
+
+import java.util.UUID;
 
 public interface PublisherBusiness {
 
     PublisherResponse createPublisher(CreatePublisherRequest request, String currentUser);
 
-    PublisherResponse getPublisherById(Integer id);
+    PublisherResponse getPublisherByPublicId(UUID publicId);
 
-    PagedPublisherResponse getAllPublishers(Pageable pageable);
+    PagedPublisherResponse getAllPublishers(PublisherSearchRequest request);
 
-    PagedPublisherResponse searchPublishersByName(String name, Pageable pageable);
+    PublisherResponse updatePublisher(UUID publicId, UpdatePublisherRequest request, String currentUser);
 
-    PublisherResponse updatePublisher(Integer id, UpdatePublisherRequest request, String currentUser);
-
-    void deletePublisher(Integer id, String currentUser);
+    void deletePublisher(UUID publicId, String currentUser);
 }

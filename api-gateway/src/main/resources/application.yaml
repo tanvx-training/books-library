@@ -33,7 +33,7 @@ spring:
         - id: catalog-service
           uri: lb://CATALOG-SERVICE
           predicates:
-            - Path=/api/v1/categories/**,/api/v1/authors/**,/api/v1/publishers/**
+            - Path=/api/v1/categories/**,/api/v1/authors/**,/api/v1/publishers/**,/api/v1/books/**
           filters:
             - RemoveRequestHeader=Cookie
         - id: dashboard-service

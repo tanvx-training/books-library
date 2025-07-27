@@ -5,17 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-/**
- * Response DTO for author data.
- * Contains all relevant author information for API responses.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthorResponse {
 
-    private Integer id;
+    private UUID publicId;
     private String name;
     private String biography;
     private LocalDateTime createdAt;

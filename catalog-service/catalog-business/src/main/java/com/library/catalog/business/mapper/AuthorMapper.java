@@ -9,22 +9,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
 public class AuthorMapper {
 
     public Author toEntity(CreateAuthorRequest request) {
+
         if (request == null) {
             return null;
         }
-
         Author author = new Author();
         author.setName(request.getName());
         author.setBiography(request.getBiography());
         // deleteFlag is set to false by default in entity constructor
         // audit fields (createdAt, updatedAt, createdBy, updatedBy) are handled by JPA/service layer
-        
         return author;
     }
 
@@ -39,12 +39,16 @@ public class AuthorMapper {
     }
 
     public AuthorResponse toResponse(Author entity) {
+
         if (entity == null) {
             return null;
         }
-
+        // Skip mapping for soft-deleted entities (entities with deletedAt timestamp)
+        if (entity.isDeleted()) {
+            return null;
+        }
         AuthorResponse response = new AuthorResponse();
-        response.setId(entity.getId());
+        response.setPublicId(entity.getPublicId());
         response.setName(entity.getName());
         response.setBiography(entity.getBiography());
         response.setCreatedAt(entity.getCreatedAt());
@@ -55,16 +59,6 @@ public class AuthorMapper {
         return response;
     }
 
-    public List<AuthorResponse> toResponseList(List<Author> entities) {
-        if (entities == null) {
-            return null;
-        }
-
-        return entities.stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
-
     public PagedAuthorResponse toPagedResponse(Page<Author> page) {
         if (page == null) {
             return null;
@@ -72,13 +66,15 @@ public class AuthorMapper {
 
         PagedAuthorResponse response = new PagedAuthorResponse();
         
-        // Convert content
+        // Convert content, filtering out null responses from soft-deleted entities
         List<AuthorResponse> content = page.getContent().stream()
                 .map(this::toResponse)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         response.setContent(content);
         
-        // Set pagination metadata
+        // Set pagination metadata - these values come from the database query
+        // which already filters out soft-deleted records, so they remain accurate
         response.setPageNumber(page.getNumber());
         response.setPageSize(page.getSize());
         response.setTotalElements(page.getTotalElements());

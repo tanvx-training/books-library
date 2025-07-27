@@ -22,7 +22,7 @@ public class EntityNotFoundException extends RuntimeException {
     }
 
     public EntityNotFoundException(String entityType, Object entityId) {
-        super(String.format("%s not found with ID: %s", entityType, entityId));
+        super(String.format("%s not found with public_id: %s", entityType, entityId));
         this.entityType = entityType;
         this.entityId = entityId;
     }
@@ -39,6 +39,10 @@ public class EntityNotFoundException extends RuntimeException {
 
     public static EntityNotFoundException forCriteria(String entityType, String criteria) {
         return new EntityNotFoundException(String.format("%s not found with criteria: %s", entityType, criteria));
+    }
+
+    public static EntityNotFoundException forPublicId(String entityType, Object publicId) {
+        return new EntityNotFoundException(String.format("%s not found with public_id: %s", entityType, publicId));
     }
 
 }

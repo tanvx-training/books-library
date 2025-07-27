@@ -6,10 +6,9 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,28 +17,30 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Setter
 @Getter
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "publishers")
 @EntityListeners(AuditingEntityListener.class)
 public class Publisher {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(nullable = false, length = 256)
+    @Column(name = "public_id", nullable = false, unique = true, updatable = false)
+    private UUID publicId;
+
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Column(columnDefinition = "TEXT")
     private String address;
 
-    @Column(name = "delete_flg", nullable = false)
-    private Boolean deleteFlag = false;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -57,16 +58,38 @@ public class Publisher {
     @Column(name = "updated_by", length = 36)
     private String updatedBy;
 
-    // Business methods
+    // Default constructor
+    public Publisher() {
+    }
+
+    // Constructor with required fields
+    public Publisher(String name) {
+        this.name = name;
+    }
+
+    // Constructor with name and address
+    public Publisher(String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
+
+    @PrePersist
+    void generatePublicId() {
+        if (this.publicId == null) {
+            this.publicId = UUID.randomUUID();
+        }
+    }
+
+    // Business methods for soft deletion using timestamp
     public boolean isDeleted() {
-        return Boolean.TRUE.equals(deleteFlag);
+        return this.deletedAt != null;
     }
 
     public void markAsDeleted() {
-        this.deleteFlag = true;
+        this.deletedAt = LocalDateTime.now();
     }
 
     public void markAsActive() {
-        this.deleteFlag = false;
+        this.deletedAt = null;
     }
 }

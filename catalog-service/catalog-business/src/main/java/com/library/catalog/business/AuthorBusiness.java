@@ -1,22 +1,22 @@
 package com.library.catalog.business;
 
+import com.library.catalog.business.dto.request.AuthorSearchRequest;
 import com.library.catalog.business.dto.request.CreateAuthorRequest;
 import com.library.catalog.business.dto.request.UpdateAuthorRequest;
 import com.library.catalog.business.dto.response.AuthorResponse;
 import com.library.catalog.business.dto.response.PagedAuthorResponse;
-import org.springframework.data.domain.Pageable;
+
+import java.util.UUID;
 
 public interface AuthorBusiness {
 
     AuthorResponse createAuthor(CreateAuthorRequest request, String currentUser);
 
-    AuthorResponse getAuthorById(Integer id);
+    AuthorResponse getAuthorByPublicId(UUID publicId);
 
-    PagedAuthorResponse getAllAuthors(Pageable pageable);
+    PagedAuthorResponse getAllAuthors(AuthorSearchRequest request);
 
-    PagedAuthorResponse searchAuthorsByName(String name, Pageable pageable);
+    AuthorResponse updateAuthor(UUID publicId, UpdateAuthorRequest request, String currentUser);
 
-    AuthorResponse updateAuthor(Integer id, UpdateAuthorRequest request, String currentUser);
-
-    void deleteAuthor(Integer id, String currentUser);
+    void deleteAuthor(UUID publicId, String currentUser);
 }

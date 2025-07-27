@@ -1,22 +1,22 @@
 package com.library.catalog.business;
 
+import com.library.catalog.business.dto.request.CategorySearchRequest;
 import com.library.catalog.business.dto.request.CreateCategoryRequest;
 import com.library.catalog.business.dto.request.UpdateCategoryRequest;
 import com.library.catalog.business.dto.response.CategoryResponse;
 import com.library.catalog.business.dto.response.PagedCategoryResponse;
-import org.springframework.data.domain.Pageable;
+
+import java.util.UUID;
 
 public interface CategoryBusiness {
 
     CategoryResponse createCategory(CreateCategoryRequest request, String currentUser);
 
-    CategoryResponse getCategoryById(Integer id);
+    CategoryResponse getCategoryById(UUID publicId);
 
-    PagedCategoryResponse getAllCategories(Pageable pageable);
+    PagedCategoryResponse getAllCategories(CategorySearchRequest request);
 
-    PagedCategoryResponse searchCategoriesByName(String name, Pageable pageable);
+    CategoryResponse updateCategory(UUID publicId, UpdateCategoryRequest request, String currentUser);
 
-    CategoryResponse updateCategory(Integer id, UpdateCategoryRequest request, String currentUser);
-
-    void deleteCategory(Integer id, String currentUser);
+    void deleteCategory(UUID publicId, String currentUser);
 }
