@@ -5,6 +5,7 @@ import com.library.catalog.business.BookBusiness;
 import com.library.catalog.business.dto.request.BookSearchRequest;
 import com.library.catalog.business.dto.request.CreateBookRequest;
 import com.library.catalog.business.dto.request.UpdateBookRequest;
+import com.library.catalog.business.dto.response.BookDetailResponse;
 import com.library.catalog.business.dto.response.BookResponse;
 import com.library.catalog.business.dto.response.PagedBookResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +33,11 @@ public class BookController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{publicId}")
-    public ResponseEntity<BookResponse> getBook(@PathVariable String publicId) {
+    @GetMapping("/{publicId}/detail")
+    public ResponseEntity<BookDetailResponse> getBookDetail(@PathVariable String publicId) {
 
         UUID uuid = UUID.fromString(publicId);
-        BookResponse response = bookBusiness.getBookByPublicId(uuid);
+        BookDetailResponse response = bookBusiness.getBookDetail(uuid);
         return ResponseEntity.ok(response);
     }
 

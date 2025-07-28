@@ -3,6 +3,7 @@ package com.library.catalog.business;
 import com.library.catalog.business.dto.request.BookSearchRequest;
 import com.library.catalog.business.dto.request.CreateBookRequest;
 import com.library.catalog.business.dto.request.UpdateBookRequest;
+import com.library.catalog.business.dto.response.BookDetailResponse;
 import com.library.catalog.business.dto.response.BookResponse;
 import com.library.catalog.business.dto.response.PagedBookResponse;
 
@@ -12,7 +13,7 @@ public interface BookBusiness {
 
     BookResponse createBook(CreateBookRequest request, String currentUser);
 
-    BookResponse getBookByPublicId(UUID publicId);
+    BookDetailResponse getBookDetail(UUID publicId);
 
     PagedBookResponse searchBooks(BookSearchRequest request);
 
