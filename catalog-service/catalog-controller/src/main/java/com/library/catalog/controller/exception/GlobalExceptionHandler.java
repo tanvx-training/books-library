@@ -6,6 +6,7 @@ import com.library.catalog.business.aop.exception.EntityServiceException;
 import com.library.catalog.business.aop.exception.EntityValidationException;
 import com.library.catalog.business.aop.exception.InvalidStatusTransitionException;
 import com.library.catalog.business.aop.exception.InvalidUuidException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Set;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -380,7 +382,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, WebRequest request) {
-        
+        log.error(ex.getMessage(), ex);
         ErrorResponse errorResponse = new ErrorResponse(
             "An unexpected error occurred. Please try again later.",
             "INTERNAL_SERVER_ERROR",

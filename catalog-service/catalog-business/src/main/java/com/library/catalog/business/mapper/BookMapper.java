@@ -17,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -64,14 +66,14 @@ public class BookMapper {
         book.setLanguage(request.getLanguage());
         book.setNumberOfPages(request.getNumberOfPages());
         book.setCoverImageUrl(request.getCoverImageUrl());
-        
+
         // Resolve publisherPublicId to internal publisher_id
         Long publisherId = resolvePublisherPublicIdToId(request.getPublisherPublicId());
         book.setPublisherId(publisherId);
-        
+
         // UUID is auto-generated in @PrePersist
         // audit fields (createdAt, updatedAt, createdBy, updatedBy) are handled by JPA/service layer
-        
+
         return book;
     }
 
@@ -83,7 +85,7 @@ public class BookMapper {
      * using the resolveAuthorPublicIdsToIds and resolveCategoryPublicIdsToIds methods.
      * Audit fields (updatedAt, updatedBy) are handled by JPA/service layer.
      *
-     * @param entity the existing book entity to update
+     * @param entity  the existing book entity to update
      * @param request the update book request
      * @throws EntityNotFoundException if publisher public ID is provided but not found
      */
@@ -160,9 +162,9 @@ public class BookMapper {
      * Converts Book entity to BookResponse DTO with relationship data.
      * Populates publisher, authors, and categories information using public_id references.
      *
-     * @param entity the book entity
-     * @param publisher the publisher entity (can be null)
-     * @param authors list of author entities (can be null or empty)
+     * @param entity     the book entity
+     * @param publisher  the publisher entity (can be null)
+     * @param authors    list of author entities (can be null or empty)
      * @param categories list of category entities (can be null or empty)
      * @return BookResponse DTO with complete relationship data
      */
@@ -229,29 +231,20 @@ public class BookMapper {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Converts Page of Book entities to PagedBookResponse DTO.
-     * Basic conversion without relationship data - for use cases where
-     * relationship data is not needed (e.g., listing operations).
-     * Filters out soft-deleted entities.
-     *
-     * @param page the page of book entities
-     * @return PagedBookResponse DTO with pagination metadata
-     */
     public PagedBookResponse toPagedResponse(Page<Book> page) {
         if (page == null) {
             return null;
         }
 
         PagedBookResponse response = new PagedBookResponse();
-        
+
         // Convert content, filtering out null responses from soft-deleted entities
         List<BookResponse> content = page.getContent().stream()
                 .map(this::toResponse)
-                .filter(bookResponse -> bookResponse != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         response.setContent(content);
-        
+
         // Set pagination metadata - these values come from the database query
         // which already filters out soft-deleted records, so they remain accurate
         response.setPageNumber(page.getNumber());
@@ -264,27 +257,16 @@ public class BookMapper {
         return response;
     }
 
-    /**
-     * Converts Page of Book entities to PagedBookResponse DTO with relationship data.
-     * This method should be used when relationship data is needed for each book in the page.
-     * The business layer should provide the relationship data maps.
-     *
-     * @param page the page of book entities
-     * @param publisherMap map of publisher ID to Publisher entity
-     * @param authorsMap map of book ID to list of Author entities
-     * @param categoriesMap map of book ID to list of Category entities
-     * @return PagedBookResponse DTO with complete relationship data
-     */
-    public PagedBookResponse toPagedResponse(Page<Book> page, 
-                                           java.util.Map<Long, Publisher> publisherMap,
-                                           java.util.Map<Long, List<Author>> authorsMap,
-                                           java.util.Map<Long, List<Category>> categoriesMap) {
+    public PagedBookResponse toPagedResponse(Page<Book> page,
+                                             Map<Long, Publisher> publisherMap,
+                                             Map<Long, List<Author>> authorsMap,
+                                             Map<Long, List<Category>> categoriesMap) {
         if (page == null) {
             return null;
         }
 
         PagedBookResponse response = new PagedBookResponse();
-        
+
         // Convert content with relationship data
         List<BookResponse> content = page.getContent().stream()
                 .map(book -> {
@@ -295,7 +277,7 @@ public class BookMapper {
                 })
                 .collect(Collectors.toList());
         response.setContent(content);
-        
+
         // Set pagination metadata
         response.setPageNumber(page.getNumber());
         response.setPageSize(page.getSize());
@@ -307,14 +289,6 @@ public class BookMapper {
         return response;
     }
 
-    /**
-     * Resolves publisher public ID to internal publisher ID.
-     * Uses optimized repository method when available for better performance.
-     *
-     * @param publisherPublicId the publisher public ID
-     * @return the internal publisher ID
-     * @throws EntityNotFoundException if publisher is not found
-     */
     public Long resolvePublisherPublicIdToId(UUID publisherPublicId) {
         if (publisherPublicId == null) {
             throw EntityNotFoundException.forPublicId("Publisher", null);
@@ -323,198 +297,5 @@ public class BookMapper {
         // Use optimized method if available, otherwise fall back to entity lookup
         return publisherRepository.findPublisherIdByPublicId(publisherPublicId)
                 .orElseThrow(() -> EntityNotFoundException.forPublicId("Publisher", publisherPublicId));
-    }
-
-    /**
-     * Resolves list of author public IDs to list of internal author IDs.
-     * Validates that all authors exist and are not soft-deleted.
-     *
-     * @param authorPublicIds the list of author public IDs
-     * @return the list of internal author IDs
-     * @throws EntityNotFoundException if any author is not found
-     */
-    public List<Long> resolveAuthorPublicIdsToIds(List<UUID> authorPublicIds) {
-        if (authorPublicIds == null || authorPublicIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Long> authorIds = new ArrayList<>();
-        for (UUID authorPublicId : authorPublicIds) {
-            Author author = authorRepository.findByPublicIdAndDeletedAtIsNull(authorPublicId)
-                    .orElseThrow(() -> EntityNotFoundException.forPublicId("Author", authorPublicId));
-            authorIds.add(author.getId());
-        }
-        return authorIds;
-    }
-
-    /**
-     * Batch resolves multiple author public IDs to a map of public ID to internal ID.
-     * More efficient than individual lookups when resolving many authors.
-     *
-     * @param authorPublicIds the list of author public IDs
-     * @return map of author public ID to internal ID
-     * @throws EntityNotFoundException if any author is not found
-     */
-    public java.util.Map<UUID, Long> batchResolveAuthorPublicIdsToIds(List<UUID> authorPublicIds) {
-        if (authorPublicIds == null || authorPublicIds.isEmpty()) {
-            return new java.util.HashMap<>();
-        }
-
-        java.util.Map<UUID, Long> resultMap = new java.util.HashMap<>();
-        for (UUID authorPublicId : authorPublicIds) {
-            Author author = authorRepository.findByPublicIdAndDeletedAtIsNull(authorPublicId)
-                    .orElseThrow(() -> EntityNotFoundException.forPublicId("Author", authorPublicId));
-            resultMap.put(authorPublicId, author.getId());
-        }
-        return resultMap;
-    }
-
-    /**
-     * Resolves list of category public IDs to list of internal category IDs.
-     * Validates that all categories exist and are not soft-deleted.
-     *
-     * @param categoryPublicIds the list of category public IDs
-     * @return the list of internal category IDs
-     * @throws EntityNotFoundException if any category is not found
-     */
-    public List<Long> resolveCategoryPublicIdsToIds(List<UUID> categoryPublicIds) {
-        if (categoryPublicIds == null || categoryPublicIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<Long> categoryIds = new ArrayList<>();
-        for (UUID categoryPublicId : categoryPublicIds) {
-            Category category = categoryRepository.findByPublicIdAndDeletedAtIsNull(categoryPublicId)
-                    .orElseThrow(() -> EntityNotFoundException.forPublicId("Category", categoryPublicId));
-            categoryIds.add(category.getId());
-        }
-        return categoryIds;
-    }
-
-    /**
-     * Batch resolves multiple category public IDs to a map of public ID to internal ID.
-     * More efficient than individual lookups when resolving many categories.
-     *
-     * @param categoryPublicIds the list of category public IDs
-     * @return map of category public ID to internal ID
-     * @throws EntityNotFoundException if any category is not found
-     */
-    public java.util.Map<UUID, Long> batchResolveCategoryPublicIdsToIds(List<UUID> categoryPublicIds) {
-        if (categoryPublicIds == null || categoryPublicIds.isEmpty()) {
-            return new java.util.HashMap<>();
-        }
-
-        java.util.Map<UUID, Long> resultMap = new java.util.HashMap<>();
-        for (UUID categoryPublicId : categoryPublicIds) {
-            Category category = categoryRepository.findByPublicIdAndDeletedAtIsNull(categoryPublicId)
-                    .orElseThrow(() -> EntityNotFoundException.forPublicId("Category", categoryPublicId));
-            resultMap.put(categoryPublicId, category.getId());
-        }
-        return resultMap;
-    }
-
-    /**
-     * Loads publisher entity by internal ID for relationship population.
-     *
-     * @param publisherId the internal publisher ID
-     * @return the publisher entity or null if not found or deleted
-     */
-    public Publisher loadPublisherById(Long publisherId) {
-        if (publisherId == null) {
-            return null;
-        }
-
-        return publisherRepository.findById(publisherId)
-                .filter(publisher -> !publisher.isDeleted())
-                .orElse(null);
-    }
-
-    /**
-     * Loads author entities by book ID for relationship population.
-     * This method should be called by the business layer with proper book-author relationship data.
-     *
-     * @param authorIds the list of internal author IDs
-     * @return the list of author entities, filtering out deleted ones
-     */
-    public List<Author> loadAuthorsByIds(List<Long> authorIds) {
-        if (authorIds == null || authorIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return authorRepository.findAllById(authorIds).stream()
-                .filter(author -> !author.isDeleted())
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Loads category entities by book ID for relationship population.
-     * This method should be called by the business layer with proper book-category relationship data.
-     *
-     * @param categoryIds the list of internal category IDs
-     * @return the list of category entities, filtering out deleted ones
-     */
-    public List<Category> loadCategoriesByIds(List<Long> categoryIds) {
-        if (categoryIds == null || categoryIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return categoryRepository.findAllById(categoryIds).stream()
-                .filter(category -> !category.isDeleted())
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Validates that all provided author public IDs exist and are not soft-deleted.
-     * This method can be used for validation without needing to resolve to internal IDs.
-     *
-     * @param authorPublicIds the list of author public IDs to validate
-     * @throws EntityNotFoundException if any author is not found
-     */
-    public void validateAuthorPublicIds(List<UUID> authorPublicIds) {
-        if (authorPublicIds == null || authorPublicIds.isEmpty()) {
-            return;
-        }
-
-        for (UUID authorPublicId : authorPublicIds) {
-            if (!authorRepository.existsByPublicIdAndDeletedAtIsNull(authorPublicId)) {
-                throw EntityNotFoundException.forPublicId("Author", authorPublicId);
-            }
-        }
-    }
-
-    /**
-     * Validates that all provided category public IDs exist and are not soft-deleted.
-     * This method can be used for validation without needing to resolve to internal IDs.
-     *
-     * @param categoryPublicIds the list of category public IDs to validate
-     * @throws EntityNotFoundException if any category is not found
-     */
-    public void validateCategoryPublicIds(List<UUID> categoryPublicIds) {
-        if (categoryPublicIds == null || categoryPublicIds.isEmpty()) {
-            return;
-        }
-
-        for (UUID categoryPublicId : categoryPublicIds) {
-            if (!categoryRepository.existsByPublicIdAndDeletedAtIsNull(categoryPublicId)) {
-                throw EntityNotFoundException.forPublicId("Category", categoryPublicId);
-            }
-        }
-    }
-
-    /**
-     * Validates that the provided publisher public ID exists and is not soft-deleted.
-     * This method can be used for validation without needing to resolve to internal ID.
-     *
-     * @param publisherPublicId the publisher public ID to validate
-     * @throws EntityNotFoundException if publisher is not found
-     */
-    public void validatePublisherPublicId(UUID publisherPublicId) {
-        if (publisherPublicId == null) {
-            throw EntityNotFoundException.forPublicId("Publisher", null);
-        }
-
-        if (!publisherRepository.existsByPublicIdAndDeletedAtIsNull(publisherPublicId)) {
-            throw EntityNotFoundException.forPublicId("Publisher", publisherPublicId);
-        }
     }
 }

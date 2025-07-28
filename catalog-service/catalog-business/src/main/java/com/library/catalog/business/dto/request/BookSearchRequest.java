@@ -49,13 +49,13 @@ public class BookSearchRequest implements Serializable {
 
     private String isbn;
 
-    private String publisherPublicId;
+    private String publisherName;
 
-    private String authorPublicId;
+    private String authorName;
 
-    private String categoryPublicId;
+    private String categoryName;
 
-    private Integer publicationYear;
+    private Short publicationYear;
 
     private String language;
 
