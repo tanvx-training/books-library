@@ -137,15 +137,7 @@ public class BookBusinessImpl implements BookBusiness {
             );
         }
 
-        Book oldBook = new Book();
-        oldBook.setId(existingBook.getId());
-        oldBook.setTitle(existingBook.getTitle());
-        oldBook.setIsbn(existingBook.getIsbn());
-        oldBook.setPublicationYear(existingBook.getPublicationYear());
-        oldBook.setDescription(existingBook.getDescription());
-        oldBook.setLanguage(existingBook.getLanguage());
-        oldBook.setNumberOfPages(existingBook.getNumberOfPages());
-        oldBook.setPublisherId(existingBook.getPublisherId());
+        Book oldBook = getOldBook(existingBook);
 
         // Step 5: Update book entity
         existingBook.setTitle(request.getTitle());
@@ -183,6 +175,55 @@ public class BookBusinessImpl implements BookBusiness {
     @Override
     @Transactional
     public void deleteBook(UUID publicId, String currentUser) {
+        // Step 1: Find existing book
+        Book existingBook = bookRepository.findByPublicIdAndDeletedAtIsNull(publicId)
+                .orElseThrow(() -> EntityNotFoundException.forPublicId("Book", publicId));
+
+        // Step 2: Check if book has any active book copies (business rule validation)
+        List<BookCopy> activeCopies = bookCopyRepository.findByBookIdAndDeletedAtIsNull(existingBook.getId());
+        if (!activeCopies.isEmpty()) {
+            // Check if any copies are currently borrowed or reserved
+            boolean hasActiveCopies = activeCopies.stream()
+                    .anyMatch(copy -> copy.isBorrowed() || copy.isReserved());
+            
+            if (hasActiveCopies) {
+                throw new IllegalStateException("Cannot delete book with active copies that are borrowed or reserved");
+            }
+        }
+
+        // Step 3: Store old values for audit
+        Book oldBook = getOldBook(existingBook);
+
+        // Step 4: Perform soft delete on the book
+        existingBook.markAsDeleted();
+        bookRepository.save(existingBook);
+
+        // Step 5: Soft delete all associated book copies
+        for (BookCopy copy : activeCopies) {
+            copy.markAsDeleted();
+            bookCopyRepository.save(copy);
+        }
+
+        // Step 6: Note: We don't delete book-author and book-category relationships
+        // as they are junction table records and should be preserved for audit purposes
+
+        // Step 7: Publish audit event
+        auditService.publishDeleteEvent("Book", existingBook.getPublicId().toString(), 
+                                       oldBook, currentUser);
+    }
+
+    private static Book getOldBook(Book existingBook) {
+        Book oldBook = new Book();
+        oldBook.setId(existingBook.getId());
+        oldBook.setPublicId(existingBook.getPublicId());
+        oldBook.setTitle(existingBook.getTitle());
+        oldBook.setIsbn(existingBook.getIsbn());
+        oldBook.setPublicationYear(existingBook.getPublicationYear());
+        oldBook.setDescription(existingBook.getDescription());
+        oldBook.setLanguage(existingBook.getLanguage());
+        oldBook.setNumberOfPages(existingBook.getNumberOfPages());
+        oldBook.setPublisherId(existingBook.getPublisherId());
+        return oldBook;
     }
 
     private Map<Long, Publisher> loadPublishersForBooks(List<Book> books) {
