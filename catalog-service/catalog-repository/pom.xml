@@ -16,4 +16,13 @@
     <name>catalog-repository</name>
     <description>catalog-repository</description>
     <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- H2 Database for testing -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

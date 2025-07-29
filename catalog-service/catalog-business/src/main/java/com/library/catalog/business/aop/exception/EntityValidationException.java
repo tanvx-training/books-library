@@ -37,6 +37,10 @@ public class EntityValidationException extends RuntimeException {
         return new EntityValidationException(entityType, field, value, message);
     }
 
+    public static EntityValidationException duplicateValue(String entityType, String field, Object value, String customMessage) {
+        return new EntityValidationException(entityType, field, value, customMessage);
+    }
+
     public static EntityValidationException invalidField(String entityType, String field, Object value, String reason) {
         String message = String.format("Invalid %s %s '%s': %s", entityType, field, value, reason);
         return new EntityValidationException(entityType, field, value, message);

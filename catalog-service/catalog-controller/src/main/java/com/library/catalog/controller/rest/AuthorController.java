@@ -1,15 +1,16 @@
 package com.library.catalog.controller.rest;
 
+import com.library.catalog.business.dto.request.AuthorSearchRequest;
 import com.library.catalog.controller.util.UserContextUtil;
 import com.library.catalog.business.AuthorBusiness;
 import com.library.catalog.business.dto.request.CreateAuthorRequest;
 import com.library.catalog.business.dto.request.UpdateAuthorRequest;
 import com.library.catalog.business.dto.response.AuthorResponse;
 import com.library.catalog.business.dto.response.PagedAuthorResponse;
+import com.library.catalog.business.aop.exception.InvalidUuidException;
+import com.library.catalog.business.validation.ValidUuid;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,8 +19,10 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/authors")
@@ -31,55 +34,43 @@ public class AuthorController {
 
     @PostMapping
     public ResponseEntity<AuthorResponse> createAuthor(@Valid @RequestBody CreateAuthorRequest request) {
+
         String currentUser = UserContextUtil.getCurrentUser();
-        AuthorResponse response = authorBusiness.createAuthor(request, currentUser);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(authorBusiness.createAuthor(request, currentUser), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AuthorResponse> getAuthor(@PathVariable @Positive(message = "Author ID must be positive") Integer id) {
-        AuthorResponse response = authorBusiness.getAuthorById(id);
-        return ResponseEntity.ok(response);
+    @GetMapping("/{publicId}")
+    public ResponseEntity<AuthorResponse> getAuthor(
+            @PathVariable @ValidUuid(allowNull = false, message = "Public ID must be a valid UUID") String publicId) {
+
+        return ResponseEntity.ok(authorBusiness.getAuthorByPublicId(UUID.fromString(publicId)));
     }
 
     @GetMapping
-    public ResponseEntity<PagedAuthorResponse> getAllAuthors(
-            @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page number must be non-negative") int page,
-            @RequestParam(defaultValue = "20") @Min(value = 1, message = "Page size must be at least 1") @Max(value = 100, message = "Page size must not exceed 100") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection) {
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.fromString(sortDirection), sortBy);
-        PagedAuthorResponse response = authorBusiness.getAllAuthors(pageable);
+    public ResponseEntity<PagedAuthorResponse> getAllAuthors(@Valid @ModelAttribute AuthorSearchRequest request) {
+
+        PagedAuthorResponse response = authorBusiness.getAllAuthors(request);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<PagedAuthorResponse> searchAuthors(
-            @RequestParam @NotBlank(message = "Search name cannot be blank") String name,
-            @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page number must be non-negative") int page,
-            @RequestParam(defaultValue = "20") @Min(value = 1, message = "Page size must be at least 1") @Max(value = 100, message = "Page size must not exceed 100") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection) {
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.fromString(sortDirection), sortBy);
-        String currentUser = UserContextUtil.getCurrentUser();
-        PagedAuthorResponse response = authorBusiness.searchAuthorsByName(name, pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{id}")
+    @PutMapping("/{publicId}")
     public ResponseEntity<AuthorResponse> updateAuthor(
-            @PathVariable @Positive(message = "Author ID must be positive") Integer id,
+            @PathVariable @ValidUuid(allowNull = false, message = "Public ID must be a valid UUID") String publicId,
             @Valid @RequestBody UpdateAuthorRequest request) {
-        
+
+        UUID uuid = UUID.fromString(publicId);
         String currentUser = UserContextUtil.getCurrentUser();
-        AuthorResponse response = authorBusiness.updateAuthor(id, request, currentUser);
+        AuthorResponse response = authorBusiness.updateAuthor(uuid, request, currentUser);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAuthor(@PathVariable @Positive(message = "Author ID must be positive") Integer id) {
+    @DeleteMapping("/{publicId}")
+    public ResponseEntity<Void> deleteAuthor(
+            @PathVariable @ValidUuid(allowNull = false, message = "Public ID must be a valid UUID") String publicId) {
+
+        UUID uuid = UUID.fromString(publicId);
         String currentUser = UserContextUtil.getCurrentUser();
-        authorBusiness.deleteAuthor(id, currentUser);
+        authorBusiness.deleteAuthor(uuid, currentUser);
         return ResponseEntity.noContent().build();
     }
 }

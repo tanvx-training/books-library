@@ -23,7 +23,7 @@ public class CategoryMapper {
         category.setName(request.getName());
         category.setSlug(request.getSlug());
         category.setDescription(request.getDescription());
-        // deleteFlag is set to false by default in entity constructor
+        // Parent will be set in the business layer after validation
         // audit fields (createdAt, updatedAt, createdBy, updatedBy) are handled by JPA/service layer
         
         return category;
@@ -37,6 +37,7 @@ public class CategoryMapper {
         entity.setName(request.getName());
         entity.setSlug(request.getSlug());
         entity.setDescription(request.getDescription());
+        // Parent will be set in the business layer after validation
         // audit fields (updatedAt, updatedBy) are handled by JPA/service layer
     }
 
@@ -46,7 +47,7 @@ public class CategoryMapper {
         }
 
         CategoryResponse response = new CategoryResponse();
-        response.setId(entity.getId());
+        response.setPublicId(entity.getPublicId());
         response.setName(entity.getName());
         response.setSlug(entity.getSlug());
         response.setDescription(entity.getDescription());
@@ -56,16 +57,6 @@ public class CategoryMapper {
         response.setUpdatedBy(entity.getUpdatedBy());
 
         return response;
-    }
-
-    public List<CategoryResponse> toResponseList(List<Category> entities) {
-        if (entities == null) {
-            return null;
-        }
-
-        return entities.stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
     }
 
     public PagedCategoryResponse toPagedResponse(Page<Category> page) {

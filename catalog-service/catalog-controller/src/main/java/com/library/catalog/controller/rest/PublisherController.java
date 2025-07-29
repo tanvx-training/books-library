@@ -1,15 +1,14 @@
 package com.library.catalog.controller.rest;
 
+import com.library.catalog.business.dto.request.PublisherSearchRequest;
 import com.library.catalog.controller.util.UserContextUtil;
 import com.library.catalog.business.PublisherBusiness;
 import com.library.catalog.business.dto.request.CreatePublisherRequest;
 import com.library.catalog.business.dto.request.UpdatePublisherRequest;
 import com.library.catalog.business.dto.response.PublisherResponse;
 import com.library.catalog.business.dto.response.PagedPublisherResponse;
+import com.library.catalog.business.validation.ValidUuid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,11 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/publishers")
+@RequestMapping("/api/v/publishers")
 @Validated
 @RequiredArgsConstructor
 public class PublisherController {
@@ -31,54 +29,43 @@ public class PublisherController {
 
     @PostMapping
     public ResponseEntity<PublisherResponse> createPublisher(@Valid @RequestBody CreatePublisherRequest request) {
+
         String currentUser = UserContextUtil.getCurrentUser();
         PublisherResponse response = publisherBusiness.createPublisher(request, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PublisherResponse> getPublisher(@PathVariable @Positive(message = "Publisher ID must be positive") Integer id) {
-        PublisherResponse response = publisherBusiness.getPublisherById(id);
+    @GetMapping("/{public_id}")
+    public ResponseEntity<PublisherResponse> getPublisher(@PathVariable("public_id") @ValidUuid String publicId) {
+
+        UUID uuid = UUID.fromString(publicId);
+        PublisherResponse response = publisherBusiness.getPublisherByPublicId(uuid);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<PagedPublisherResponse> getAllPublishers(
-            @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page number must be non-negative") int page,
-            @RequestParam(defaultValue = "20") @Min(value = 1, message = "Page size must be at least 1") @Max(value = 100, message = "Page size must not exceed 100") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection) {
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.fromString(sortDirection), sortBy);
-        PagedPublisherResponse response = publisherBusiness.getAllPublishers(pageable);
+    public ResponseEntity<PagedPublisherResponse> getAllPublishers(@Valid @ModelAttribute PublisherSearchRequest request) {
+
+        PagedPublisherResponse response = publisherBusiness.getAllPublishers(request);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<PagedPublisherResponse> searchPublishers(
-            @RequestParam @NotBlank(message = "Search name cannot be blank") String name,
-            @RequestParam(defaultValue = "0") @Min(value = 0, message = "Page number must be non-negative") int page,
-            @RequestParam(defaultValue = "20") @Min(value = 1, message = "Page size must be at least 1") @Max(value = 100, message = "Page size must not exceed 100") int size,
-            @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection) {
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.fromString(sortDirection), sortBy);
-        PagedPublisherResponse response = publisherBusiness.searchPublishersByName(name, pageable);
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<PublisherResponse> updatePublisher(
-            @PathVariable @Positive(message = "Publisher ID must be positive") Integer id,
+    @PutMapping("/{public_id}")
+    public ResponseEntity<PublisherResponse> updatePublisher(@PathVariable("public_id") @ValidUuid String publicId,
             @Valid @RequestBody UpdatePublisherRequest request) {
-        
+
+        UUID uuid = UUID.fromString(publicId);
         String currentUser = UserContextUtil.getCurrentUser();
-        PublisherResponse response = publisherBusiness.updatePublisher(id, request, currentUser);
+        PublisherResponse response = publisherBusiness.updatePublisher(uuid, request, currentUser);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePublisher(@PathVariable @Positive(message = "Publisher ID must be positive") Integer id) {
+    @DeleteMapping("/{public_id}")
+    public ResponseEntity<Void> deletePublisher(@PathVariable("public_id") @ValidUuid String publicId) {
+
+        UUID uuid = UUID.fromString(publicId);
         String currentUser = UserContextUtil.getCurrentUser();
-        publisherBusiness.deletePublisher(id, currentUser);
+        publisherBusiness.deletePublisher(uuid, currentUser);
         return ResponseEntity.noContent().build();
     }
 }

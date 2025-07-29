@@ -2,6 +2,7 @@ package com.library.catalog.business.impl;
 
 import com.library.catalog.business.CategoryBusiness;
 import com.library.catalog.business.aop.exception.EntityNotFoundException;
+import com.library.catalog.business.dto.request.CategorySearchRequest;
 import com.library.catalog.business.dto.request.CreateCategoryRequest;
 import com.library.catalog.business.dto.request.UpdateCategoryRequest;
 import com.library.catalog.business.dto.response.CategoryResponse;
@@ -12,10 +13,12 @@ import com.library.catalog.business.util.EntityExceptionUtils;
 import com.library.catalog.repository.CategoryRepository;
 import com.library.catalog.repository.entity.Category;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,151 +32,111 @@ public class CategoryBusinessImpl implements CategoryBusiness {
     @Transactional
     public CategoryResponse createCategory(CreateCategoryRequest request, String currentUser) {
 
-        // Validate required fields
-        EntityExceptionUtils.requireNonEmpty(request.getName(), "Category", "name");
-        EntityExceptionUtils.requireNonEmpty(request.getSlug(), "Category", "slug");
-
         // Check for duplicate name
         EntityExceptionUtils.requireNoDuplicate(
-                categoryRepository.existsByNameIgnoreCaseAndDeleteFlagFalse(request.getName()),
+                categoryRepository.existsByNameIgnoreCaseAndDeletedAtIsNull(request.getName()),
                 "Category", "name", request.getName()
         );
-
         // Check for duplicate slug
         EntityExceptionUtils.requireNoDuplicate(
-                categoryRepository.existsBySlugIgnoreCaseAndDeleteFlagFalse(request.getSlug()),
+                categoryRepository.existsBySlugIgnoreCaseAndDeletedAtIsNull(request.getSlug()),
                 "Category", "slug", request.getSlug()
         );
-
         // Convert DTO to entity
         Category category = categoryMapper.toEntity(request);
+
         // Set audit fields
         category.setCreatedBy(currentUser);
         category.setUpdatedBy(currentUser);
         // Save to database
-        Category savedCategory = categoryRepository.save(category);
-
+        categoryRepository.save(category);
         // Publish audit event for category creation
-        auditService.publishCreateEvent("Category", savedCategory.getId().toString(), savedCategory, currentUser);
-
+        auditService.publishCreateEvent("Category", category.getPublicId().toString(), category, currentUser);
         // Convert to response DTO
-        return categoryMapper.toResponse(savedCategory);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public CategoryResponse getCategoryById(Integer id) {
-
-        EntityExceptionUtils.requireNonNull(id, "Category", "id");
-
-        Category category = categoryRepository.findByIdAndDeleteFlagFalse(id)
-                .orElseThrow(() -> EntityNotFoundException.forEntity("Category", id));
-
         return categoryMapper.toResponse(category);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PagedCategoryResponse getAllCategories(Pageable pageable) {
+    public CategoryResponse getCategoryById(UUID publicId) {
 
-        // Retrieve categories from database
-        Page<Category> categoryPage = categoryRepository.findByDeleteFlagFalse(pageable);
-        // Convert to response DTO
-        return categoryMapper.toPagedResponse(categoryPage);
+        Category category = categoryRepository.findByPublicIdAndDeletedAtIsNull(publicId)
+                .orElseThrow(() -> EntityNotFoundException.forEntity("Category", publicId));
+        return categoryMapper.toResponse(category);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PagedCategoryResponse searchCategoriesByName(String name, Pageable pageable) {
+    public PagedCategoryResponse getAllCategories(CategorySearchRequest request) {
 
-        String searchName = EntityExceptionUtils.requireNonEmpty(name, "Category", "search name");
-
-        // Search categories by name
-        Page<Category> categoryPage = categoryRepository.findByNameContainingIgnoreCaseAndDeleteFlagFalse(
-                searchName, pageable);
-        return categoryMapper.toPagedResponse(categoryPage);
+        if (StringUtils.hasText(request.getName()) || StringUtils.hasText(request.getSlug())) {
+            return categoryMapper.toPagedResponse(
+                    categoryRepository.findByCriteria(request.getName(), request.getSlug(), request.toPageable())
+            );
+        }
+        return categoryMapper.toPagedResponse(categoryRepository.findByDeletedAtIsNull(request.toPageable()));
     }
 
     @Override
     @Transactional
-    public CategoryResponse updateCategory(Integer id, UpdateCategoryRequest request, String currentUser) {
-        
-        // Validate required parameters
-        EntityExceptionUtils.requireNonNull(id, "Category", "id");
-        EntityExceptionUtils.requireNonNull(request, "Category", "update request");
-        EntityExceptionUtils.requireNonEmpty(request.getName(), "Category", "name");
-        EntityExceptionUtils.requireNonEmpty(request.getSlug(), "Category", "slug");
+    public CategoryResponse updateCategory(UUID publicId, UpdateCategoryRequest request, String currentUser) {
 
-        // Find existing category
-        Category existingCategory = categoryRepository.findByIdAndDeleteFlagFalse(id)
-                .orElseThrow(() -> EntityNotFoundException.forEntity("Category", id));
-
-        // Store old values for audit event
-        Category oldCategory = new Category();
-        oldCategory.setId(existingCategory.getId());
-        oldCategory.setName(existingCategory.getName());
-        oldCategory.setSlug(existingCategory.getSlug());
-        oldCategory.setDescription(existingCategory.getDescription());
-        oldCategory.setCreatedAt(existingCategory.getCreatedAt());
-        oldCategory.setUpdatedAt(existingCategory.getUpdatedAt());
-        oldCategory.setCreatedBy(existingCategory.getCreatedBy());
-        oldCategory.setUpdatedBy(existingCategory.getUpdatedBy());
-
+        Category existingCategory = categoryRepository.findByPublicIdAndDeletedAtIsNull(publicId)
+                .orElseThrow(() -> EntityNotFoundException.forEntity("Category", publicId));
         // Check for duplicate name (excluding current category)
         EntityExceptionUtils.requireNoDuplicate(
-                categoryRepository.existsByNameIgnoreCaseAndDeleteFlagFalseAndIdNot(request.getName(), id),
+                categoryRepository.existsByNameIgnoreCaseAndDeletedAtIsNullAndIdNot(request.getName(), existingCategory.getId()),
                 "Category", "name", request.getName()
         );
-
         // Check for duplicate slug (excluding current category)
         EntityExceptionUtils.requireNoDuplicate(
-                categoryRepository.existsBySlugIgnoreCaseAndDeleteFlagFalseAndIdNot(request.getSlug(), id),
+                categoryRepository.existsBySlugIgnoreCaseAndDeletedAtIsNullAndIdNot(request.getSlug(), existingCategory.getId()),
                 "Category", "slug", request.getSlug()
         );
 
+        // Store old values for audit event
+        Category oldCategory = getOldCategory(existingCategory);
         // Update entity with new values
         categoryMapper.updateEntity(existingCategory, request);
         existingCategory.setUpdatedBy(currentUser);
-
         // Save updated category
         Category updatedCategory = categoryRepository.save(existingCategory);
-
         // Publish audit event with old and new values
-        auditService.publishUpdateEvent("Category", updatedCategory.getId().toString(), 
+        auditService.publishUpdateEvent("Category", updatedCategory.getPublicId().toString(), 
                 oldCategory, updatedCategory, currentUser);
-
         // Convert to response DTO
         return categoryMapper.toResponse(updatedCategory);
     }
 
-    @Override
-    @Transactional
-    public void deleteCategory(Integer id, String currentUser) {
-
-        EntityExceptionUtils.requireNonNull(id, "Category", "id");
-
-        Category existingCategory = categoryRepository.findByIdAndDeleteFlagFalse(id)
-                .orElseThrow(() -> EntityNotFoundException.forEntity("Category", id));
-
-        // Store old values for audit before deletion
+    private static Category getOldCategory(Category existingCategory) {
         Category oldCategory = new Category();
         oldCategory.setId(existingCategory.getId());
+        oldCategory.setPublicId(existingCategory.getPublicId());
         oldCategory.setName(existingCategory.getName());
         oldCategory.setSlug(existingCategory.getSlug());
         oldCategory.setDescription(existingCategory.getDescription());
-        oldCategory.setDeleteFlag(existingCategory.getDeleteFlag());
+        oldCategory.setDeletedAt(existingCategory.getDeletedAt());
         oldCategory.setCreatedAt(existingCategory.getCreatedAt());
         oldCategory.setUpdatedAt(existingCategory.getUpdatedAt());
         oldCategory.setCreatedBy(existingCategory.getCreatedBy());
         oldCategory.setUpdatedBy(existingCategory.getUpdatedBy());
+        return oldCategory;
+    }
 
-        // Perform soft deletion
-        existingCategory.setDeleteFlag(true);
+    @Override
+    @Transactional
+    public void deleteCategory(UUID publicId, String currentUser) {
+
+        Category existingCategory = categoryRepository.findByPublicIdAndDeletedAtIsNull(publicId)
+                .orElseThrow(() -> EntityNotFoundException.forEntity("Category", publicId));
+        // Store old values for audit before deletion
+        Category oldCategory = getOldCategory(existingCategory);
+        // Perform soft deletion using timestamp
+        existingCategory.markAsDeleted();
         existingCategory.setUpdatedBy(currentUser);
         // Save updated entity
         categoryRepository.save(existingCategory);
-
         // Publish audit event for category deletion
-        auditService.publishDeleteEvent("Category", existingCategory.getId().toString(), oldCategory, currentUser);
+        auditService.publishDeleteEvent("Category", existingCategory.getPublicId().toString(), oldCategory, currentUser);
     }
 }

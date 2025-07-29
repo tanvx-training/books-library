@@ -7,20 +7,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateCategoryRequest {
 
     @NotBlank(message = "Category name is required")
-    @Size(max = 256, message = "Category name must not exceed 256 characters")
+    @Size(max = 100, message = "Category name must not exceed 100 characters")
     private String name;
 
     @NotBlank(message = "Category slug is required")
-    @Size(max = 256, message = "Category slug must not exceed 256 characters")
+    @Size(max = 100, message = "Category slug must not exceed 100 characters")
     @Pattern(regexp = "^[a-z0-9]+(?:-[a-z0-9]+)*$", message = "Category slug must be URL-friendly (lowercase letters, numbers, and hyphens only)")
     private String slug;
 
-    @Size(max = 5000, message = "Category description must not exceed 5000 characters")
     private String description;
 }
