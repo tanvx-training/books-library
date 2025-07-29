@@ -4,7 +4,9 @@ import com.library.catalog.controller.util.UserContextUtil;
 import com.library.catalog.business.BookBusiness;
 import com.library.catalog.business.dto.request.BookSearchRequest;
 import com.library.catalog.business.dto.request.CreateBookRequest;
+import com.library.catalog.business.dto.request.CreateBookWithCopiesRequest;
 import com.library.catalog.business.dto.request.UpdateBookRequest;
+import com.library.catalog.business.dto.request.UpdateBookWithCopiesRequest;
 import com.library.catalog.business.dto.response.BookDetailResponse;
 import com.library.catalog.business.dto.response.BookResponse;
 import com.library.catalog.business.dto.response.PagedBookResponse;
@@ -27,9 +29,9 @@ public class BookController {
     private final BookBusiness bookBusiness;
 
     @PostMapping
-    public ResponseEntity<BookResponse> createBook(@Valid @RequestBody CreateBookRequest request) {
+    public ResponseEntity<BookDetailResponse> createBookWithCopies(@Valid @RequestBody CreateBookWithCopiesRequest request) {
         String currentUser = UserContextUtil.getCurrentUser();
-        BookResponse response = bookBusiness.createBook(request, currentUser);
+        BookDetailResponse response = bookBusiness.createBookWithCopies(request, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -49,11 +51,11 @@ public class BookController {
     }
 
     @PutMapping("/{publicId}")
-    public ResponseEntity<BookResponse> updateBook(@PathVariable String publicId, @Valid @RequestBody UpdateBookRequest request) {
+    public ResponseEntity<BookDetailResponse> updateBookWithCopies(@PathVariable String publicId, @Valid @RequestBody UpdateBookWithCopiesRequest request) {
 
         UUID uuid = UUID.fromString(publicId);
         String currentUser = UserContextUtil.getCurrentUser();
-        BookResponse response = bookBusiness.updateBook(uuid, request, currentUser);
+        BookDetailResponse response = bookBusiness.updateBookWithCopies(uuid, request, currentUser);
         return ResponseEntity.ok(response);
     }
 

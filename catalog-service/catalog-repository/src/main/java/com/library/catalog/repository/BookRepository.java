@@ -15,44 +15,20 @@ import java.util.UUID;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    /**
-     * Find book by public ID, excluding soft-deleted records
-     */
     Optional<Book> findByPublicIdAndDeletedAtIsNull(UUID publicId);
 
-    /**
-     * Find book by ISBN, excluding soft-deleted records
-     */
     Optional<Book> findByIsbnAndDeletedAtIsNull(String isbn);
 
-    /**
-     * Check if book exists by public ID, excluding soft-deleted records
-     */
     boolean existsByPublicIdAndDeletedAtIsNull(UUID publicId);
 
-    /**
-     * Check if book exists by ISBN, excluding soft-deleted records
-     */
     boolean existsByIsbnAndDeletedAtIsNull(String isbn);
 
-    /**
-     * Check if book exists by ISBN excluding a specific book (for updates)
-     */
     boolean existsByIsbnAndDeletedAtIsNullAndPublicIdNot(String isbn, UUID publicId);
 
-    /**
-     * Find all books excluding soft-deleted records
-     */
     Page<Book> findByDeletedAtIsNull(Pageable pageable);
 
-    /**
-     * Find books by publisher ID, excluding soft-deleted records
-     */
     List<Book> findByPublisherIdAndDeletedAtIsNull(Long publisherId);
 
-    /**
-     * Find books by author public ID through junction table
-     */
     @Query("SELECT b FROM Book b " +
            "JOIN BookAuthor ba ON b.id = ba.bookId " +
            "JOIN Author a ON ba.authorId = a.id " +
@@ -61,9 +37,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
            "AND a.deletedAt IS NULL")
     List<Book> findByAuthorPublicId(@Param("authorPublicId") UUID authorPublicId);
 
-    /**
-     * Find books by category public ID through junction table
-     */
     @Query("SELECT b FROM Book b " +
            "JOIN BookCategory bc ON b.id = bc.bookId " +
            "JOIN Category c ON bc.categoryId = c.id " +

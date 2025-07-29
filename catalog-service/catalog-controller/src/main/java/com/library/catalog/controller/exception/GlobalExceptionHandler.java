@@ -72,88 +72,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handles DataIntegrityViolationException for database constraint violations.
-     * Provides specific handling for database-level constraint violations with public_id context.
-     */
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ValidationErrorResponse> handleDataIntegrityViolation(
-            DataIntegrityViolationException ex, WebRequest request) {
-        
-        String message = "Data integrity violation occurred";
-        String errorCode = "DATA_INTEGRITY_VIOLATION";
-        HttpStatus status = HttpStatus.CONFLICT;
-        
-        // Check for specific constraint violations with public_id context
-        String exceptionMessage = ex.getMessage();
-        if (exceptionMessage != null) {
-            // ISBN uniqueness violations
-            if (exceptionMessage.contains("isbn") && (exceptionMessage.contains("unique") || exceptionMessage.contains("duplicate"))) {
-                message = "A book with this ISBN already exists. Please use a different ISBN.";
-                errorCode = "DUPLICATE_ISBN";
-            }
-            // Book copy related constraint violations
-            else if (exceptionMessage.contains("book_copies_book_id_copy_number_delete_flg_key") ||
-                     exceptionMessage.contains("unique_copy_number_per_book")) {
-                message = "Copy number already exists for this book";
-                errorCode = "DUPLICATE_COPY_NUMBER";
-            }
-            // Foreign key constraint violations with public_id context
-            else if (exceptionMessage.contains("foreign key") || exceptionMessage.contains("fk_")) {
-                if (exceptionMessage.contains("publisher")) {
-                    message = "The specified publisher public ID does not exist or is inactive. Please verify the publisher public ID.";
-                    errorCode = "INVALID_PUBLISHER_PUBLIC_ID";
-                } else if (exceptionMessage.contains("author")) {
-                    message = "One or more specified author public IDs do not exist or are inactive. Please verify all author public IDs.";
-                    errorCode = "INVALID_AUTHOR_PUBLIC_ID";
-                } else if (exceptionMessage.contains("category")) {
-                    message = "One or more specified category public IDs do not exist or are inactive. Please verify all category public IDs.";
-                    errorCode = "INVALID_CATEGORY_PUBLIC_ID";
-                } else {
-                    message = "One or more referenced entities (using public IDs) do not exist or are inactive. Please verify all public IDs.";
-                    errorCode = "INVALID_FOREIGN_KEY_PUBLIC_ID";
-                }
-                status = HttpStatus.BAD_REQUEST;
-            }
-            // Book copy dependency violations
-            else if (exceptionMessage.contains("book_copies") || exceptionMessage.contains("book_copy")) {
-                message = "Cannot delete book because it has associated book copies. Please remove or delete all book copies first.";
-                errorCode = "BOOK_COPY_DEPENDENCY";
-            }
-            // Not null constraint violations
-            else if (exceptionMessage.contains("not null") || exceptionMessage.contains("null")) {
-                message = "Required field cannot be null. Please provide all required fields.";
-                errorCode = "REQUIRED_FIELD_MISSING";
-                status = HttpStatus.BAD_REQUEST;
-            }
-        }
-        
-        ValidationErrorResponse errorResponse = new ValidationErrorResponse(
-            message,
-            errorCode,
-            getPath(request)
-        );
-        
-        // Add field-specific errors based on constraint type
-        if (exceptionMessage != null) {
-            if (exceptionMessage.contains("isbn")) {
-                errorResponse.addFieldError("isbn", "ISBN already exists");
-            } else if (exceptionMessage.contains("publisher")) {
-                errorResponse.addFieldError("publisherPublicId", "Invalid publisher public ID");
-            } else if (exceptionMessage.contains("author")) {
-                errorResponse.addFieldError("authorPublicIds", "Invalid author public ID(s)");
-            } else if (exceptionMessage.contains("category")) {
-                errorResponse.addFieldError("categoryPublicIds", "Invalid category public ID(s)");
-            }
-        }
-        
-        return new ResponseEntity<>(errorResponse, status);
-    }
-
-    /**
-     * Handles InvalidUuidException and returns HTTP 400.
-     * Provides specific error handling for UUID format validation errors.
-     */
     @ExceptionHandler(InvalidUuidException.class)
     public ResponseEntity<ValidationErrorResponse> handleInvalidUuid(
             InvalidUuidException ex, WebRequest request) {
@@ -172,10 +90,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handles MethodArgumentTypeMismatchException for UUID conversion failures.
-     * Provides specific error handling for path parameter type conversion errors.
-     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ValidationErrorResponse> handleTypeMismatch(
             MethodArgumentTypeMismatchException ex, WebRequest request) {
@@ -201,10 +115,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handles EntityNotFoundException and returns HTTP 404.
-     * Provides enhanced error messages for public_id-based lookups.
-     */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(
             EntityNotFoundException ex, WebRequest request) {
@@ -232,10 +142,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Handles EntityValidationException and returns appropriate HTTP status codes.
-     * Provides specific handling for different types of validation errors including public_id-based operations.
-     */
     @ExceptionHandler(EntityValidationException.class)
     public ResponseEntity<ValidationErrorResponse> handleEntityValidation(
             EntityValidationException ex, WebRequest request) {
@@ -276,10 +182,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, status);
     }
 
-    /**
-     * Handles MethodArgumentNotValidException (Bean Validation) and returns HTTP 400.
-     * All error logging is handled automatically.
-     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleValidationErrors(
             MethodArgumentNotValidException ex, WebRequest request) {
@@ -298,10 +200,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handles ConstraintViolationException (method parameter validation) and returns HTTP 400.
-     * All error logging is handled automatically.
-     */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ValidationErrorResponse> handleConstraintViolation(
             ConstraintViolationException ex, WebRequest request) {
@@ -323,10 +221,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handles EntityServiceException and returns HTTP 500.
-     * Provides enhanced error messages for public_id-based operations.
-     */
     @ExceptionHandler(EntityServiceException.class)
     public ResponseEntity<ErrorResponse> handleEntityService(
             EntityServiceException ex, WebRequest request) {
@@ -358,10 +252,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    /**
-     * Handles IllegalArgumentException for parameter validation errors.
-     * Provides specific error handling for argument validation failures.
-     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(
             IllegalArgumentException ex, WebRequest request) {
@@ -375,10 +265,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handles all other unexpected exceptions and returns HTTP 500.
-     * All error logging is handled automatically.
-     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, WebRequest request) {
@@ -392,9 +278,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    /**
-     * Extracts the request path from WebRequest.
-     */
     private String getPath(WebRequest request) {
         String description = request.getDescription(false);
         if (description.startsWith("uri=")) {

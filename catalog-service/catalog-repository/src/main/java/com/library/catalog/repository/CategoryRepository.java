@@ -35,6 +35,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     // Check if category with slug exists excluding specific ID (for update validation)
     boolean existsBySlugIgnoreCaseAndDeletedAtIsNullAndIdNot(String slug, Long id);
 
+    // Find category by name (case-insensitive) excluding deleted ones
+    Optional<Category> findByNameIgnoreCaseAndDeletedAtIsNull(String name);
+
     // Find categories with complex criteria
     @Query("SELECT c FROM Category c WHERE " +
            "(:name IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
