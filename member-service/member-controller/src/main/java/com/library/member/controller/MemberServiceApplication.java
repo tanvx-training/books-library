@@ -1,4 +1,4 @@
-package com.library.catalog.controller;
+package com.library.member.controller;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,14 +6,14 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {
-        "com.library.catalog.controller",
-        "com.library.catalog.business",
-        "com.library.catalog.repository"
+        "com.library.member.controller",
+        "com.library.member.business",
+        "com.library.member.repository"
 })
-public class CatalogServiceApplication {
+public class MemberServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CatalogServiceApplication.class, args);
+        SpringApplication.run(MemberServiceApplication.class, args);
     }
 
 }

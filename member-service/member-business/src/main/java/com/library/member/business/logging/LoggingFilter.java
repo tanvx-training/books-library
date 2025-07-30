@@ -11,17 +11,6 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-/**
- * Aspect-based logging filter that automatically handles logging context
- * and structured logging for service operations.
- * 
- * This filter intercepts all service method calls and:
- * - Sets up logging context (MDC)
- * - Logs method entry and exit
- * - Handles exceptions with structured logging
- * - Measures execution time
- * - Cleans up context after execution
- */
 @Aspect
 @Component
 @Order(1) // Execute before other aspects
@@ -29,12 +18,7 @@ public class LoggingFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingFilter.class);
 
-    /**
-     * Intercepts all methods in service implementation classes.
-     * Automatically handles logging context setup, execution logging,
-     * and cleanup.
-     */
-    @Around("execution(* com.library.catalog.business.impl.*.*(..))")
+    @Around("execution(* com.library.member.business.impl.*.*(..))")
     public Object logServiceMethods(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         String requestId = UUID.randomUUID().toString();
@@ -81,9 +65,6 @@ public class LoggingFilter {
         }
     }
 
-    /**
-     * Extracts operation context from method name and arguments.
-     */
     private OperationContext extractOperationContext(String methodName, Object[] args) {
         OperationContext context = new OperationContext();
         
@@ -113,9 +94,6 @@ public class LoggingFilter {
         return context;
     }
 
-    /**
-     * Extracts entity type from method name.
-     */
     private String extractEntityType(String methodName, String... prefixes) {
         String remaining = methodName;
         
@@ -128,7 +106,7 @@ public class LoggingFilter {
         }
         
         // Extract entity name (e.g., "Author" from "createAuthor")
-        if (remaining.length() > 0) {
+        if (!remaining.isEmpty()) {
             // Handle cases like "getAllAuthors" -> "AUTHOR"
             if (remaining.toLowerCase().startsWith("all")) {
                 remaining = remaining.substring(3);
@@ -142,10 +120,6 @@ public class LoggingFilter {
         return "UNKNOWN";
     }
 
-    /**
-     * Extracts entity ID from method arguments.
-     * Assumes first Long/Integer argument is the entity ID.
-     */
     private Object extractEntityId(Object[] args) {
         if (args != null) {
             for (Object arg : args) {
@@ -157,10 +131,6 @@ public class LoggingFilter {
         return null;
     }
 
-    /**
-     * Extracts user ID from method arguments.
-     * Assumes last String argument is the current user.
-     */
     private String extractUserId(Object[] args) {
         if (args != null && args.length > 0) {
             // Look for currentUser parameter (usually last String parameter)
@@ -178,28 +148,19 @@ public class LoggingFilter {
         return "system"; // Default user
     }
 
-    /**
-     * Sets up logging context in MDC.
-     */
     private void setupLoggingContext(String requestId, OperationContext context) {
         LoggingContextManager.setRequestContext(requestId);
         LoggingContextManager.setOperationContext(context.userId, context.operation, 
                                                 context.entityType, context.entityId);
     }
 
-    /**
-     * Logs method entry with context information.
-     */
     private void logMethodEntry(String className, String methodName, OperationContext context, Object[] args) {
-        StructuredLogger.logOperationSuccess(logger, context.operation, context.entityType, 
+        StructuredLogger.logOperationSuccess(logger, context.operation, context.entityType,
             context.entityId, context.userId, 
             String.format("Starting %s.%s with %d arguments", className, methodName, 
                          args != null ? args.length : 0));
     }
 
-    /**
-     * Logs successful method completion.
-     */
     private void logMethodSuccess(String className, String methodName, OperationContext context, 
                                 long executionTime, Object result) {
         // Log performance metrics
@@ -212,9 +173,6 @@ public class LoggingFilter {
             String.format("Completed %s.%s successfully in %dms", className, methodName, executionTime));
     }
 
-    /**
-     * Logs method failure with exception details.
-     */
     private void logMethodFailure(String className, String methodName, OperationContext context, 
                                 long executionTime, Exception exception) {
         // Log performance metrics for failed operations
@@ -236,9 +194,6 @@ public class LoggingFilter {
         }
     }
 
-    /**
-     * Extracts record count from result object for performance logging.
-     */
     private Integer getRecordCount(Object result) {
         if (result == null) return null;
         
@@ -265,9 +220,6 @@ public class LoggingFilter {
         return 1;
     }
 
-    /**
-     * Checks if exception is a validation exception.
-     */
     private boolean isValidationException(Exception exception) {
         String exceptionName = exception.getClass().getSimpleName().toLowerCase();
         return exceptionName.contains("validation") || 
@@ -275,9 +227,6 @@ public class LoggingFilter {
                exception instanceof IllegalArgumentException;
     }
 
-    /**
-     * Checks if exception is a database-related exception.
-     */
     private boolean isDatabaseException(Exception exception) {
         String exceptionName = exception.getClass().getSimpleName().toLowerCase();
         return exceptionName.contains("sql") || 
@@ -287,9 +236,6 @@ public class LoggingFilter {
                exceptionName.contains("hibernate");
     }
 
-    /**
-     * Inner class to hold operation context information.
-     */
     private static class OperationContext {
         String operation;
         String entityType;

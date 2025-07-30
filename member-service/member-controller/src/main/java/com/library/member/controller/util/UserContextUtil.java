@@ -1,15 +1,10 @@
-package com.library.catalog.controller.util;
+package com.library.member.controller.util;
 
-import lombok.Getter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-/**
- * Utility class for extracting user context information from Spring Security context.
- * Handles JWT tokens and provides fallback mechanisms when user context is not available.
- */
 public class UserContextUtil {
 
     private static final String DEFAULT_USER = "system";
@@ -17,15 +12,10 @@ public class UserContextUtil {
     private static final String SUB_CLAIM = "sub";
     private static final String EMAIL_CLAIM = "email";
 
-    /**
-     * Extracts the current user identifier from the security context.
-     * 
-     * @return the current user identifier, or "system" if no user context is available
-     */
     public static String getCurrentUser() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            
+
             if (authentication == null || !authentication.isAuthenticated()) {
                 return DEFAULT_USER;
             }
@@ -49,13 +39,6 @@ public class UserContextUtil {
         }
     }
 
-    /**
-     * Extracts user identifier from JWT token.
-     * Tries multiple claims in order of preference: preferred_username, email, sub.
-     * 
-     * @param jwt the JWT token
-     * @return the user identifier from the token
-     */
     private static String extractUserFromJwt(Jwt jwt) {
         try {
             // Try preferred_username first (common in Keycloak)
@@ -83,44 +66,31 @@ public class UserContextUtil {
         }
     }
 
-    /**
-     * Checks if there is an authenticated user in the current security context.
-     * 
-     * @return true if there is an authenticated user, false otherwise
-     */
     public static boolean hasAuthenticatedUser() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            return authentication != null && authentication.isAuthenticated() 
-                   && !"anonymousUser".equals(authentication.getPrincipal());
+            return authentication != null && authentication.isAuthenticated()
+                    && !"anonymousUser".equals(authentication.getPrincipal());
         } catch (Exception e) {
             return false;
         }
     }
 
-    /**
-     * Gets the current user with additional context information.
-     * This method can be extended to include more user details if needed.
-     * 
-     * @return UserContext object with user information
-     */
     public static UserContext getCurrentUserContext() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
+
         if (authentication == null || !authentication.isAuthenticated()) {
             return new UserContext(DEFAULT_USER, false);
         }
 
         String userId = getCurrentUser();
         boolean isAuthenticated = hasAuthenticatedUser();
-        
+
         return new UserContext(userId, isAuthenticated);
     }
 
-    /**
-         * Simple data class to hold user context information.
-         */
-        public record UserContext(String userId, boolean authenticated) {
+
+    public record UserContext(String userId, boolean authenticated) {
 
     }
 }

@@ -1,4 +1,4 @@
-package com.library.catalog.business.aop.exception;
+package com.library.member.business.exception;
 
 import lombok.Getter;
 
