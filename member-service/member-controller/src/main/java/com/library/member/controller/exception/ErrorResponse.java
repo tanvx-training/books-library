@@ -1,6 +1,7 @@
 package com.library.member.controller.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,9 +9,9 @@ import java.time.LocalDateTime;
 
 @Setter
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
 
-    // Getters and Setters
     private String message;
     private String code;
     
@@ -18,6 +19,8 @@ public class ErrorResponse {
     private LocalDateTime timestamp;
     
     private String path;
+    
+    private String correlationId;
 
     public ErrorResponse() {
         this.timestamp = LocalDateTime.now();
@@ -36,6 +39,11 @@ public class ErrorResponse {
     public ErrorResponse(String message, String code, String path) {
         this(message, code);
         this.path = path;
+    }
+
+    public ErrorResponse(String message, String code, String path, String correlationId) {
+        this(message, code, path);
+        this.correlationId = correlationId;
     }
 
 }

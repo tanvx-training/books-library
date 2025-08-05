@@ -23,7 +23,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
+
 import java.util.UUID;
 
 @Setter
@@ -75,7 +75,7 @@ public class LibraryCardEntity {
     private String updatedBy;
 
     @Column(name = "deleted_at")
-    private OffsetDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
     @PrePersist
     void generatePublicId() {

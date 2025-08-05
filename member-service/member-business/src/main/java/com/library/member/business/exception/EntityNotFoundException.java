@@ -42,7 +42,7 @@ public class EntityNotFoundException extends RuntimeException {
     }
 
     public static EntityNotFoundException forPublicId(String entityType, Object publicId) {
-        return new EntityNotFoundException(String.format("%s not found with public_id: %s", entityType, publicId));
+        return new EntityNotFoundException(entityType, publicId, String.format("%s not found with public_id: %s", entityType, publicId));
     }
 
 }

@@ -1,9 +1,6 @@
 package com.library.member.controller.filter;
 
-import com.library.member.business.security.UserContext;
-import com.library.member.business.security.UserContextHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -13,106 +10,60 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
+import java.io.IOException;
+import java.util.UUID;
+
+/**
+ * Simplified security context filter that only handles correlation ID setup.
+ * Authentication is now fully handled by Spring Security OAuth2 Resource Server.
+ */
+@Slf4j
 @Component
-@Order(1) // Execute early in the filter chain
+@Order(1)
 public class SecurityContextFilter implements Filter {
 
-    private static final Logger logger = LoggerFactory.getLogger(SecurityContextFilter.class);
-
-    // Header names expected from API Gateway
-    private static final String USER_ID_HEADER = "X-User-ID";
-    private static final String USER_ROLES_HEADER = "X-User-Roles";
-    private static final String USER_EMAIL_HEADER = "X-User-Email";
+    private static final String CORRELATION_ID_HEADER = "X-Correlation-ID";
+    private static final String REQUEST_ID_HEADER = "X-Request-ID";
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        String requestPath = httpRequest.getRequestURI();
 
         try {
-            // Extract user context from headers
-            UserContext userContext = extractUserContext(httpRequest);
+            // Set up correlation ID for request tracking
+            setupCorrelationId(httpRequest);
             
-            if (userContext != null) {
-                // Set user context in thread-local storage
-                UserContextHolder.setContext(userContext);
-                logger.debug("User context set for user: {}", userContext.getUserId());
-            } else {
-                logger.warn("No valid user context found in request headers for path: {}", 
-                           httpRequest.getRequestURI());
-                
-                // For endpoints that require authentication, return 403
-                if (requiresAuthentication(httpRequest)) {
-                    httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    httpResponse.setContentType("application/json");
-                    httpResponse.getWriter().write(
-                        "{\"message\":\"Access denied: Missing or invalid user context\",\"errorCode\":\"MISSING_USER_CONTEXT\"}"
-                    );
-                    return;
-                }
-            }
-
-            // Continue with the filter chain
+            log.debug("Processing request: {}", requestPath);
+            
+            // Continue with the filter chain - Spring Security will handle authentication
             chain.doFilter(request, response);
 
         } catch (Exception e) {
-            logger.error("Error processing security context", e);
-            httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            httpResponse.setContentType("application/json");
-            httpResponse.getWriter().write(
-                "{\"message\":\"Internal server error\",\"errorCode\":\"SECURITY_CONTEXT_ERROR\"}"
-            );
-        } finally {
-            // Always clear the context to prevent memory leaks
-            UserContextHolder.clearContext();
+            log.error("Unexpected error in security context filter for path: {}", requestPath, e);
+            // Don't fail the request, continue with the chain
+            chain.doFilter(request, response);
         }
     }
 
-    private UserContext extractUserContext(HttpServletRequest request) {
-        String userId = request.getHeader(USER_ID_HEADER);
-        String email = request.getHeader(USER_EMAIL_HEADER);
-        String rolesHeader = request.getHeader(USER_ROLES_HEADER);
-
-        // User ID is required
-        if (userId == null || userId.trim().isEmpty()) {
-            logger.debug("Missing or empty user ID header");
-            return null;
+    private void setupCorrelationId(HttpServletRequest request) {
+        // Try to get correlation ID from headers
+        String correlationId = request.getHeader(CORRELATION_ID_HEADER);
+        if (correlationId == null || correlationId.trim().isEmpty()) {
+            correlationId = request.getHeader(REQUEST_ID_HEADER);
         }
 
-        // Parse roles from comma-separated string
-        Set<String> roles = new HashSet<>();
-        if (rolesHeader != null && !rolesHeader.trim().isEmpty()) {
-            String[] roleArray = rolesHeader.split(",");
-            for (String role : roleArray) {
-                String trimmedRole = role.trim();
-                if (!trimmedRole.isEmpty()) {
-                    roles.add(trimmedRole);
-                }
-            }
+        // Generate new correlation ID if not provided
+        if (correlationId == null || correlationId.trim().isEmpty()) {
+            correlationId = UUID.randomUUID().toString();
         }
 
-        return new UserContext(userId.trim(), email, roles);
-    }
-    private boolean requiresAuthentication(HttpServletRequest request) {
-        String path = request.getRequestURI();
+        // Store correlation ID as request attribute for logging
+        request.setAttribute("correlationId", correlationId);
         
-        // Skip authentication for health checks and actuator endpoints
-        if (path.startsWith("/actuator/") || 
-            path.equals("/health") || 
-            path.equals("/info") ||
-            path.startsWith("/swagger-") ||
-            path.startsWith("/v3/api-docs")) {
-            return false;
-        }
-
-        // All API endpoints require authentication
-        return path.startsWith("/api/");
+        log.debug("Correlation ID set: {}", correlationId);
     }
 }

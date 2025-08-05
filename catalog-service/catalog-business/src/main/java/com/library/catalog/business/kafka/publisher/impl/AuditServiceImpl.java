@@ -10,10 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementation of AuditService that handles audit event publishing.
- * This service provides a centralized way to publish audit events for various entity operations.
- */
 @Service
 @Slf4j
 @RequiredArgsConstructor

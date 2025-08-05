@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Builder
 @Setter
 @Getter
 @NoArgsConstructor
@@ -67,8 +69,10 @@ public class UserEntity {
 
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private UserRole role = UserRole.MEMBER;
 
+    @Builder.Default
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
