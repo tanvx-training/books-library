@@ -9,10 +9,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Builder class for creating AuditEventMessage instances.
- * Provides a fluent API for constructing audit events with proper validation and defaults.
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -20,22 +16,14 @@ public class AuditEventBuilder {
 
     private final ObjectMapper objectMapper;
 
-    /**
-     * Creates a new builder instance for constructing audit events.
-     *
-     * @return A new AuditEventBuilder instance
-     */
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * Builder class for constructing AuditEventMessage instances.
-     */
     public static class Builder {
-        private String eventId;
+        private final String eventId;
         private EventType eventType;
-        private String serviceName;
+        private final String serviceName;
         private String entityType;
         private String entityId;
         private String userId;
@@ -43,7 +31,7 @@ public class AuditEventBuilder {
         private Object oldValue;
         private Object newValue;
         private String changes;
-        private LocalDateTime timestamp;
+        private final LocalDateTime timestamp;
 
         private Builder() {
             this.eventId = UUID.randomUUID().toString();
@@ -91,13 +79,6 @@ public class AuditEventBuilder {
             return this;
         }
 
-        /**
-         * Builds the AuditEventMessage with validation.
-         *
-         * @param objectMapper ObjectMapper for serializing values
-         * @return Constructed AuditEventMessage
-         * @throws IllegalArgumentException if required fields are missing
-         */
         public AuditEventMessage build(ObjectMapper objectMapper) {
             validateRequiredFields();
 

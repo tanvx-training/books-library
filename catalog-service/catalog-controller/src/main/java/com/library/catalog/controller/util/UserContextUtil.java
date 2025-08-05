@@ -1,14 +1,14 @@
 package com.library.catalog.controller.util;
 
-import lombok.Getter;
+import com.library.catalog.controller.filter.SecurityContextFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
- * Utility class for extracting user context information from Spring Security context.
- * Handles JWT tokens and provides fallback mechanisms when user context is not available.
+ * Utility class for extracting user context from both API Gateway headers and JWT tokens.
+ * This provides a unified interface for getting user information regardless of the authentication source.
  */
 public class UserContextUtil {
 
@@ -18,12 +18,17 @@ public class UserContextUtil {
     private static final String EMAIL_CLAIM = "email";
 
     /**
-     * Extracts the current user identifier from the security context.
-     * 
-     * @return the current user identifier, or "system" if no user context is available
+     * Gets the current user ID, prioritizing API Gateway headers over JWT tokens.
      */
     public static String getCurrentUser() {
         try {
+            // First try to get user context from API Gateway headers
+            SecurityContextFilter.UserContext userContext = SecurityContextFilter.UserContextHolder.getContext();
+            if (userContext != null) {
+                return userContext.userId();
+            }
+
+            // Fallback to JWT token for direct API calls
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             
             if (authentication == null || !authentication.isAuthenticated()) {
@@ -49,13 +54,6 @@ public class UserContextUtil {
         }
     }
 
-    /**
-     * Extracts user identifier from JWT token.
-     * Tries multiple claims in order of preference: preferred_username, email, sub.
-     * 
-     * @param jwt the JWT token
-     * @return the user identifier from the token
-     */
     private static String extractUserFromJwt(Jwt jwt) {
         try {
             // Try preferred_username first (common in Keycloak)
@@ -84,12 +82,17 @@ public class UserContextUtil {
     }
 
     /**
-     * Checks if there is an authenticated user in the current security context.
-     * 
-     * @return true if there is an authenticated user, false otherwise
+     * Checks if there is an authenticated user (from either API Gateway or JWT).
      */
     public static boolean hasAuthenticatedUser() {
         try {
+            // Check API Gateway context first
+            SecurityContextFilter.UserContext userContext = SecurityContextFilter.UserContextHolder.getContext();
+            if (userContext != null) {
+                return true;
+            }
+
+            // Check JWT authentication
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             return authentication != null && authentication.isAuthenticated() 
                    && !"anonymousUser".equals(authentication.getPrincipal());
@@ -99,28 +102,86 @@ public class UserContextUtil {
     }
 
     /**
-     * Gets the current user with additional context information.
-     * This method can be extended to include more user details if needed.
-     * 
-     * @return UserContext object with user information
+     * Gets comprehensive user context including roles and authentication status.
      */
     public static UserContext getCurrentUserContext() {
+        // Try API Gateway context first
+        SecurityContextFilter.UserContext apiGatewayContext = SecurityContextFilter.UserContextHolder.getContext();
+        if (apiGatewayContext != null) {
+            return new UserContext(
+                apiGatewayContext.userId(),
+                true, 
+                apiGatewayContext.email(),
+                apiGatewayContext.username(),
+                apiGatewayContext.roles()
+            );
+        }
+
+        // Fallback to JWT authentication
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (authentication == null || !authentication.isAuthenticated()) {
-            return new UserContext(DEFAULT_USER, false);
+            return new UserContext(DEFAULT_USER, false, null, null, null);
         }
 
         String userId = getCurrentUser();
         boolean isAuthenticated = hasAuthenticatedUser();
         
-        return new UserContext(userId, isAuthenticated);
+        return new UserContext(userId, isAuthenticated, null, null, null);
     }
 
     /**
-         * Simple data class to hold user context information.
-         */
-        public record UserContext(String userId, boolean authenticated) {
+     * Checks if the current user has the specified role.
+     */
+    public static boolean hasRole(String role) {
+        SecurityContextFilter.UserContext userContext = SecurityContextFilter.UserContextHolder.getContext();
+        if (userContext != null) {
+            return userContext.hasRole(role);
+        }
+        
+        // For JWT tokens, role checking would need to be implemented
+        // This is a simplified version
+        return false;
+    }
 
+    /**
+     * Checks if the current user has any of the specified roles.
+     */
+    public static boolean hasAnyRole(String... roles) {
+        SecurityContextFilter.UserContext userContext = SecurityContextFilter.UserContextHolder.getContext();
+        if (userContext != null) {
+            return userContext.hasAnyRole(roles);
+        }
+        
+        // For JWT tokens, role checking would need to be implemented
+        return false;
+    }
+
+    /**
+     * Enhanced user context record with role information.
+     */
+    public record UserContext(
+        String userId, 
+        boolean authenticated, 
+        String email, 
+        String username, 
+        java.util.Set<String> roles
+    ) {
+        public boolean hasRole(String role) {
+            return roles != null && roles.contains(role);
+        }
+        
+        public boolean hasAnyRole(String... roles) {
+            if (this.roles == null) {
+                return false;
+            }
+            
+            for (String role : roles) {
+                if (this.roles.contains(role)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

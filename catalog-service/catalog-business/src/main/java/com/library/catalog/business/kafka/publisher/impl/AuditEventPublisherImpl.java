@@ -11,11 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Implementation of AuditEventPublisher that publishes events to Kafka.
- * This service handles the actual publishing of audit events to Kafka topics
- * with proper error handling and logging.
- */
 @Service
 @Slf4j
 @RequiredArgsConstructor

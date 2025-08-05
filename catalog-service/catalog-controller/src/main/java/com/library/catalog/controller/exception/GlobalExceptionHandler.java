@@ -7,7 +7,6 @@ import com.library.catalog.business.aop.exception.EntityValidationException;
 import com.library.catalog.business.aop.exception.InvalidStatusTransitionException;
 import com.library.catalog.business.aop.exception.InvalidUuidException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

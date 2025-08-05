@@ -54,6 +54,12 @@ spring:
             - Path=/api/v1/notifications/**
           filters:
             - RemoveRequestHeader=Cookie
+        - id: member-service
+          uri: lb://MEMBER-SERVICE
+          predicates:
+            - Path=/api/v1/members/**
+          filters:
+            - RemoveRequestHeader=Cookie
         # Keycloak routes
         - id: keycloak-login
           uri: http://localhost:8090
