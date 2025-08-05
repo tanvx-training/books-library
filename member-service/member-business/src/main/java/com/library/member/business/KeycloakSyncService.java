@@ -84,9 +84,7 @@ public class KeycloakSyncService {
         userRepository.findByKeycloakId(keycloakId)
                 .ifPresent(user -> {
                     user.setIsActive(false);
-                    user.setDeletedAt(LocalDateTime.now());
-                    user.setUpdatedBy("SYSTEM");
-                    user.setUpdatedAt(LocalDateTime.now());
+                    user.markAsDeleted();
                     userRepository.save(user);
                     log.info("Deactivated user: {}", keycloakId);
                 });
@@ -113,10 +111,6 @@ public class KeycloakSyncService {
                     .lastName(kcUser.getLastName())
                     .isActive(kcUser.isEnabled())
                     .role(extractUserRole(kcUser))
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .createdBy("SYSTEM")
-                    .updatedBy("SYSTEM")
                     .build();
 
             userRepository.save(newUser);
@@ -168,8 +162,6 @@ public class KeycloakSyncService {
         }
 
         if (updated) {
-            user.setUpdatedAt(LocalDateTime.now());
-            user.setUpdatedBy("SYSTEM");
             userRepository.save(user);
             log.info("Updated user: {} ({})", kcUser.getId(), kcUser.getEmail());
         }
@@ -210,7 +202,6 @@ public class KeycloakSyncService {
                     .syncedUserCount(result.getTotalCount())
                     .successCount(result.getSuccessCount())
                     .failureCount(result.getFailureCount())
-                    .createdAt(LocalDateTime.now())
                     .build();
 
             syncStateRepository.save(syncState);

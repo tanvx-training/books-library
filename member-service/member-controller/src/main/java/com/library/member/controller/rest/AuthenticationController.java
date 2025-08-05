@@ -1,20 +1,13 @@
 package com.library.member.controller.rest;
 
-import com.library.member.business.UserManagementService;
 import com.library.member.business.dto.response.PermissionsResponse;
-import com.library.member.business.dto.response.UserResponse;
-import com.library.member.business.dto.sync.UserSyncRequest;
 import com.library.member.business.security.AuthenticatedUser;
 import com.library.member.business.security.UnifiedAuthenticationService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,24 +20,6 @@ import java.util.Set;
 public class AuthenticationController {
 
     private final UnifiedAuthenticationService authenticationService;
-    private final UserManagementService userManagementService;
-
-    @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser() {
-
-        UserResponse userResponse = userManagementService.getCurrentUserProfile();
-        return ResponseEntity.ok(userResponse);
-    }
-
-    @PostMapping("/sync/{keycloakId}")
-    public ResponseEntity<UserResponse> syncUser(
-            @PathVariable String keycloakId,
-            @Valid @RequestBody UserSyncRequest syncRequest) {
-        
-        String currentUserKeycloakId = authenticationService.getCurrentUserKeycloakId();
-        UserResponse userResponse = userManagementService.syncUserFromKeycloak(keycloakId, syncRequest);
-        return ResponseEntity.ok(userResponse);
-    }
 
     @GetMapping("/permissions")
     public ResponseEntity<PermissionsResponse> getUserPermissions() {
