@@ -1,0 +1,24 @@
+package com.library.catalog.business.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class CategoryResponse {
+
+    private UUID publicId;
+    private String name;
+    private String slug;
+    private String description;
+    private UUID parentId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String createdBy;
+    private String updatedBy;
+}

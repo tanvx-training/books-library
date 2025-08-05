@@ -758,7 +758,7 @@ Hệ thống cần được thiết kế và xây dựng để dễ dàng bảo 
 *   **NFR-MAINT-003: Tính dễ kiểm thử (Testability):**
     *   Mỗi microservice phải có bộ kiểm thử đơn vị (unit tests) và kiểm thử tích hợp (integration tests) đầy đủ để đảm bảo chất lượng và dễ dàng phát hiện lỗi khi có thay đổi.
 *   **NFR-MAINT-004: Tài liệu hóa (Documentation):**
-    *   Ngoài SRS, cần có tài liệu thiết kế chi tiết, tài liệu API (ví dụ: sử dụng Swagger/OpenAPI được tạo tự động từ code), và tài liệu hướng dẫn triển khai, vận hành.
+    *   Ngoài SRS, cần có tài liệu thiết kế chi tiết, tài liệu API, và tài liệu hướng dẫn triển khai, vận hành.
 *   **NFR-MAINT-005: Quản lý cấu hình (Configuration Management):**
     *   Các thông tin cấu hình (ví dụ: thông tin kết nối database, Kafka, Redis, key bí mật) phải được quản lý tách biệt khỏi mã nguồn (ví dụ: sử dụng Spring Cloud Config hoặc biến môi trường) để dễ dàng thay đổi giữa các môi trường (dev, staging, production).
 
@@ -833,7 +833,7 @@ Phần này mô tả các giao diện mà Hệ thống Thư viện Mượn Sách
         *   `/api/books/**` -> Book Service
         *   `/api/borrowings/**` -> Book Service
         *   `/api/notifications/**` -> Notification Service
-    *   Chi tiết về các endpoints, phương thức (GET, POST, PUT, DELETE), tham số và cấu trúc request/response được tài liệu hóa bằng Swagger/OpenAPI và có thể truy cập thông qua API Gateway.
+    *   Chi tiết về các endpoints, phương thức (GET, POST, PUT, DELETE), tham số và cấu trúc request/response có thể truy cập thông qua API Gateway.
 *   **COMM-004: Ports Mặc định:**
     *   API Gateway: 8080
     *   Eureka Server: 8761
