@@ -8,18 +8,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sync_states")
-@Data
 @Builder
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SyncStateEntity {
+public class SyncStateEntity extends BaseAuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +42,5 @@ public class SyncStateEntity {
     @Column(name = "failure_count")
     private Integer failureCount;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+
 }

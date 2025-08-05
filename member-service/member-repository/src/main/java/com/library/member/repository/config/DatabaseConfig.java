@@ -9,10 +9,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableJpaRepositories(basePackages = "com.library.member.repository")
 @EntityScan(basePackages = "com.library.member.repository.entity")
-@EnableJpaAuditing
+@EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
 @EnableTransactionManagement
 public class DatabaseConfig {
     
-    // Configuration is handled through annotations and application properties
-    // Additional beans can be added here if needed for custom configurations
 }
