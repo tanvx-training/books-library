@@ -2,6 +2,7 @@ package com.library.member.business.scheduler;
 
 import com.library.member.business.KeycloakSyncService;
 import com.library.member.business.dto.sync.SyncResult;
+import com.library.member.business.kafka.publisher.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

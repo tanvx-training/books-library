@@ -10,13 +10,13 @@ import java.util.UUID;
 
 public interface CategoryBusiness {
 
-    CategoryResponse createCategory(CreateCategoryRequest request, String currentUser);
+    CategoryResponse createCategory(CreateCategoryRequest request);
 
     CategoryResponse getCategoryById(UUID publicId);
 
     PagedCategoryResponse getAllCategories(CategorySearchRequest request);
 
-    CategoryResponse updateCategory(UUID publicId, UpdateCategoryRequest request, String currentUser);
+    CategoryResponse updateCategory(UUID publicId, UpdateCategoryRequest request);
 
-    void deleteCategory(UUID publicId, String currentUser);
+    void deleteCategory(UUID publicId);
 }

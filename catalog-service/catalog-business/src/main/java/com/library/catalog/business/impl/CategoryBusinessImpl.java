@@ -9,6 +9,7 @@ import com.library.catalog.business.dto.response.CategoryResponse;
 import com.library.catalog.business.dto.response.PagedCategoryResponse;
 import com.library.catalog.business.kafka.publisher.AuditService;
 import com.library.catalog.business.mapper.CategoryMapper;
+import com.library.catalog.business.security.UnifiedAuthenticationService;
 import com.library.catalog.business.util.EntityExceptionUtils;
 import com.library.catalog.repository.CategoryRepository;
 import com.library.catalog.repository.entity.Category;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -27,10 +27,11 @@ public class CategoryBusinessImpl implements CategoryBusiness {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
     private final AuditService auditService;
+    private final UnifiedAuthenticationService unifiedAuthenticationService;
 
     @Override
     @Transactional
-    public CategoryResponse createCategory(CreateCategoryRequest request, String currentUser) {
+    public CategoryResponse createCategory(CreateCategoryRequest request) {
 
         // Check for duplicate name
         EntityExceptionUtils.requireNoDuplicate(
@@ -44,14 +45,10 @@ public class CategoryBusinessImpl implements CategoryBusiness {
         );
         // Convert DTO to entity
         Category category = categoryMapper.toEntity(request);
-
-        // Set audit fields
-        category.setCreatedBy(currentUser);
-        category.setUpdatedBy(currentUser);
         // Save to database
         categoryRepository.save(category);
         // Publish audit event for category creation
-        auditService.publishCreateEvent("Category", category.getPublicId().toString(), category, currentUser);
+        auditService.publishCreateEvent("Category", category.getPublicId().toString(), category, unifiedAuthenticationService.getCurrentUserKeycloakId());
         // Convert to response DTO
         return categoryMapper.toResponse(category);
     }
@@ -79,7 +76,7 @@ public class CategoryBusinessImpl implements CategoryBusiness {
 
     @Override
     @Transactional
-    public CategoryResponse updateCategory(UUID publicId, UpdateCategoryRequest request, String currentUser) {
+    public CategoryResponse updateCategory(UUID publicId, UpdateCategoryRequest request) {
 
         Category existingCategory = categoryRepository.findByPublicIdAndDeletedAtIsNull(publicId)
                 .orElseThrow(() -> EntityNotFoundException.forEntity("Category", publicId));
@@ -98,12 +95,11 @@ public class CategoryBusinessImpl implements CategoryBusiness {
         Category oldCategory = getOldCategory(existingCategory);
         // Update entity with new values
         categoryMapper.updateEntity(existingCategory, request);
-        existingCategory.setUpdatedBy(currentUser);
         // Save updated category
         Category updatedCategory = categoryRepository.save(existingCategory);
         // Publish audit event with old and new values
         auditService.publishUpdateEvent("Category", updatedCategory.getPublicId().toString(), 
-                oldCategory, updatedCategory, currentUser);
+                oldCategory, updatedCategory, unifiedAuthenticationService.getCurrentUserKeycloakId());
         // Convert to response DTO
         return categoryMapper.toResponse(updatedCategory);
     }
@@ -125,7 +121,7 @@ public class CategoryBusinessImpl implements CategoryBusiness {
 
     @Override
     @Transactional
-    public void deleteCategory(UUID publicId, String currentUser) {
+    public void deleteCategory(UUID publicId) {
 
         Category existingCategory = categoryRepository.findByPublicIdAndDeletedAtIsNull(publicId)
                 .orElseThrow(() -> EntityNotFoundException.forEntity("Category", publicId));
@@ -133,10 +129,9 @@ public class CategoryBusinessImpl implements CategoryBusiness {
         Category oldCategory = getOldCategory(existingCategory);
         // Perform soft deletion using timestamp
         existingCategory.markAsDeleted();
-        existingCategory.setUpdatedBy(currentUser);
         // Save updated entity
         categoryRepository.save(existingCategory);
         // Publish audit event for category deletion
-        auditService.publishDeleteEvent("Category", existingCategory.getPublicId().toString(), oldCategory, currentUser);
+        auditService.publishDeleteEvent("Category", existingCategory.getPublicId().toString(), oldCategory, unifiedAuthenticationService.getCurrentUserKeycloakId());
     }
 }

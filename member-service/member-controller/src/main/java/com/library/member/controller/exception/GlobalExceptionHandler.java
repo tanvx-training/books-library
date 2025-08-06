@@ -1,10 +1,11 @@
 package com.library.member.controller.exception;
 
-import com.library.member.business.exception.AuthenticationException;
-import com.library.member.business.exception.EntityNotFoundException;
-import com.library.member.business.exception.EntityServiceException;
-import com.library.member.business.exception.EntityValidationException;
-import com.library.member.business.exception.InvalidUuidException;
+import com.library.member.business.aop.exception.AuthorizationException;
+import com.library.member.business.aop.exception.AuthenticationException;
+import com.library.member.business.aop.exception.EntityNotFoundException;
+import com.library.member.business.aop.exception.EntityServiceException;
+import com.library.member.business.aop.exception.EntityValidationException;
+import com.library.member.business.aop.exception.InvalidUuidException;
 import com.library.member.business.security.UnifiedAuthenticationService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -290,9 +291,9 @@ public class GlobalExceptionHandler {
         return message;
     }
 
-    @ExceptionHandler(com.library.member.business.exception.AuthenticationException.class)
+    @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(
-            com.library.member.business.exception.AuthenticationException ex, WebRequest request) {
+            AuthenticationException ex, WebRequest request) {
 
         String correlationId = getCorrelationId();
         String currentUserId = authenticationService.getCurrentUserKeycloakId();
@@ -334,9 +335,9 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(com.library.member.business.exception.AuthorizationException.class)
+    @ExceptionHandler(AuthorizationException.class)
     public ResponseEntity<ErrorResponse> handleAuthorization(
-            com.library.member.business.exception.AuthorizationException ex, WebRequest request) {
+            AuthorizationException ex, WebRequest request) {
 
         String correlationId = getCorrelationId();
         String currentUserId = authenticationService.getCurrentUserKeycloakId();

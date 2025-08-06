@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableJpaRepositories(basePackages = "com.library.catalog.repository")
 @EntityScan(basePackages = "com.library.catalog.repository.entity")
-@EnableJpaAuditing
+@EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
 @EnableTransactionManagement
 public class DatabaseConfig {
     

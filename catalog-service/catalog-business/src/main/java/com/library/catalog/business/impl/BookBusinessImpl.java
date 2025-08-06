@@ -11,6 +11,7 @@ import com.library.catalog.business.dto.response.BookResponse;
 import com.library.catalog.business.dto.response.PagedBookResponse;
 import com.library.catalog.business.kafka.publisher.AuditService;
 import com.library.catalog.business.mapper.BookMapper;
+import com.library.catalog.business.security.UnifiedAuthenticationService;
 import com.library.catalog.business.util.EntityExceptionUtils;
 import com.library.catalog.repository.AuthorRepository;
 import com.library.catalog.repository.BookAuthorRepository;
@@ -56,18 +57,19 @@ public class BookBusinessImpl implements BookBusiness {
     private final CategoryRepository categoryRepository;
     private final BookMapper bookMapper;
     private final AuditService auditService;
+    private final UnifiedAuthenticationService unifiedAuthenticationService;
 
     @Override
     @Transactional
-    public BookResponse createBook(CreateBookRequest request, String currentUser) {
+    public BookResponse createBook(CreateBookRequest request) {
         return null;
     }
 
     @Override
     @Transactional
-    public BookDetailResponse createBookWithCopies(CreateBookWithCopiesRequest request, String currentUser) {
+    public BookDetailResponse createBookWithCopies(CreateBookWithCopiesRequest request) {
 
-        EntityExceptionUtils.requireNoDuplicate(bookRepository.existsByIsbnAndDeletedAtIsNull(request.getIsbn()),
+        EntityExceptionUtils.requireNoDuplicate(bookRepository.existsByIsbn(request.getIsbn()),
                 "Book", "ISBN", request.getIsbn());
         // Step 1: Validate and load related entities by internal IDs
         Publisher publisher = loadPublisherById(request.getPublisherId());
@@ -92,7 +94,7 @@ public class BookBusinessImpl implements BookBusiness {
         // Step 5: Create book copies
         List<BookCopy> copies = createBookCopies(book.getId(), request.getCopies());
         // Step 6: Publish audit event
-        auditService.publishCreateEvent("Book", book.getPublicId().toString(), book, currentUser);
+        auditService.publishCreateEvent("Book", book.getPublicId().toString(), book, unifiedAuthenticationService.getCurrentUserKeycloakId());
         // Step 7: Return detailed response
         return buildBookDetailResponse(book, publisher, authors, categories, copies);
     }
@@ -124,7 +126,7 @@ public class BookBusinessImpl implements BookBusiness {
 
     @Override
     @Transactional
-    public BookDetailResponse updateBookWithCopies(UUID publicId, UpdateBookWithCopiesRequest request, String currentUser) {
+    public BookDetailResponse updateBookWithCopies(UUID publicId, UpdateBookWithCopiesRequest request) {
         // Step 1: Find existing book
         Book existingBook = bookRepository.findByPublicIdAndDeletedAtIsNull(publicId)
                 .orElseThrow(() -> EntityNotFoundException.forPublicId("Book", publicId));
@@ -174,7 +176,7 @@ public class BookBusinessImpl implements BookBusiness {
 
         // Step 9: Publish audit event
         auditService.publishUpdateEvent("Book", existingBook.getPublicId().toString(),
-                oldBook, existingBook, currentUser);
+                oldBook, existingBook, unifiedAuthenticationService.getCurrentUserKeycloakId());
 
         // Step 10: Return detailed response
         return buildBookDetailResponse(existingBook, publisher, authors, categories, updatedCopies);
@@ -182,7 +184,7 @@ public class BookBusinessImpl implements BookBusiness {
 
     @Override
     @Transactional
-    public void deleteBook(UUID publicId, String currentUser) {
+    public void deleteBook(UUID publicId) {
     }
 
     private Map<Long, Publisher> loadPublishersForBooks(List<Book> books) {
@@ -266,11 +268,11 @@ public class BookBusinessImpl implements BookBusiness {
         if (copies.isEmpty()) {
             return "unavailable";
         }
-        boolean hasAvailable = copies.stream().anyMatch(BookCopy::isAvailable);
+        boolean hasAvailable = copies.stream().anyMatch(c -> BookCopyStatus.AVAILABLE.equals(c.getStatus()));
         if (hasAvailable) {
             return "available";
         }
-        boolean hasBorrowed = copies.stream().anyMatch(BookCopy::isBorrowed);
+        boolean hasBorrowed = copies.stream().anyMatch(c -> BookCopyStatus.BORROWED.equals(c.getStatus()));
         if (hasBorrowed) {
             return "borrowed";
         }

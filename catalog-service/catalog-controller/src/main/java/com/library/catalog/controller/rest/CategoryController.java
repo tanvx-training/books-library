@@ -1,7 +1,6 @@
 package com.library.catalog.controller.rest;
 
 import com.library.catalog.business.dto.request.CategorySearchRequest;
-import com.library.catalog.controller.util.UserContextUtil;
 import com.library.catalog.business.CategoryBusiness;
 import com.library.catalog.business.dto.request.CreateCategoryRequest;
 import com.library.catalog.business.dto.request.UpdateCategoryRequest;
@@ -28,8 +27,7 @@ public class CategoryController {
     @PostMapping
     public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
 
-        String currentUser = UserContextUtil.getCurrentUser();
-        CategoryResponse response = categoryBusiness.createCategory(request, currentUser);
+        CategoryResponse response = categoryBusiness.createCategory(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -51,17 +49,17 @@ public class CategoryController {
     @PutMapping("/{public_id}")
     public ResponseEntity<CategoryResponse> updateCategory(@PathVariable("public_id") String publicId,
             @Valid @RequestBody UpdateCategoryRequest request) {
+
         UUID uuid = UUID.fromString(publicId);
-        String currentUser = UserContextUtil.getCurrentUser();
-        CategoryResponse response = categoryBusiness.updateCategory(uuid, request, currentUser);
+        CategoryResponse response = categoryBusiness.updateCategory(uuid, request);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{public_id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable("public_id") String publicId) {
+
         UUID uuid = UUID.fromString(publicId);
-        String currentUser = UserContextUtil.getCurrentUser();
-        categoryBusiness.deleteCategory(uuid, currentUser);
+        categoryBusiness.deleteCategory(uuid);
         return ResponseEntity.noContent().build();
     }
 }

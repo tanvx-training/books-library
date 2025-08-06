@@ -9,6 +9,7 @@ import com.library.catalog.business.dto.response.PublisherResponse;
 import com.library.catalog.business.dto.response.PagedPublisherResponse;
 import com.library.catalog.business.kafka.publisher.AuditService;
 import com.library.catalog.business.mapper.PublisherMapper;
+import com.library.catalog.business.security.UnifiedAuthenticationService;
 import com.library.catalog.business.util.EntityExceptionUtils;
 import com.library.catalog.repository.PublisherRepository;
 import com.library.catalog.repository.entity.Publisher;
@@ -28,10 +29,11 @@ public class PublisherBusinessImpl implements PublisherBusiness {
     private final PublisherRepository publisherRepository;
     private final PublisherMapper publisherMapper;
     private final AuditService auditService;
+    private final UnifiedAuthenticationService unifiedAuthenticationService;
 
     @Override
     @Transactional
-    public PublisherResponse createPublisher(CreatePublisherRequest request, String currentUser) {
+    public PublisherResponse createPublisher(CreatePublisherRequest request) {
 
         // Check for duplicate name
         EntityExceptionUtils.requireNoDuplicate(
@@ -40,14 +42,11 @@ public class PublisherBusinessImpl implements PublisherBusiness {
         );
         // Convert DTO to entity
         Publisher publisher = publisherMapper.toEntity(request);
-        // Set audit fields
-        publisher.setCreatedBy(currentUser);
-        publisher.setUpdatedBy(currentUser);
         // Save to database
         Publisher savedPublisher = publisherRepository.save(publisher);
 
         // Publish audit event for publisher creation
-        auditService.publishCreateEvent("Publisher", savedPublisher.getPublicId().toString(), savedPublisher, currentUser);
+        auditService.publishCreateEvent("Publisher", savedPublisher.getPublicId().toString(), savedPublisher, unifiedAuthenticationService.getCurrentUserKeycloakId());
 
         // Convert to response DTO
         return publisherMapper.toResponse(savedPublisher);
@@ -82,7 +81,7 @@ public class PublisherBusinessImpl implements PublisherBusiness {
 
     @Override
     @Transactional
-    public PublisherResponse updatePublisher(UUID publicId, UpdatePublisherRequest request, String currentUser) {
+    public PublisherResponse updatePublisher(UUID publicId, UpdatePublisherRequest request) {
 
         // Find existing publisher
         Publisher existingPublisher = publisherRepository.findByPublicIdAndDeletedAtIsNull(publicId)
@@ -97,19 +96,18 @@ public class PublisherBusinessImpl implements PublisherBusiness {
         EntityExceptionUtils.requireNoDuplicate(isDuplicate, "Publisher", "name", request.getName());
         // Update entity with new values
         publisherMapper.updateEntity(existingPublisher, request);
-        existingPublisher.setUpdatedBy(currentUser);
         // Save updated publisher
         Publisher updatedPublisher = publisherRepository.save(existingPublisher);
         // Publish audit event with old and new values
         auditService.publishUpdateEvent("Publisher", updatedPublisher.getPublicId().toString(), 
-                oldPublisher, updatedPublisher, currentUser);
+                oldPublisher, updatedPublisher, unifiedAuthenticationService.getCurrentUserKeycloakId());
         // Convert to response DTO
         return publisherMapper.toResponse(updatedPublisher);
     }
 
     @Override
     @Transactional
-    public void deletePublisher(UUID publicId, String currentUser) {
+    public void deletePublisher(UUID publicId) {
 
         Publisher existingPublisher = publisherRepository.findByPublicIdAndDeletedAtIsNull(publicId)
                 .orElseThrow(() -> EntityNotFoundException.forEntity("Publisher", publicId));
@@ -117,11 +115,11 @@ public class PublisherBusinessImpl implements PublisherBusiness {
         Publisher oldPublisher = getOldPublisher(existingPublisher);
         // Perform soft deletion using timestamp
         existingPublisher.markAsDeleted();
-        existingPublisher.setUpdatedBy(currentUser);
+        existingPublisher.setUpdatedBy(unifiedAuthenticationService.getCurrentUserKeycloakId());
         // Save updated entity
         publisherRepository.save(existingPublisher);
         // Publish audit event for publisher deletion
-        auditService.publishDeleteEvent("Publisher", existingPublisher.getPublicId().toString(), oldPublisher, currentUser);
+        auditService.publishDeleteEvent("Publisher", existingPublisher.getPublicId().toString(), oldPublisher, unifiedAuthenticationService.getCurrentUserKeycloakId());
     }
 
     private static Publisher getOldPublisher(Publisher existingPublisher) {

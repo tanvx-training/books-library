@@ -4,11 +4,12 @@ import com.library.member.business.LibraryCardService;
 import com.library.member.business.dto.request.CreateLibraryCardRequest;
 import com.library.member.business.dto.request.UpdateCardStatusRequest;
 import com.library.member.business.dto.response.LibraryCardResponse;
-import com.library.member.business.exception.AuthenticationException;
-import com.library.member.business.exception.AuthorizationException;
-import com.library.member.business.exception.EntityNotFoundException;
-import com.library.member.business.exception.EntityValidationException;
+import com.library.member.business.aop.exception.AuthenticationException;
+import com.library.member.business.aop.exception.AuthorizationException;
+import com.library.member.business.aop.exception.EntityNotFoundException;
+import com.library.member.business.aop.exception.EntityValidationException;
 
+import com.library.member.business.kafka.publisher.AuditService;
 import com.library.member.business.mapper.LibraryCardMapper;
 import com.library.member.business.security.AuthenticatedUser;
 import com.library.member.business.security.UnifiedAuthenticationService;
@@ -37,7 +38,8 @@ public class LibraryCardServiceImpl implements LibraryCardService {
     private final UserRepository userRepository;
     private final LibraryCardMapper libraryCardMapper;
     private final CardNumberGenerator cardNumberGenerator;
-    private final UnifiedAuthenticationService authenticationService;
+    private final UnifiedAuthenticationService unifiedAuthenticationService;
+    private final AuditService auditService;
 
     @Override
     @Transactional
@@ -68,7 +70,12 @@ public class LibraryCardServiceImpl implements LibraryCardService {
             LibraryCardEntity savedCard = libraryCardRepository.save(cardEntity);
             
             log.info("Successfully created library card {} for user {}", savedCard.getCardNumber(), user.getKeycloakId());
-            
+            auditService.publishCreateEvent(
+                    "LibraryCard",
+                    savedCard.getPublicId().toString(),
+                    savedCard,
+                    unifiedAuthenticationService.getCurrentUserKeycloakId()
+                    );
             return libraryCardMapper.toResponse(savedCard, user.getPublicId());
         } catch (DataIntegrityViolationException e) {
             log.error("Failed to create library card due to data integrity violation", e);
@@ -108,6 +115,14 @@ public class LibraryCardServiceImpl implements LibraryCardService {
         // Find the library card
         LibraryCardEntity cardEntity = libraryCardRepository.findByPublicIdAndDeletedAtIsNull(cardId)
                 .orElseThrow(() -> EntityNotFoundException.forPublicId("LibraryCard", cardId));
+        LibraryCardEntity oldCard = new LibraryCardEntity();
+        oldCard.setId(cardEntity.getId());
+        oldCard.setPublicId(cardEntity.getPublicId());
+        oldCard.setCardNumber(cardEntity.getCardNumber());
+        oldCard.setUserId(cardEntity.getUserId());
+        oldCard.setIssueDate(cardEntity.getIssueDate());
+        oldCard.setExpiryDate(cardEntity.getExpiryDate());
+        oldCard.setStatus(request.getStatus());
 
         // Find the user who owns the card
         UserEntity cardOwner = userRepository.findById(cardEntity.getUserId())
@@ -124,7 +139,13 @@ public class LibraryCardServiceImpl implements LibraryCardService {
             
             log.info("Successfully updated library card {} status to {} for user {}", 
                     updatedCard.getCardNumber(), request.getStatus(), cardOwner.getKeycloakId());
-            
+            auditService.publishUpdateEvent(
+                    "LibraryCard",
+                    updatedCard.getPublicId().toString(),
+                    oldCard,
+                    updatedCard,
+                    unifiedAuthenticationService.getCurrentUserKeycloakId()
+            );
             return libraryCardMapper.toResponse(updatedCard, cardOwner.getPublicId());
         } catch (DataIntegrityViolationException e) {
             log.error("Failed to update library card status due to data integrity violation", e);
@@ -217,14 +238,8 @@ public class LibraryCardServiceImpl implements LibraryCardService {
         log.info("Successfully deactivated library card: {}", cardId);
     }
 
-    /**
-     * Gets the current authenticated user from the security context.
-     *
-     * @return the authenticated user
-     * @throws AuthenticationException if no user is authenticated
-     */
     private AuthenticatedUser getCurrentAuthenticatedUser() {
-        AuthenticatedUser user = authenticationService.getCurrentUser();
+        AuthenticatedUser user = unifiedAuthenticationService.getCurrentUser();
         if (user == null) {
             throw new AuthenticationException("No authenticated user found");
         }

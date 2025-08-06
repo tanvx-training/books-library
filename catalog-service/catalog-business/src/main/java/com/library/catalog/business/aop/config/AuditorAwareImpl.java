@@ -1,6 +1,6 @@
-package com.library.member.business.config;
+package com.library.catalog.business.aop.config;
 
-import com.library.member.business.security.UnifiedAuthenticationService;
+import com.library.catalog.business.security.UnifiedAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.AuditorAware;

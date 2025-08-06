@@ -1,7 +1,6 @@
 package com.library.catalog.controller.rest;
 
 import com.library.catalog.business.dto.request.PublisherSearchRequest;
-import com.library.catalog.controller.util.UserContextUtil;
 import com.library.catalog.business.PublisherBusiness;
 import com.library.catalog.business.dto.request.CreatePublisherRequest;
 import com.library.catalog.business.dto.request.UpdatePublisherRequest;
@@ -15,8 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
+
 import java.util.UUID;
 
 @RestController
@@ -30,8 +28,7 @@ public class PublisherController {
     @PostMapping
     public ResponseEntity<PublisherResponse> createPublisher(@Valid @RequestBody CreatePublisherRequest request) {
 
-        String currentUser = UserContextUtil.getCurrentUser();
-        PublisherResponse response = publisherBusiness.createPublisher(request, currentUser);
+        PublisherResponse response = publisherBusiness.createPublisher(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -55,8 +52,7 @@ public class PublisherController {
             @Valid @RequestBody UpdatePublisherRequest request) {
 
         UUID uuid = UUID.fromString(publicId);
-        String currentUser = UserContextUtil.getCurrentUser();
-        PublisherResponse response = publisherBusiness.updatePublisher(uuid, request, currentUser);
+        PublisherResponse response = publisherBusiness.updatePublisher(uuid, request);
         return ResponseEntity.ok(response);
     }
 
@@ -64,8 +60,7 @@ public class PublisherController {
     public ResponseEntity<Void> deletePublisher(@PathVariable("public_id") @ValidUuid String publicId) {
 
         UUID uuid = UUID.fromString(publicId);
-        String currentUser = UserContextUtil.getCurrentUser();
-        publisherBusiness.deletePublisher(uuid, currentUser);
+        publisherBusiness.deletePublisher(uuid);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,4 +1,4 @@
-package com.library.member.business.exception;
+package com.library.catalog.business.aop.exception;
 
 
 public class AuthenticationException extends EntityServiceException {

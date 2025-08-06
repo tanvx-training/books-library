@@ -10,13 +10,13 @@ import java.util.UUID;
 
 public interface AuthorBusiness {
 
-    AuthorResponse createAuthor(CreateAuthorRequest request, String currentUser);
+    AuthorResponse createAuthor(CreateAuthorRequest request);
 
     AuthorResponse getAuthorByPublicId(UUID publicId);
 
     PagedAuthorResponse getAllAuthors(AuthorSearchRequest request);
 
-    AuthorResponse updateAuthor(UUID publicId, UpdateAuthorRequest request, String currentUser);
+    AuthorResponse updateAuthor(UUID publicId, UpdateAuthorRequest request);
 
-    void deleteAuthor(UUID publicId, String currentUser);
+    void deleteAuthor(UUID publicId);
 }

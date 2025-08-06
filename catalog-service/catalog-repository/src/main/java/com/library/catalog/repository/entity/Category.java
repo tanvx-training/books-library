@@ -2,19 +2,19 @@ package com.library.catalog.repository.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,9 +22,10 @@ import java.util.UUID;
 @Setter
 @Getter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "categories")
-@EntityListeners(AuditingEntityListener.class)
-public class Category {
+public class Category extends BaseSoftDeleteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,40 +62,10 @@ public class Category {
     @Column(name = "updated_by", length = 36)
     private String updatedBy;
 
-    // Default constructor
-    public Category() {
-    }
-
-    // Constructor with required fields
-    public Category(String name, String slug) {
-        this.name = name;
-        this.slug = slug;
-    }
-
-    // Constructor with name, slug and description
-    public Category(String name, String slug, String description) {
-        this.name = name;
-        this.slug = slug;
-        this.description = description;
-    }
-
     @PrePersist
     void generatePublicId() {
         if (this.publicId == null) {
             this.publicId = UUID.randomUUID();
         }
-    }
-
-    // Business methods for soft deletion using timestamp
-    public boolean isDeleted() {
-        return this.deletedAt != null;
-    }
-
-    public void markAsDeleted() {
-        this.deletedAt = LocalDateTime.now();
-    }
-
-    public void markAsActive() {
-        this.deletedAt = null;
     }
 }

@@ -1,14 +1,10 @@
 package com.library.catalog.controller.rest;
 
-import com.library.catalog.controller.util.UserContextUtil;
 import com.library.catalog.business.BookBusiness;
 import com.library.catalog.business.dto.request.BookSearchRequest;
-import com.library.catalog.business.dto.request.CreateBookRequest;
 import com.library.catalog.business.dto.request.CreateBookWithCopiesRequest;
-import com.library.catalog.business.dto.request.UpdateBookRequest;
 import com.library.catalog.business.dto.request.UpdateBookWithCopiesRequest;
 import com.library.catalog.business.dto.response.BookDetailResponse;
-import com.library.catalog.business.dto.response.BookResponse;
 import com.library.catalog.business.dto.response.PagedBookResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,8 +26,8 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<BookDetailResponse> createBookWithCopies(@Valid @RequestBody CreateBookWithCopiesRequest request) {
-        String currentUser = UserContextUtil.getCurrentUser();
-        BookDetailResponse response = bookBusiness.createBookWithCopies(request, currentUser);
+
+        BookDetailResponse response = bookBusiness.createBookWithCopies(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -54,8 +50,7 @@ public class BookController {
     public ResponseEntity<BookDetailResponse> updateBookWithCopies(@PathVariable String publicId, @Valid @RequestBody UpdateBookWithCopiesRequest request) {
 
         UUID uuid = UUID.fromString(publicId);
-        String currentUser = UserContextUtil.getCurrentUser();
-        BookDetailResponse response = bookBusiness.updateBookWithCopies(uuid, request, currentUser);
+        BookDetailResponse response = bookBusiness.updateBookWithCopies(uuid, request);
         return ResponseEntity.ok(response);
     }
 
@@ -63,8 +58,7 @@ public class BookController {
     public ResponseEntity<Void> deleteBook(@PathVariable String publicId) {
 
         UUID uuid = UUID.fromString(publicId);
-        String currentUser = UserContextUtil.getCurrentUser();
-        bookBusiness.deleteBook(uuid, currentUser);
+        bookBusiness.deleteBook(uuid);
         return ResponseEntity.noContent().build();
     }
 }
