@@ -69,7 +69,7 @@ public class BookBusinessImpl implements BookBusiness {
     @Transactional
     public BookDetailResponse createBookWithCopies(CreateBookWithCopiesRequest request) {
 
-        EntityExceptionUtils.requireNoDuplicate(bookRepository.existsByIsbnAndDeletedAtIsNull(request.getIsbn()),
+        EntityExceptionUtils.requireNoDuplicate(bookRepository.existsByIsbn(request.getIsbn()),
                 "Book", "ISBN", request.getIsbn());
         // Step 1: Validate and load related entities by internal IDs
         Publisher publisher = loadPublisherById(request.getPublisherId());

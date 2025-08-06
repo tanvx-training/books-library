@@ -1,4 +1,4 @@
-package com.library.member.business.config;
+package com.library.member.business.aop.config;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;

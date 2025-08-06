@@ -1,4 +1,4 @@
-package com.library.member.business.config;
+package com.library.member.business.aop.config;
 
 import com.library.member.business.security.UnifiedAuthenticationService;
 import lombok.RequiredArgsConstructor;

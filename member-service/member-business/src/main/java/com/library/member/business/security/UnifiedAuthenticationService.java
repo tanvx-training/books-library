@@ -1,6 +1,6 @@
 package com.library.member.business.security;
 
-import com.library.member.business.exception.AuthenticationException;
+import com.library.member.business.aop.exception.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

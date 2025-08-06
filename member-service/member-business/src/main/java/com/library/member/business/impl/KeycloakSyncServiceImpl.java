@@ -1,8 +1,11 @@
 package com.library.member.business.impl;
 
+import com.library.member.business.KeycloakClientService;
 import com.library.member.business.dto.sync.SyncResult;
+import com.library.member.business.kafka.publisher.AuditService;
 import com.library.member.business.mapper.UserMapper;
 import com.library.member.business.KeycloakSyncService;
+import com.library.member.business.security.UnifiedAuthenticationService;
 import com.library.member.repository.SyncStateRepository;
 import com.library.member.repository.UserRepository;
 import com.library.member.repository.entity.SyncStateEntity;
@@ -29,6 +32,8 @@ public class KeycloakSyncServiceImpl implements KeycloakSyncService {
     private final UserRepository userRepository;
     private final SyncStateRepository syncStateRepository;
     private final UserMapper userMapper;
+    private final AuditService auditService;
+    private final UnifiedAuthenticationService unifiedAuthenticationService;
 
     @Transactional
     @Override
@@ -119,7 +124,12 @@ public class KeycloakSyncServiceImpl implements KeycloakSyncService {
 
             userRepository.save(newUser);
             log.info("Created new user: {} ({})", kcUser.getId(), kcUser.getEmail());
-
+            auditService.publishCreateEvent(
+                    "Member",
+                    newUser.getPublicId().toString(),
+                    newUser,
+                    unifiedAuthenticationService.getCurrentUserKeycloakId()
+            );
         } catch (Exception e) {
             log.error("Failed to create user: {}", kcUser.getId(), e);
             throw new RuntimeException("Failed to create user: " + kcUser.getId(), e);
