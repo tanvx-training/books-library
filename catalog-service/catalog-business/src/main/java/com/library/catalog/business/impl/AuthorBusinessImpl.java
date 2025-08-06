@@ -2,6 +2,7 @@ package com.library.catalog.business.impl;
 
 import com.library.catalog.business.aop.exception.EntityNotFoundException;
 import com.library.catalog.business.dto.request.AuthorSearchRequest;
+import com.library.catalog.business.security.UnifiedAuthenticationService;
 import com.library.catalog.repository.AuthorRepository;
 import com.library.catalog.repository.entity.Author;
 import com.library.catalog.business.AuthorBusiness;
@@ -31,10 +32,11 @@ public class AuthorBusinessImpl implements AuthorBusiness {
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
     private final AuditService auditService;
+    private final UnifiedAuthenticationService unifiedAuthenticationService;
 
     @Override
     @Transactional
-    public AuthorResponse createAuthor(CreateAuthorRequest request, String currentUser) {
+    public AuthorResponse createAuthor(CreateAuthorRequest request) {
 
         // Check for duplicate name
         EntityExceptionUtils.requireNoDuplicate(
@@ -43,13 +45,10 @@ public class AuthorBusinessImpl implements AuthorBusiness {
         );
         // Convert DTO to entity
         Author author = authorMapper.toEntity(request);
-        // Set audit fields
-        author.setCreatedBy(currentUser);
-        author.setUpdatedBy(currentUser);
         // Save to database
         authorRepository.save(author);
         // Publish audit event for author creation
-        auditService.publishCreateEvent("Author", author.getPublicId().toString(), author, currentUser);
+        auditService.publishCreateEvent("Author", author.getPublicId().toString(), author, unifiedAuthenticationService.getCurrentUserKeycloakId());
         // Convert to response DTO
         return authorMapper.toResponse(author);
     }
@@ -80,7 +79,7 @@ public class AuthorBusinessImpl implements AuthorBusiness {
 
     @Override
     @Transactional
-    public AuthorResponse updateAuthor(UUID publicId, UpdateAuthorRequest request, String currentUser) {
+    public AuthorResponse updateAuthor(UUID publicId, UpdateAuthorRequest request) {
 
         Author existingAuthor = authorRepository.findByPublicIdAndDeletedAtIsNull(publicId)
                 .orElseThrow(() -> EntityNotFoundException.forPublicId("Author", publicId));
@@ -100,18 +99,16 @@ public class AuthorBusinessImpl implements AuthorBusiness {
                 });
         // Update entity with new data
         authorMapper.updateEntity(existingAuthor, request);
-        // Set audit fields
-        existingAuthor.setUpdatedBy(currentUser);
         // Save updated entity
         authorRepository.save(existingAuthor);
         // Publish audit event for author update
-        auditService.publishUpdateEvent("Author", existingAuthor.getPublicId().toString(), oldAuthor, existingAuthor, currentUser);
+        auditService.publishUpdateEvent("Author", existingAuthor.getPublicId().toString(), oldAuthor, existingAuthor, unifiedAuthenticationService.getCurrentUserKeycloakId());
         return authorMapper.toResponse(existingAuthor);
     }
 
     @Override
     @Transactional
-    public void deleteAuthor(UUID publicId, String currentUser) {
+    public void deleteAuthor(UUID publicId) {
 
         // Check if author exists and is not already deleted
         Author existingAuthor = authorRepository.findByPublicIdAndDeletedAtIsNull(publicId)
@@ -127,8 +124,8 @@ public class AuthorBusinessImpl implements AuthorBusiness {
 
         // Perform timestamp-based soft deletion using repository method
         LocalDateTime now = LocalDateTime.now();
-        authorRepository.softDeleteByPublicId(publicId, now, now, currentUser);
+        authorRepository.softDeleteByPublicId(publicId, now, now, unifiedAuthenticationService.getCurrentUserKeycloakId());
         // Publish audit event for author deletion
-        auditService.publishDeleteEvent("Author", existingAuthor.getPublicId().toString(), oldAuthor, currentUser);
+        auditService.publishDeleteEvent("Author", existingAuthor.getPublicId().toString(), oldAuthor, unifiedAuthenticationService.getCurrentUserKeycloakId());
     }
 }

@@ -1,6 +1,5 @@
 package com.library.member.business.scheduler;
 
-import com.library.member.business.KeycloakSyncService;
 import com.library.member.business.dto.sync.SyncResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

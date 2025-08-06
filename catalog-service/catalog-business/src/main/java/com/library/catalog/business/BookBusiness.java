@@ -12,15 +12,15 @@ import java.util.UUID;
 
 public interface BookBusiness {
 
-    BookResponse createBook(CreateBookRequest request, String currentUser);
+    BookResponse createBook(CreateBookRequest request);
 
-    BookDetailResponse createBookWithCopies(CreateBookWithCopiesRequest request, String currentUser);
+    BookDetailResponse createBookWithCopies(CreateBookWithCopiesRequest request);
 
     BookDetailResponse getBookDetail(UUID publicId);
 
     PagedBookResponse searchBooks(BookSearchRequest request);
 
-    BookDetailResponse updateBookWithCopies(UUID publicId, UpdateBookWithCopiesRequest request, String currentUser);
+    BookDetailResponse updateBookWithCopies(UUID publicId, UpdateBookWithCopiesRequest request);
 
-    void deleteBook(UUID publicId, String currentUser);
+    void deleteBook(UUID publicId);
 }

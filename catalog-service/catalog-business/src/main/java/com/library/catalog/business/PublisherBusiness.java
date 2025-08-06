@@ -10,13 +10,13 @@ import java.util.UUID;
 
 public interface PublisherBusiness {
 
-    PublisherResponse createPublisher(CreatePublisherRequest request, String currentUser);
+    PublisherResponse createPublisher(CreatePublisherRequest request);
 
     PublisherResponse getPublisherByPublicId(UUID publicId);
 
     PagedPublisherResponse getAllPublishers(PublisherSearchRequest request);
 
-    PublisherResponse updatePublisher(UUID publicId, UpdatePublisherRequest request, String currentUser);
+    PublisherResponse updatePublisher(UUID publicId, UpdatePublisherRequest request);
 
-    void deletePublisher(UUID publicId, String currentUser);
+    void deletePublisher(UUID publicId);
 }

@@ -1,13 +1,11 @@
 package com.library.catalog.controller.rest;
 
 import com.library.catalog.business.dto.request.AuthorSearchRequest;
-import com.library.catalog.controller.util.UserContextUtil;
 import com.library.catalog.business.AuthorBusiness;
 import com.library.catalog.business.dto.request.CreateAuthorRequest;
 import com.library.catalog.business.dto.request.UpdateAuthorRequest;
 import com.library.catalog.business.dto.response.AuthorResponse;
 import com.library.catalog.business.dto.response.PagedAuthorResponse;
-import com.library.catalog.business.aop.exception.InvalidUuidException;
 import com.library.catalog.business.validation.ValidUuid;
 
 import lombok.RequiredArgsConstructor;
@@ -17,10 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
@@ -35,8 +29,7 @@ public class AuthorController {
     @PostMapping
     public ResponseEntity<AuthorResponse> createAuthor(@Valid @RequestBody CreateAuthorRequest request) {
 
-        String currentUser = UserContextUtil.getCurrentUser();
-        return new ResponseEntity<>(authorBusiness.createAuthor(request, currentUser), HttpStatus.CREATED);
+        return new ResponseEntity<>(authorBusiness.createAuthor(request), HttpStatus.CREATED);
     }
 
     @GetMapping("/{publicId}")
@@ -59,8 +52,7 @@ public class AuthorController {
             @Valid @RequestBody UpdateAuthorRequest request) {
 
         UUID uuid = UUID.fromString(publicId);
-        String currentUser = UserContextUtil.getCurrentUser();
-        AuthorResponse response = authorBusiness.updateAuthor(uuid, request, currentUser);
+        AuthorResponse response = authorBusiness.updateAuthor(uuid, request);
         return ResponseEntity.ok(response);
     }
 
@@ -69,8 +61,7 @@ public class AuthorController {
             @PathVariable @ValidUuid(allowNull = false, message = "Public ID must be a valid UUID") String publicId) {
 
         UUID uuid = UUID.fromString(publicId);
-        String currentUser = UserContextUtil.getCurrentUser();
-        authorBusiness.deleteAuthor(uuid, currentUser);
+        authorBusiness.deleteAuthor(uuid);
         return ResponseEntity.noContent().build();
     }
 }
