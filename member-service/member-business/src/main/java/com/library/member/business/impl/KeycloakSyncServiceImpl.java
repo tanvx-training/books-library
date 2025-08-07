@@ -47,6 +47,9 @@ public class KeycloakSyncServiceImpl implements KeycloakSyncService {
 
             for (UserRepresentation kcUser : keycloakUsers) {
                 try {
+                    if (userRepository.existsByKeycloakIdAndDeletedAtIsNull(kcUser.getId())) {
+                        continue;
+                    }
                     syncSingleUser(kcUser);
                     result.incrementSuccess();
                 } catch (Exception e) {

@@ -5,22 +5,22 @@
 
     <parent>
         <groupId>com.library</groupId>
-        <artifactId>member-service</artifactId>
+        <artifactId>notification-service</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>com.library.member</groupId>
-    <artifactId>member-business</artifactId>
+    <groupId>com.library.notification</groupId>
+    <artifactId>notification-business</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- Repository module dependency -->
         <dependency>
-            <groupId>com.library.member</groupId>
-            <artifactId>member-repository</artifactId>
+            <groupId>com.library.notification</groupId>
+            <artifactId>notification-repository</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

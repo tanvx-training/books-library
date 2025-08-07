@@ -79,7 +79,18 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
-        
+        <!-- Keycloak Admin Client -->
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>22.0.1</version>
+        </dependency>
+
+        <!-- Spring Boot Scheduler -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
+        </dependency>
         <!-- Dotenv for environment variables -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>

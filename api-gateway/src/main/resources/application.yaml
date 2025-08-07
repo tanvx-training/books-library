@@ -51,7 +51,7 @@ spring:
         - id: notification-service
           uri: lb://NOTIFICATION-SERVICE
           predicates:
-            - Path=/api/v1/notifications/**
+            - Path=/api/v1/notifications/**,/api/v1/notification-preferences/**,
           filters:
             - RemoveRequestHeader=Cookie
         - id: member-service
