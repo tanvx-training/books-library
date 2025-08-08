@@ -3,9 +3,6 @@ package com.library.notification.business.dto.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-/**
- * Request DTO for updating notification preferences
- */
 @Data
 public class UpdatePreferencesRequest {
 

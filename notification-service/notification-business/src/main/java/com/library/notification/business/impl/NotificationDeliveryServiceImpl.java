@@ -20,9 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-/**
- * Implementation of NotificationDeliveryService with delivery strategy pattern
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -204,7 +201,7 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
 
     private String getUserPhone(UUID userPublicId) {
         // Mock implementation - in reality, this would call member-service
-        return "+1555" + userPublicId.toString().substring(0, 7).replaceAll("[^0-9]", "");
+        return "+084" + userPublicId.toString().substring(0, 7).replaceAll("[^0-9]", "");
     }
 
     private String getUserDeviceToken(UUID userPublicId) {

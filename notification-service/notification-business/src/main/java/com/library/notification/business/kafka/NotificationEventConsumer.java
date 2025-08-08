@@ -21,9 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-/**
- * Kafka consumer for processing library events and creating notifications
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

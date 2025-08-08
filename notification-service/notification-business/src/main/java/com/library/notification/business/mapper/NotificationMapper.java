@@ -12,15 +12,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Manual mapper for converting between Notification and DTOs
- */
 @Component
 public class NotificationMapper {
 
-    /**
-     * Convert CreateNotificationRequest to Notification
-     */
     public Notification toEntity(CreateNotificationRequest request) {
         if (request == null) {
             return null;
@@ -37,9 +31,6 @@ public class NotificationMapper {
         return entity;
     }
 
-    /**
-     * Convert Notification to NotificationResponse
-     */
     public NotificationResponse toResponse(Notification entity) {
         if (entity == null) {
             return null;
@@ -60,9 +51,6 @@ public class NotificationMapper {
         return response;
     }
 
-    /**
-     * Convert list of Notification to list of NotificationResponse
-     */
     public List<NotificationResponse> toResponseList(List<Notification> entities) {
         if (entities == null) {
             return null;
@@ -73,9 +61,6 @@ public class NotificationMapper {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Convert Spring Data Page to PagedNotificationResponse
-     */
     public PagedNotificationResponse toPagedResponse(Page<Notification> page) {
         if (page == null) {
             return null;
@@ -94,18 +79,12 @@ public class NotificationMapper {
         return response;
     }
 
-    /**
-     * Update notification status and related timestamps
-     */
     public void updateStatus(Notification entity, NotificationStatus status) {
         if (entity != null && status != null) {
             entity.setStatus(status);
         }
     }
 
-    /**
-     * Mark notification as read
-     */
     public void markAsRead(Notification entity) {
         if (entity != null) {
             entity.setStatus(NotificationStatus.READ);
@@ -113,18 +92,12 @@ public class NotificationMapper {
         }
     }
 
-    /**
-     * Mark notification as delivered
-     */
     public void markAsDelivered(Notification entity) {
         if (entity != null) {
             entity.setStatus(NotificationStatus.DELIVERED);
         }
     }
 
-    /**
-     * Mark notification as failed
-     */
     public void markAsFailed(Notification entity) {
         if (entity != null) {
             entity.setStatus(NotificationStatus.FAILED);
