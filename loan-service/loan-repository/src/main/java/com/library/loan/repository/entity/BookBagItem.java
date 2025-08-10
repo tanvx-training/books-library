@@ -27,7 +27,7 @@ public class BookBagItem {
     private Long bookId;
 
     @Column(name = "quantity", nullable = false)
-    private Short quantity = 1;
+    private Integer quantity = 1;
 
     @Column(name = "added_at", nullable = false)
     private LocalDateTime addedAt = LocalDateTime.now();

@@ -2,6 +2,7 @@ package com.library.loan.controller.exception;
 
 import com.library.loan.business.exception.AuthenticationException;
 import com.library.loan.business.exception.AuthorizationException;
+import com.library.loan.business.exception.BorrowingBusinessException;
 import com.library.loan.business.exception.EntityNotFoundException;
 import com.library.loan.business.exception.EntityServiceException;
 import com.library.loan.business.exception.EntityValidationException;
@@ -99,11 +100,15 @@ public class GlobalExceptionHandler {
         String errorCode = ex.getEntityType() != null ?
                 ex.getEntityType().toUpperCase() + "_NOT_FOUND" : "ENTITY_NOT_FOUND";
 
-        // Provide member-specific error codes
+        // Provide entity-specific error codes
         if ("User".equals(ex.getEntityType())) {
             errorCode = "MEMBER_NOT_FOUND";
         } else if ("LibraryCard".equals(ex.getEntityType())) {
             errorCode = "LIBRARY_CARD_NOT_FOUND";
+        } else if ("Borrowing".equals(ex.getEntityType())) {
+            errorCode = "BORROWING_NOT_FOUND";
+        } else if ("BookCopy".equals(ex.getEntityType())) {
+            errorCode = "BOOK_COPY_NOT_FOUND";
         }
 
         // Enhance error message for public_id-based lookups
@@ -149,7 +154,7 @@ public class GlobalExceptionHandler {
             errorCode = ex.getEntityType() != null ?
                     ex.getEntityType().toUpperCase() + "_DUPLICATE_ERROR" : "DUPLICATE_ERROR";
 
-            // Provide member-specific duplicate error codes
+            // Provide entity-specific duplicate error codes
             if ("User".equals(ex.getEntityType())) {
                 if (ex.getField() != null) {
                     errorCode = switch (ex.getField()) {
@@ -161,6 +166,16 @@ public class GlobalExceptionHandler {
                 }
             } else if ("LibraryCard".equals(ex.getEntityType())) {
                 errorCode = "LIBRARY_CARD_NUMBER_ALREADY_EXISTS";
+            } else if ("Borrowing".equals(ex.getEntityType())) {
+                if (ex.getField() != null) {
+                    errorCode = switch (ex.getField()) {
+                        case "bookCopyPublicId" -> "BOOK_COPY_ALREADY_BORROWED";
+                        case "userPublicId" -> "USER_BORROWING_LIMIT_EXCEEDED";
+                        default -> "BORROWING_DUPLICATE_ERROR";
+                    };
+                } else {
+                    errorCode = "BORROWING_DUPLICATE_ERROR";
+                }
             }
         }
 
@@ -238,6 +253,88 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BorrowingBusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBorrowingBusiness(
+            BorrowingBusinessException ex, WebRequest request) {
+
+        String correlationId = getCorrelationId();
+        String currentUserId = authenticationService.getCurrentUserKeycloakId();
+        String requestPath = getPath(request);
+
+        // Log borrowing business rule violations with context
+        log.warn("Borrowing business rule violation - correlationId: {}, userId: {}, borrowingId: {}, " +
+                        "operation: {}, businessRule: {}, path: {}, error: {}",
+                correlationId, currentUserId != null ? currentUserId : "UNKNOWN",
+                ex.getBorrowingId(), ex.getOperation(), ex.getBusinessRule(), requestPath, ex.getMessage());
+
+        // Determine HTTP status based on business rule type
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String errorCode = "BORROWING_BUSINESS_ERROR";
+
+        // Provide specific error codes and status based on business rule
+        if (ex.getBusinessRule() != null) {
+            errorCode = switch (ex.getBusinessRule()) {
+                case "BOOK_AVAILABILITY" -> {
+                    status = HttpStatus.CONFLICT;
+                    yield "BOOK_NOT_AVAILABLE";
+                }
+                case "BORROWING_LIMIT" -> {
+                    status = HttpStatus.CONFLICT;
+                    yield "BORROWING_LIMIT_EXCEEDED";
+                }
+                case "ALREADY_RETURNED" -> {
+                    status = HttpStatus.CONFLICT;
+                    yield "BOOK_ALREADY_RETURNED";
+                }
+                case "OVERDUE_RENEWAL" -> {
+                    status = HttpStatus.CONFLICT;
+                    yield "CANNOT_RENEW_OVERDUE";
+                }
+                case "RENEWAL_LIMIT" -> {
+                    status = HttpStatus.CONFLICT;
+                    yield "RENEWAL_LIMIT_EXCEEDED";
+                }
+                case "USER_ELIGIBILITY" -> {
+                    status = HttpStatus.CONFLICT;
+                    yield "USER_NOT_ELIGIBLE";
+                }
+                case "OUTSTANDING_FINES" -> {
+                    status = HttpStatus.CONFLICT;
+                    yield "OUTSTANDING_FINES_EXIST";
+                }
+                case "BOOK_COPY_NOT_FOUND" -> {
+                    status = HttpStatus.NOT_FOUND;
+                    yield "BOOK_COPY_NOT_FOUND";
+                }
+                case "USER_NOT_FOUND" -> {
+                    status = HttpStatus.NOT_FOUND;
+                    yield "USER_NOT_FOUND";
+                }
+                case "INVALID_STATUS" -> {
+                    status = HttpStatus.CONFLICT;
+                    yield "INVALID_BORROWING_STATUS";
+                }
+                case "INVALID_DUE_DATE" -> {
+                    yield "INVALID_DUE_DATE";
+                }
+                default -> "BORROWING_BUSINESS_ERROR";
+            };
+        }
+
+        // Log additional details for monitoring and analytics
+        logBorrowingEvent("BUSINESS_RULE_VIOLATION", currentUserId, ex.getBorrowingId(),
+                ex.getOperation(), ex.getBusinessRule(), ex.getMessage(), correlationId);
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                errorCode,
+                requestPath,
+                correlationId
+        );
+
+        return new ResponseEntity<>(errorResponse, status);
+    }
+
     @ExceptionHandler(EntityServiceException.class)
     public ResponseEntity<ErrorResponse> handleEntityService(
             EntityServiceException ex, WebRequest request) {
@@ -251,15 +348,7 @@ public class GlobalExceptionHandler {
                 correlationId, currentUserId != null ? currentUserId : "UNKNOWN",
                 ex.getEntityType(), ex.getOperation(), requestPath, ex.getMessage(), ex);
 
-        String errorCode = ex.getEntityType() != null ?
-                ex.getEntityType().toUpperCase() + "_SERVICE_ERROR" : "ENTITY_SERVICE_ERROR";
-
-        // Provide member-specific service error codes
-        if ("User".equals(ex.getEntityType())) {
-            errorCode = "MEMBER_SERVICE_ERROR";
-        } else if ("LibraryCard".equals(ex.getEntityType())) {
-            errorCode = "LIBRARY_CARD_SERVICE_ERROR";
-        }
+        String errorCode = getErrorCode(ex);
 
         // Provide more specific error message based on operation
         String message = getMessage(ex);
@@ -272,6 +361,21 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private static String getErrorCode(EntityServiceException ex) {
+        String errorCode = ex.getEntityType() != null ?
+                ex.getEntityType().toUpperCase() + "_SERVICE_ERROR" : "ENTITY_SERVICE_ERROR";
+
+        // Provide borrowing-specific service error codes
+        if ("Borrowing".equals(ex.getEntityType())) {
+            errorCode = "BORROWING_SERVICE_ERROR";
+        } else if ("User".equals(ex.getEntityType())) {
+            errorCode = "MEMBER_SERVICE_ERROR";
+        } else if ("LibraryCard".equals(ex.getEntityType())) {
+            errorCode = "LIBRARY_CARD_SERVICE_ERROR";
+        }
+        return errorCode;
     }
 
     private static String getMessage(EntityServiceException ex) {
@@ -646,5 +750,33 @@ public class GlobalExceptionHandler {
                 message.contains("unauthorized") ||
                 message.contains("forbidden") ||
                 message.contains("security");
+    }
+
+    private void logBorrowingEvent(String eventType, String userId, String borrowingId,
+                                   String operation, String businessRule, String errorMessage, String correlationId) {
+        try {
+            // Create structured log entry for borrowing monitoring and analytics
+            log.info("BORROWING_EVENT - type: {}, userId: {}, borrowingId: {}, operation: {}, " +
+                            "businessRule: {}, correlationId: {}, message: {}",
+                    eventType,
+                    userId != null ? userId : "UNKNOWN",
+                    borrowingId != null ? borrowingId : "N/A",
+                    operation != null ? operation : "UNKNOWN",
+                    businessRule != null ? businessRule : "N/A",
+                    correlationId,
+                    errorMessage != null ? errorMessage : "No additional details");
+
+            // Additional detailed logging for borrowing analytics (DEBUG level)
+            if (log.isDebugEnabled()) {
+                log.debug("Borrowing event details - eventType: {}, userId: {}, borrowingId: {}, " +
+                                "operation: {}, businessRule: {}, correlationId: {}, timestamp: {}, errorMessage: {}",
+                        eventType, userId, borrowingId, operation, businessRule, correlationId,
+                        java.time.LocalDateTime.now(), errorMessage);
+            }
+        } catch (Exception e) {
+            // Ensure logging failures don't affect the main exception handling flow
+            log.error("Failed to log borrowing event - eventType: {}, correlationId: {}, error: {}",
+                    eventType, correlationId, e.getMessage());
+        }
     }
 }
