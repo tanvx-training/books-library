@@ -7,8 +7,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/certs
-          issuer-uri: http://localhost:8080/realms/library-realm
+          jwk-set-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/library-realm/protocol/openid-connect/certs
+          issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/library-realm
       client:
         registration:
           keycloak:
@@ -19,12 +19,12 @@ spring:
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           keycloak:
-            issuer-uri: http://localhost:8080/realms/library-realm
-            jwk-set-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/certs
+            issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/library-realm
+            jwk-set-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/library-realm/protocol/openid-connect/certs
             user-name-attribute: preferred_username
-            authorization-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/auth
-            token-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/token
-            user-info-uri: http://localhost:8080/realms/library-realm/protocol/openid-connect/userinfo
+            authorization-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/library-realm/protocol/openid-connect/auth
+            token-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/library-realm/protocol/openid-connect/token
+            user-info-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/library-realm/protocol/openid-connect/userinfo
   cloud:
     gateway:
       default-filters:
@@ -66,13 +66,13 @@ spring:
           predicates:
             - Path=/auth/login
           filters:
-            - RedirectTo=302, http://localhost:8080/realms/library-realm/protocol/openid-connect/auth?client_id=api-gateway&response_type=code&redirect_uri=http://localhost:8080/login/oauth2/code/keycloak
+            - RedirectTo=302, ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}realms/library-realm/protocol/openid-connect/auth?client_id=api-gateway&response_type=code&redirect_uri=${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/login/oauth2/code/keycloak
         - id: keycloak-logout
-          uri: http://localhost:8080
+          uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}
           predicates:
             - Path=/auth/logout
           filters:
-            - RedirectTo=302, http://localhost:8080/realms/library-realm/protocol/openid-connect/logout?redirect_uri=http://localhost:8080/
+            - RedirectTo=302, ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}/realms/library-realm/protocol/openid-connect/logout?redirect_uri=${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}
 eureka:
   client:
     service-url:

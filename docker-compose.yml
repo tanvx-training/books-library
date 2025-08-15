@@ -16,23 +16,23 @@ services:
     container_name: postgres
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_MULTIPLE_DATABASES: keycloak,user-service,book-service,lending-service,notification-service,history-service
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       PGDATA: /var/lib/postgresql/data
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./documents/postgresql_init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/init-keycloak-db.sql:/docker-entrypoint-initdb.d/init-keycloak-db.sql
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: ${DB_HEALTH_CHECK_INTERVAL}
+      timeout: ${DB_HEALTH_CHECK_TIMEOUT}
+      retries: ${DB_HEALTH_CHECK_RETRIES}
+      start_period: ${DB_HEALTH_CHECK_START_PERIOD}
 
   # Keycloak
   keycloak:
@@ -40,7 +40,7 @@ services:
     container_name: keycloak
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${KEYCLOAK_DB}
       KC_DB_USERNAME: ${POSTGRES_USER:-postgres}
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-password}
       KEYCLOAK_ADMIN: admin
@@ -54,70 +54,104 @@ services:
       KC_LOG_CONSOLE_OUTPUT: json
     command: start-dev
     ports:
-      - "8080:8080"
+      - "${KEYCLOAK_PORT}:8080"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - backend-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      retries: 5
+      start_period: 60s
 
   redis:
     image: redis:latest
     container_name: redis
     ports:
-      - "6379:6379"
+      - "${REDIS_EXTERNAL_PORT}:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: ${DB_HEALTH_CHECK_INTERVAL}
+      timeout: ${DB_HEALTH_CHECK_TIMEOUT}
+      retries: ${DB_HEALTH_CHECK_RETRIES}
+      start_period: ${DB_HEALTH_CHECK_START_PERIOD}
 
   zoo:
     image: confluentinc/cp-zookeeper:7.5.3
     hostname: zoo
     container_name: zoo
     ports:
-      - "2181:2181"
+      - "${ZOOKEEPER_PORT}:2181"
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_SERVERS: zoo1:2888:3888
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   kafka1:
     image: confluentinc/cp-kafka:7.5.3
     hostname: kafka
     container_name: kafka
     ports:
-      - "9092:9092"
-      - "29092:29092"
+      - "${KAFKA_EXTERNAL_PORT}:9092"
+      - "${KAFKA_DOCKER_PORT}:29092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:19092,EXTERNAL://${DOCKER_HOST_IP}:9092,DOCKER://host.docker.internal:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zoo:2181"
-      KAFKA_BROKER_ID: 1
+      KAFKA_BROKER_ID: ${KAFKA_BROKER_ID}
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
       KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # Thêm dòng này để giảm replication factor
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
     depends_on:
-      - zoo
+      zoo:
+        condition: service_healthy
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:19092"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=${ES_JAVA_OPTS}"
       - xpack.security.enabled=false
     ports:
-      - "9200:9200"
+      - "${ELASTICSEARCH_PORT}:9200"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.8.0
@@ -125,134 +159,282 @@ services:
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
     ports:
-      - "5044:5044"
+      - "${LOGSTASH_EXTERNAL_PORT}:5044"
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9600"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.8.0
     container_name: kibana
     ports:
-      - "5601:5601"
+      - "${KIBANA_PORT}:5601"
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_URIS}
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5601/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
   # ==========================================================
   # Microservices
-  # (Mỗi service build qua Jib có image: ${docker.image.prefix}/<artifactId>:latest)
   # ==========================================================
 
-#  eureka-server:
-#    image: tanvx308/eureka-server:latest
-#    container_name: eureka-server
-#    ports:
-#      - "8761:8761"
-#    environment:
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    networks:
-#      - backend-network
-#
-#  config-server:
-#    image: tanvx308/config-server:latest
-#    container_name: config-server
-#    ports:
-#      - "8888:8888"
-#    environment:
-#      - EUREKA_HOST=eureka-server
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - eureka-server
-#    networks:
-#      - backend-network
-#
-#  api-gateway:
-#    image: tanvx308/api-gateway:latest
-#    container_name: api-gateway
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
-#
-#  metadata-service:
-#    image: tanvx308/metadata-service:latest
-#    container_name: metadata-service
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
-#
-#  company-service:
-#    image: tanvx308/company-service:latest
-#    container_name: company-service
-#    ports:
-#      - "8083:8083"
-#    environment:
-#      - JAVA_OPTS=-Xms512m -Xmx2g
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
-#
-#  job-service:
-#    image: tanvx308/job-service:latest
-#    container_name: job-service
-#    ports:
-#      - "8085:8085"
-#    environment:
-#      - JAVA_OPTS=-Xms512m -Xmx2g
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
-#
-#  auth-service:
-#    image: tanvx308/auth-service:latest
-#    container_name: auth-service
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
+  # Eureka Server - Service Discovery
+  eureka-server:
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
+    container_name: eureka-server
+    ports:
+      - "${EUREKA_SERVER_PORT}:8761"
+    networks:
+      - backend-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - JAVA_OPTS=${JAVA_OPTS}
+      - LOGSTASH_DESTINATION=${LOGSTASH_DESTINATION}
+      - EUREKA_SERVER_PORT=${EUREKA_SERVER_PORT}
+      - EUREKA_SERVICE_URL=${EUREKA_SERVICE_URL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: ${HEALTH_CHECK_INTERVAL}
+      timeout: ${HEALTH_CHECK_TIMEOUT}
+      retries: ${HEALTH_CHECK_RETRIES}
+      start_period: ${HEALTH_CHECK_START_PERIOD}
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "${API_GATEWAY_PORT}:8888"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${EUREKA_SERVER_URL}
+      - LOGSTASH_DESTINATION=${LOGSTASH_DESTINATION}
+      - EUREKA_HOST=${EUREKA_HOST}
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: ${HEALTH_CHECK_INTERVAL}
+      timeout: ${HEALTH_CHECK_TIMEOUT}
+      retries: ${HEALTH_CHECK_RETRIES}
+      start_period: ${HEALTH_CHECK_START_PERIOD}
+
+  # Member Service
+  member-service:
+    build:
+      context: .
+      dockerfile: member-service/Dockerfile
+    container_name: member-service
+    ports:
+      - "${MEMBER_SERVICE_PORT}:9993"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_REDIS_HOST=${REDIS_HOST}
+      - SPRING_REDIS_PORT=${REDIS_PORT}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${EUREKA_SERVER_URL}
+      - LOGSTASH_DESTINATION=${LOGSTASH_DESTINATION}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - EUREKA_HOST=${EUREKA_HOST}
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - KEYCLOAK_ADMIN_USERNAME=${KEYCLOAK_ADMIN_USERNAME}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9993/actuator/health"]
+      interval: ${HEALTH_CHECK_INTERVAL}
+      timeout: ${HEALTH_CHECK_TIMEOUT}
+      retries: ${HEALTH_CHECK_RETRIES}
+      start_period: ${HEALTH_CHECK_START_PERIOD}
+
+  # Catalog Service
+  catalog-service:
+    build:
+      context: .
+      dockerfile: catalog-service/Dockerfile
+    container_name: catalog-service
+    ports:
+      - "${CATALOG_SERVICE_PORT}:9991"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      kafka1:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_ELASTICSEARCH_URIS=${ELASTICSEARCH_URIS}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${EUREKA_SERVER_URL}
+      - LOGSTASH_DESTINATION=${LOGSTASH_DESTINATION}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - EUREKA_HOST=${EUREKA_HOST}
+      - KAFKA_SERVER=${KAFKA_SERVER}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9991/actuator/health"]
+      interval: ${HEALTH_CHECK_INTERVAL}
+      timeout: ${HEALTH_CHECK_TIMEOUT}
+      retries: ${HEALTH_CHECK_RETRIES}
+      start_period: ${HEALTH_CHECK_START_PERIOD}
+
+  # Loan Service
+  loan-service:
+    build:
+      context: .
+      dockerfile: loan-service/Dockerfile
+    container_name: loan-service
+    ports:
+      - "${LOAN_SERVICE_PORT}:9995"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      kafka1:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${EUREKA_SERVER_URL}
+      - LOGSTASH_DESTINATION=${LOGSTASH_DESTINATION}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - EUREKA_HOST=${EUREKA_HOST}
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - BORROWING_KAFKA_TOPIC=${BORROWING_KAFKA_TOPIC}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9995/actuator/health"]
+      interval: ${HEALTH_CHECK_INTERVAL}
+      timeout: ${HEALTH_CHECK_TIMEOUT}
+      retries: ${HEALTH_CHECK_RETRIES}
+      start_period: ${HEALTH_CHECK_START_PERIOD}
+
+  # Notification Service
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:9994"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      kafka1:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${EUREKA_SERVER_URL}
+      - LOGSTASH_DESTINATION=${LOGSTASH_DESTINATION}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - EUREKA_HOST=${EUREKA_HOST}
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - NOTIFICATION_EMAIL_FROM=${NOTIFICATION_EMAIL_FROM}
+      - NOTIFICATION_EMAIL_ENABLED=${NOTIFICATION_EMAIL_ENABLED}
+      - NOTIFICATION_SMS_ENABLED=${NOTIFICATION_SMS_ENABLED}
+      - NOTIFICATION_PUSH_ENABLED=${NOTIFICATION_PUSH_ENABLED}
+      - AUDIT_KAFKA_TOPICS=${AUDIT_KAFKA_TOPICS}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9994/actuator/health"]
+      interval: ${HEALTH_CHECK_INTERVAL}
+      timeout: ${HEALTH_CHECK_TIMEOUT}
+      retries: ${HEALTH_CHECK_RETRIES}
+      start_period: ${HEALTH_CHECK_START_PERIOD}
+
+  # Dashboard Service
+  dashboard-service:
+    build:
+      context: .
+      dockerfile: dashboard-service/Dockerfile
+    container_name: dashboard-service
+    ports:
+      - "${DASHBOARD_SERVICE_PORT}:9992"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      kafka1:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_ELASTICSEARCH_URIS=${ELASTICSEARCH_URIS}
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=${EUREKA_SERVER_URL}
+      - LOGSTASH_DESTINATION=${LOGSTASH_DESTINATION}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - EUREKA_HOST=${EUREKA_HOST}
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+      - KAFKA_CONSUMER_GROUP=${KAFKA_CONSUMER_GROUP}
+      - KAFKA_SECURITY_PROTOCOL=${KAFKA_SECURITY_PROTOCOL}
+      - AUDIT_KAFKA_TOPICS=${AUDIT_KAFKA_TOPICS}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9992/actuator/health"]
+      interval: ${HEALTH_CHECK_INTERVAL}
+      timeout: ${HEALTH_CHECK_TIMEOUT}
+      retries: ${HEALTH_CHECK_RETRIES}
+      start_period: ${HEALTH_CHECK_START_PERIOD}
