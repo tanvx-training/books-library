@@ -1,4 +1,4 @@
-package com.library.member.business.security;
+package com.library.member.dto.model;
 
 import lombok.Builder;
 import lombok.Data;
