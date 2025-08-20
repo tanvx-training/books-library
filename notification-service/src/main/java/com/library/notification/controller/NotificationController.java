@@ -1,161 +1,82 @@
 package com.library.notification.controller;
 
-import com.library.common.aop.annotation.Loggable;
-import com.library.common.dto.ApiResponse;
-import com.library.common.enums.LogLevel;
-import com.library.common.enums.OperationType;
-import com.library.notification.model.Notification;
-import com.library.notification.repository.NotificationRepository;
+import com.library.notification.service.NotificationService;
+import com.library.notification.dto.request.NotificationSearchRequest;
+import com.library.notification.dto.response.NotificationResponse;
+import com.library.notification.dto.response.PagedNotificationResponse;
+import com.library.notification.service.UnifiedAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.UUID;
 
-@Slf4j
 @RestController
+@RequestMapping("/api/v1/notifications")
 @RequiredArgsConstructor
-@RequestMapping("/api/notifications")
+@Slf4j
 public class NotificationController {
 
-    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
+    private final UnifiedAuthenticationService authenticationService;
 
-    /**
-     * Get notifications for a user with pagination
-     */
-    @GetMapping("/user/{userId}")
-    @Loggable(
-        level = LogLevel.DETAILED,
-        operationType = OperationType.READ,
-        resourceType = "Notification",
-        logArguments = true,
-        logReturnValue = false, // Don't log notification collections
-        logExecutionTime = true,
-        performanceThresholdMs = 1000L,
-        messagePrefix = "NOTIFICATION_CONTROLLER_BY_USER",
-        customTags = {
-            "endpoint=getNotificationsByUser", 
-            "layer=controller", 
-            "pagination=true",
-            "user_notifications=true"
+    @GetMapping
+    public ResponseEntity<PagedNotificationResponse> getUserNotifications(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortDirection) {
+
+        UUID userPublicId = authenticationService.getCurrentUserPublicId();
+        if (userPublicId == null) {
+            return ResponseEntity.badRequest().build();
         }
-    )
-    public ResponseEntity<ApiResponse<List<Notification>>> getNotificationsByUser(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "10") int limit,
-            @RequestParam(defaultValue = "0") int offset) {
-        
-        List<Notification> notifications = notificationRepository.findNotificationsByUserId(userId, limit, offset);
-        return ResponseEntity.ok(ApiResponse.success(notifications));
+
+        log.debug("Getting notifications for user: {} with page: {}, size: {}", userPublicId, page, size);
+
+        PagedNotificationResponse response = notificationService.getUserNotifications(
+                userPublicId, page, size, sortBy, sortDirection);
+
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get notification count for a user (unread)
-     */
-    @GetMapping("/user/{userId}/count/unread")
-    @Loggable(
-        level = LogLevel.BASIC,
-        operationType = OperationType.READ,
-        resourceType = "Notification",
-        logArguments = true,
-        logReturnValue = true,
-        logExecutionTime = true,
-        performanceThresholdMs = 500L,
-        messagePrefix = "NOTIFICATION_CONTROLLER_UNREAD_COUNT",
-        customTags = {
-            "endpoint=getUnreadCount", 
-            "layer=controller", 
-            "count_operation=true",
-            "user_dashboard=true"
+    @GetMapping("/{id}")
+    public ResponseEntity<NotificationResponse> getNotificationById(@PathVariable UUID id) {
+        UUID userPublicId = authenticationService.getCurrentUserPublicId();
+        if (userPublicId == null) {
+            return ResponseEntity.badRequest().build();
         }
-    )
-    public ResponseEntity<ApiResponse<Long>> getUnreadNotificationCount(@PathVariable Long userId) {
-        
-        Long count = notificationRepository.countUnreadNotificationsByUserId(userId);
-        return ResponseEntity.ok(ApiResponse.success(count));
+
+        log.debug("Getting notification {} for user: {}", id, userPublicId);
+
+        NotificationResponse response = notificationService.getNotificationById(id, userPublicId);
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * Mark notifications as read
-     */
-    @PatchMapping("/user/{userId}/mark-read")
-    @Loggable(
-        level = LogLevel.ADVANCED,
-        operationType = OperationType.UPDATE,
-        resourceType = "Notification",
-        logArguments = true,
-        logReturnValue = true,
-        logExecutionTime = true,
-        includeInPerformanceMonitoring = true,
-        performanceThresholdMs = 2000L,
-        messagePrefix = "NOTIFICATION_CONTROLLER_MARK_READ",
-        customTags = {
-            "endpoint=markNotificationsAsRead", 
-            "layer=controller", 
-            "bulk_update=true",
-            "user_interaction=true",
-            "read_status_update=true"
+    @PutMapping("/{id}/read")
+    public ResponseEntity<NotificationResponse> markAsRead(@PathVariable UUID id) {
+        UUID userPublicId = authenticationService.getCurrentUserPublicId();
+        if (userPublicId == null) {
+            return ResponseEntity.badRequest().build();
         }
-    )
-    public ResponseEntity<ApiResponse<Integer>> markNotificationsAsRead(
-            @PathVariable Long userId,
-            @RequestBody List<Long> notificationIds) {
-        
-        int updatedCount = notificationRepository.markNotificationsAsRead(userId, notificationIds);
-        return ResponseEntity.ok(ApiResponse.success(updatedCount));
+
+        log.debug("Marking notification {} as read for user: {}", id, userPublicId);
+
+        NotificationResponse response = notificationService.markAsRead(id, userPublicId);
+        return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get notifications by status (admin operation)
-     */
-    @GetMapping("/status/{status}")
-    @Loggable(
-        level = LogLevel.DETAILED,
-        operationType = OperationType.READ,
-        resourceType = "Notification",
-        logArguments = true,
-        logReturnValue = false,
-        logExecutionTime = true,
-        performanceThresholdMs = 1500L,
-        messagePrefix = "NOTIFICATION_CONTROLLER_BY_STATUS",
-        customTags = {
-            "endpoint=getNotificationsByStatus", 
-            "layer=controller", 
-            "admin_operation=true",
-            "status_filter=true"
-        }
-    )
-    public ResponseEntity<ApiResponse<List<Notification>>> getNotificationsByStatus(@PathVariable String status) {
-        
-        List<Notification> notifications = notificationRepository.findNotificationsByStatus(status);
-        return ResponseEntity.ok(ApiResponse.success(notifications));
-    }
+    @GetMapping("/search")
+    public ResponseEntity<PagedNotificationResponse> searchNotifications(@ModelAttribute NotificationSearchRequest searchRequest) {
 
-    /**
-     * Get notification statistics by status (admin analytics)
-     */
-    @GetMapping("/analytics/status/{status}/count")
-    @Loggable(
-        level = LogLevel.BASIC,
-        operationType = OperationType.READ,
-        resourceType = "Notification",
-        logArguments = true,
-        logReturnValue = true,
-        logExecutionTime = true,
-        performanceThresholdMs = 800L,
-        messagePrefix = "NOTIFICATION_CONTROLLER_STATUS_COUNT",
-        customTags = {
-            "endpoint=getStatusCount", 
-            "layer=controller", 
-            "analytics_operation=true",
-            "admin_operation=true",
-            "count_operation=true"
+        UUID userPublicId = authenticationService.getCurrentUserPublicId();
+        if (userPublicId == null) {
+            return ResponseEntity.badRequest().build();
         }
-    )
-    public ResponseEntity<ApiResponse<Long>> getNotificationCountByStatus(@PathVariable String status) {
-        
-        Long count = notificationRepository.countNotificationsByStatus(status);
-        return ResponseEntity.ok(ApiResponse.success(count));
+
+        log.debug("Searching notifications for user: {} with filters", userPublicId);
+        PagedNotificationResponse response = notificationService.searchNotifications(searchRequest);
+        return ResponseEntity.ok(response);
     }
-} 
+}

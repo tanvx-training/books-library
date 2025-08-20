@@ -9,10 +9,6 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.beans.factory.annotation.Value;
 
-/**
- * Security configuration for API Gateway.
- * Configures JWT validation and reactive security for the gateway.
- */
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {

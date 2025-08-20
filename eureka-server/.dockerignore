@@ -1,0 +1,25 @@
+# Maven - exclude target contents but allow JAR files
+target/*
+!target/*.jar
+
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+
+# Docs
+*.md
+
+# Logs
+*.log

@@ -8,7 +8,7 @@ volumes:
     postgres-data:
     redis-data:
     keycloak-data:
-    elasticsearch-data:
+    zookeeper-data:
 services:
   # PostgreSQL
   postgres:
@@ -16,55 +16,45 @@ services:
     container_name: postgres
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_MULTIPLE_DATABASES: keycloak,user-service,book-service,lending-service,notification-service,history-service
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       PGDATA: /var/lib/postgresql/data
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./documents/postgresql_init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/init-keycloak-db.sql:/docker-entrypoint-initdb.d/init-keycloak-db.sql
     ports:
       - "5432:5432"
     networks:
       - backend-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${POSTGRES_DB}" ]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 150s
 
   # Keycloak
   keycloak:
-    image: quay.io/keycloak/keycloak:22.0.1
+    image: quay.io/keycloak/keycloak:25.0.4
     container_name: keycloak
+    command:
+      - start-dev
+    volumes:
+      - keycloak-data:/opt/keycloak/data
     environment:
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-      KC_DB_USERNAME: ${POSTGRES_USER:-postgres}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_HEALTH_ENABLED: true
-      KC_METRICS_ENABLED: true
-      KC_HOSTNAME_STRICT: false
-      KC_HTTP_ENABLED: true
-      KC_PROXY: edge
-      KC_LOG_LEVEL: INFO
-      KC_LOG_CONSOLE_OUTPUT: json
-    command: start-dev
+      - KEYCLOAK_ADMIN_USERNAME=${KEYCLOAK_ADMIN_USERNAME}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
-    networks:
-      - backend-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      test: ["CMD-SHELL", "timeout 10s bash -c '</dev/tcp/localhost/8080'"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      retries: 10
+      start_period: 150s
+    networks:
+      - backend-network
 
   redis:
     image: redis:latest
@@ -73,186 +63,216 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - backend-network
 
-  zoo:
-    image: confluentinc/cp-zookeeper:7.5.3
-    hostname: zoo
-    container_name: zoo
+  zookeeper:
+    image: bitnami/zookeeper:3.9
+    container_name: zookeeper
+    restart: always
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_ENABLE_AUTH=no
     ports:
       - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_SERVER_ID: 1
-      ZOOKEEPER_SERVERS: zoo1:2888:3888
+    networks:
+      - backend-network
+    volumes:
+      - zookeeper-data:/bitnami/zookeeper
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 150s
 
-  kafka1:
-    image: confluentinc/cp-kafka:7.5.3
-    hostname: kafka
+  kafka:
+    image: bitnami/kafka:3.6
     container_name: kafka
+    restart: always
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
     ports:
       - "9092:9092"
-      - "29092:29092"
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka1:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_ZOOKEEPER_CONNECT: "zoo:2181"
-      KAFKA_BROKER_ID: 1
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
-      KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
-      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # Thêm dòng này để giảm replication factor
     depends_on:
-      - zoo
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+      - zookeeper
+    healthcheck:
+      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 150s
     networks:
       - backend-network
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.8.0
-    container_name: logstash
-    volumes:
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
-    ports:
-      - "5044:5044"
-    depends_on:
-      - elasticsearch
-    networks:
-      - backend-network
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.8.0
-    container_name: kibana
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-    networks:
-      - backend-network
   # ==========================================================
   # Microservices
-  # (Mỗi service build qua Jib có image: ${docker.image.prefix}/<artifactId>:latest)
   # ==========================================================
 
-#  eureka-server:
-#    image: tanvx308/eureka-server:latest
-#    container_name: eureka-server
-#    ports:
-#      - "8761:8761"
-#    environment:
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    networks:
-#      - backend-network
-#
-#  config-server:
-#    image: tanvx308/config-server:latest
-#    container_name: config-server
-#    ports:
-#      - "8888:8888"
-#    environment:
-#      - EUREKA_HOST=eureka-server
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - eureka-server
-#    networks:
-#      - backend-network
-#
-#  api-gateway:
-#    image: tanvx308/api-gateway:latest
-#    container_name: api-gateway
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
-#
-#  metadata-service:
-#    image: tanvx308/metadata-service:latest
-#    container_name: metadata-service
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
-#
-#  company-service:
-#    image: tanvx308/company-service:latest
-#    container_name: company-service
-#    ports:
-#      - "8083:8083"
-#    environment:
-#      - JAVA_OPTS=-Xms512m -Xmx2g
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
-#
-#  job-service:
-#    image: tanvx308/job-service:latest
-#    container_name: job-service
-#    ports:
-#      - "8085:8085"
-#    environment:
-#      - JAVA_OPTS=-Xms512m -Xmx2g
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
-#
-#  auth-service:
-#    image: tanvx308/auth-service:latest
-#    container_name: auth-service
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      - EUREKA_HOST=eureka-server
-#      - CONFIG_SERVER_HOST=config-server
-#      - DATASOURCE_HOST=postgres
-#      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://tempo:9411/api/v2/spans
-#    depends_on:
-#      - postgres
-#      - eureka-server
-#      - config-server
-#    networks:
-#      - backend-network
+  # Eureka Server - Service Discovery
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - backend-network
+    environment:
+      - EUREKA_HOST=${EUREKA_HOST}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 150s
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    env_file:
+      - .env
+    environment:
+      - EUREKA_HOST=${EUREKA_HOST}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+    ports:
+      - "8888:8888"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - backend-network
+
+  # Member Service
+  member-service:
+    build: ./member-service
+    container_name: member-service
+    ports:
+      - "9993:9993"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - EUREKA_HOST=${EUREKA_HOST}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - KEYCLOAK_ADMIN_USERNAME=${KEYCLOAK_ADMIN_USERNAME}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+
+  # Catalog Service
+  catalog-service:
+    build: ./catalog-service
+    container_name: catalog-service
+    env_file:
+      - .env
+    ports:
+      - "9991:9991"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - EUREKA_HOST=${EUREKA_HOST}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+
+  # Loan Service
+  loan-service:
+    build: ./loan-service
+    container_name: loan-service
+    ports:
+      - "9995:9995"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - EUREKA_HOST=${EUREKA_HOST}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+
+  # Notification Service
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "9994:9994"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - EUREKA_HOST=${EUREKA_HOST}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+
+  # Dashboard Service
+  dashboard-service:
+    build: ./dashboard-service
+    container_name: dashboard-service
+    ports:
+      - "9992:9992"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - backend-network
+    environment:
+      - EUREKA_HOST=${EUREKA_HOST}
+      - DATASOURCE_HOST=${DATASOURCE_HOST}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - KEYCLOAK_HOST=${KEYCLOAK_HOST}

@@ -1,49 +1,26 @@
 package com.library.notification.service;
 
-import com.library.notification.dto.UserCreatedMessage;
-import com.library.notification.model.Notification;
+import com.library.notification.dto.request.CreateNotificationRequest;
+import com.library.notification.dto.request.NotificationSearchRequest;
+import com.library.notification.dto.response.NotificationResponse;
+import com.library.notification.dto.response.PagedNotificationResponse;
+import com.library.notification.repository.NotificationStatus;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.UUID;
 
 public interface NotificationService {
-    
-    void handleUserCreated(UserCreatedMessage message);
-    
-    /**
-     * Retry failed notifications
-     * @param fromDateTime retry notifications failed after this time
-     * @return number of notifications processed
-     */
-    int retryFailedNotifications(LocalDateTime fromDateTime);
-    
-    /**
-     * Clean up old processed notifications
-     * @param olderThan clean notifications older than this date
-     * @return number of notifications cleaned
-     */
-    int cleanUpOldNotifications(LocalDateTime olderThan);
-    
-    /**
-     * Get notification statistics
-     * @return list of statistics
-     */
-    List<NotificationStatistics> getNotificationStatistics();
-    
-    /**
-     * Inner class for notification statistics
-     */
-    class NotificationStatistics {
-        private String status;
-        private Long count;
-        
-        public NotificationStatistics(String status, Long count) {
-            this.status = status;
-            this.count = count;
-        }
-        
-        // Getters
-        public String getStatus() { return status; }
-        public Long getCount() { return count; }
-    }
+
+    NotificationResponse createNotification(CreateNotificationRequest request);
+
+    NotificationResponse getNotificationById(UUID publicId, UUID userPublicId);
+
+    PagedNotificationResponse searchNotifications(NotificationSearchRequest searchRequest);
+
+    NotificationResponse updateNotificationStatus(UUID publicId, NotificationStatus status, UUID userPublicId);
+
+    NotificationResponse markAsRead(UUID publicId, UUID userPublicId);
+
+    PagedNotificationResponse getUserNotifications(UUID userPublicId, int page, int size, String sortBy, String sortDirection);
+
+    boolean shouldSendNotification(UUID userPublicId, String notificationType);
 }

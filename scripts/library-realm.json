@@ -1,0 +1,105 @@
+{
+  "id": "library-realm",
+  "realm": "library-realm",
+  "displayName": "Library Management System",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "maxFailureWaitSeconds": 600,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 30,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "Administrator role"
+      },
+      {
+        "name": "LIBRARIAN",
+        "description": "Librarian role"
+      },
+      {
+        "name": "MEMBER",
+        "description": "Library member role"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "api-gateway",
+      "name": "API Gateway Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "redirectUris": [
+        "http://localhost:8888/*",
+        "http://api-gateway:8888/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8888",
+        "http://api-gateway:8888"
+      ],
+      "secret": "kia8wLCbflCup6q8TL5jgLUdcYDivqBb"
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@library.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ADMIN"]
+    },
+    {
+      "username": "librarian",
+      "enabled": true,
+      "email": "librarian@library.com",
+      "firstName": "John",
+      "lastName": "Librarian",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "librarian123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["LIBRARIAN"]
+    },
+    {
+      "username": "member",
+      "enabled": true,
+      "email": "member@library.com",
+      "firstName": "Jane",
+      "lastName": "Member",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "member123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["MEMBER"]
+    }
+  ]
+}

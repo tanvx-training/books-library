@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{subject}</title>
+    <title>Welcome to Library System</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -65,58 +65,45 @@
             color: #1a5276;
             font-weight: bold;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        table th, table td {
-            padding: 10px;
-            border-bottom: 1px solid #e9ecef;
-            text-align: left;
-        }
-        table th {
-            background-color: #f8f9fa;
-        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <img src="https://example.com/library-logo.png" alt="Library Logo">
+        <h2 style="color: white; margin: 0;">Library Management System</h2>
     </div>
     <div class="content">
-        <h1>Chào mừng đến với Hệ thống Thư viện!</h1>
-        <p>Xin chào <span class="highlight">{firstName}</span>,</p>
-        <p>Chúng tôi rất vui mừng chào đón bạn đến với Hệ thống Thư viện của chúng tôi! Tài khoản của bạn đã được tạo thành công vào ngày {registrationDate}.</p>
+        <h1>Welcome to the Library System!</h1>
+        <p>Hello <span class="highlight" th:text="${fullname}">User</span>,</p>
+        <p>We are excited to welcome you to our Library Management System! Your account has been successfully created.</p>
 
         <div class="info-box">
-            <p><strong>Thông tin tài khoản của bạn:</strong></p>
-            <p>Tên đăng nhập: <span class="highlight">{userName}</span></p>
-            <p>Email: <span class="highlight">{email}</span></p>
+            <p><strong>Your account information:</strong></p>
+            <p>Username: <span class="highlight" th:text="${username}">username</span></p>
+            <p>Email: <span class="highlight" th:text="${email}">email@example.com</span></p>
         </div>
 
-        <p>Với tài khoản này, bạn có thể:</p>
+        <p>With this account, you can:</p>
         <ul>
-            <li>Tìm kiếm và mượn sách từ thư viện của chúng tôi</li>
-            <li>Đặt trước sách bạn quan tâm</li>
-            <li>Theo dõi lịch sử mượn sách của bạn</li>
-            <li>Nhận thông báo về các sự kiện thư viện</li>
+            <li>Search and borrow books from our library</li>
+            <li>Reserve books you're interested in</li>
+            <li>Track your borrowing history</li>
+            <li>Receive notifications about library events</li>
         </ul>
 
-        <p>Để bắt đầu khám phá bộ sưu tập sách của chúng tôi, hãy nhấp vào nút bên dưới:</p>
-        <a href="https://library.example.com/explore" class="button">Khám phá thư viện</a>
+        <p>To start exploring our book collection, click the button below:</p>
+        <a href="https://library.example.com/explore" class="button">Explore Library</a>
 
-        <p>Nếu bạn có bất kỳ câu hỏi nào, đừng ngần ngại liên hệ với đội ngũ hỗ trợ của chúng tôi.</p>
+        <p>If you have any questions, don't hesitate to contact our support team.</p>
 
-        <p>Trân trọng,<br>
-            Đội ngũ Hệ thống Thư viện</p>
+        <p>Best regards,<br>
+            Library System Team</p>
     </div>
     <div class="footer">
-        <p>© 2025 Hệ thống Thư viện. Tất cả các quyền được bảo lưu.</p>
-        <p>Địa chỉ: 123 Đường Sách, Quận Tri Thức, Thành phố Học Vấn</p>
-        <p>Email: support@library.example.com | Điện thoại: (012) 345-6789</p>
-        <p>Email này được gửi tự động, vui lòng không trả lời.</p>
+        <p>© 2025 Library Management System. All rights reserved.</p>
+        <p>Address: 123 Book Street, Knowledge District, Learning City</p>
+        <p>Email: support@library.example.com | Phone: (012) 345-6789</p>
+        <p>This email was sent automatically, please do not reply.</p>
     </div>
 </div>
 </body>
