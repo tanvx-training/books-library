@@ -1,0 +1,1155 @@
+{
+	"info": {
+		"_postman_id": "34fb358f-5a58-417f-8334-9986a51e01d7",
+		"name": "ddd",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these request types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT and PATCH requests.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a variable called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Tests\" tab**\n\nTests help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/b5f280a7-4b09-48ec-857f-0a7ed99d7ef8/U2NyZWVuc2hvdCAyMDIzLTAzLTI3IGF0IDkuNDcuMjggUE0ucG5n\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n- Add more scripts in \"Tests\" to verify if the API works as expected and execute flows.\n    \n\n## ℹ️ Resources\n\n[Building requests](https://learning.postman.com/docs/sending-requests/requests/)  \n[Authorizing requests](https://learning.postman.com/docs/sending-requests/authorization/)  \n[Using variables](https://learning.postman.com/docs/sending-requests/variables/)  \n[Managing environments](https://learning.postman.com/docs/sending-requests/managing-environments/)  \n[Writing scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30372317"
+	},
+	"item": [
+		{
+			"name": "author",
+			"item": [
+				{
+					"name": "# Lấy danh sách tác giả với sắp xếp",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTM2MzQyOTksImlhdCI6MTc1MzYzMjQ5OSwianRpIjoiOWY4M2NlZTQtODNiZC00NWVkLWE0MjMtNGJjOWUyZjg2ZWMzIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjMzODE1ZWRmLWQwYWEtNDliYS1hMDA5LWVhNjM5NzM3MjRjNiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMzM4MTVlZGYtZDBhYS00OWJhLWEwMDktZWE2Mzk3MzcyNGM2IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.RlTzx5CKx1NcYg_oecm8_nx25o4jkdCO7r3JSWI4FkecY54wGsJlzu1coJZZ2xDjjB972ji_h00EFaoxGKnEvS6z2I367wVogcpqfwB8kWGOUJDffzcXv5OAd6RXez8rQD9kBFYbxjc4NxcPY8QnP_RwH5oOt_myFON1-OO5pJg1ysyUfb6OgV2kprLRzCYWwzekpX1H8HpCHfDqnvc3rh1Ux8UHnTLm97KZoziSo42BpnS59z9qQ819bFGBJ2TzFaqhKima_-ZPfmtq15b0FrNcYSCE2gQSZV9muxely5sM3RNVTstXVC5qtUxMXbWbigSaH4v4FnCyfFiaKpmsZw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/authors?name=Chiel",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"authors"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Chiel"
+								}
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "# Lấy thông tin tác giả có ID = 1",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTM2MzQyOTksImlhdCI6MTc1MzYzMjQ5OSwianRpIjoiOWY4M2NlZTQtODNiZC00NWVkLWE0MjMtNGJjOWUyZjg2ZWMzIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjMzODE1ZWRmLWQwYWEtNDliYS1hMDA5LWVhNjM5NzM3MjRjNiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMzM4MTVlZGYtZDBhYS00OWJhLWEwMDktZWE2Mzk3MzcyNGM2IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.RlTzx5CKx1NcYg_oecm8_nx25o4jkdCO7r3JSWI4FkecY54wGsJlzu1coJZZ2xDjjB972ji_h00EFaoxGKnEvS6z2I367wVogcpqfwB8kWGOUJDffzcXv5OAd6RXez8rQD9kBFYbxjc4NxcPY8QnP_RwH5oOt_myFON1-OO5pJg1ysyUfb6OgV2kprLRzCYWwzekpX1H8HpCHfDqnvc3rh1Ux8UHnTLm97KZoziSo42BpnS59z9qQ819bFGBJ2TzFaqhKima_-ZPfmtq15b0FrNcYSCE2gQSZV9muxely5sM3RNVTstXVC5qtUxMXbWbigSaH4v4FnCyfFiaKpmsZw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/authors/53e1bf7c-8aad-4073-a527-98ac06e25d76",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"authors",
+								"53e1bf7c-8aad-4073-a527-98ac06e25d76"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Tạo tác giả mới với thông tin hợp lệ",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTMwMzA2MTcsImlhdCI6MTc1MzAyODgxNywianRpIjoiMWQwZGI4NGItMmUzMS00OGIzLTkzNTAtZWFlY2Y4ZDIwNTE3IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6ImM3YWJhMDE1LWNiNTEtNDhlZC04Yzk5LThmMDBiZDlmNWU3YSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiYzdhYmEwMTUtY2I1MS00OGVkLThjOTktOGYwMGJkOWY1ZTdhIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.E_JeA6ZYhJ2rBwa4SeDjXv1LPYLqGbM8Ocw5JqlzvqcGl2KdfQ0ZFwds3LSR62jpfeAw6v-SYRkxh-V60RtnC66DvXgP2SD6oIUaHHY-s0VZwV-TyrKE7BXg5B5n4M3d1Tf_REoIb_67Gx1ikbuGZaqx83x_mFosuHGHpRIvbWgv113nvFsgr-VgDEtWW3gpKburYmqp3ZzUN5fTX7R2PoP5pFnt6U-kFJF2xhX1XLcQq156fBzeheWMz1G5CQoVedRqQvaBysQTaQIinjJELQKMLIH9EmiCXAy7cZgHSHwuEu3u-VDzPKQ-91JYq1pRyn48yp5xooX-PCZCXl8Jdg",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Kiều Quang Sơn\",\n    \"biography\": \"Nhà văn nổi tiếng với nhiều tác phẩm văn học thiếu nhi và thanh niên\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/v1/authors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"authors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Tạo tác giả mới với tên quá dài (lỗi validation)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTI4ODk4OTcsImlhdCI6MTc1Mjg4ODA5NywianRpIjoiMTA3N2NjYjQtZGVlOS00YTJmLWE1ZDYtMTYwYjhkODgyNDVhIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjFlZmNkZDk0LTc0ZWQtNDM1Ni1hNDAwLWEwZWYwZWM4ZjYyYiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMWVmY2RkOTQtNzRlZC00MzU2LWE0MDAtYTBlZjBlYzhmNjJiIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.NAkE1yXlxJHFyJ3-ReV316l7Xdijd2kjKU-77A5Bk5fxuJ9Rk_rPdXKiePxkq9prdj2fUxHqqSfM2RCmSJBY9v5plwkqyWACNPgL6Ze9zlKztKW_87HFNOmHtn9jyCar1fj1qYMGtMoQd-ezqDSl3bmCeP3AjC3A8pe86eVFP_ExX1AvepLeBMwFg0t2YQxG3c42NdX1YiprnkTNMLENL_yIWodsl8WcweAlACNk5t_WEHeMWa3YizLoOiC3ekfXBgjAgeygypwGc8qfMjW4yD3VRur1Wdi1XKZ0lgVtAHSlrYkhovVf86bHIuxtveqzpih8Fbpi2IGuT8v5U-YtVg",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Tên tác giả quá dài để test validation - Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\",\n    \"biography\": \"Test biography\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/v1/authors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"authors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Tạo tác giả mới với tên trống (lỗi validation)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTI4ODk4OTcsImlhdCI6MTc1Mjg4ODA5NywianRpIjoiMTA3N2NjYjQtZGVlOS00YTJmLWE1ZDYtMTYwYjhkODgyNDVhIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjFlZmNkZDk0LTc0ZWQtNDM1Ni1hNDAwLWEwZWYwZWM4ZjYyYiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMWVmY2RkOTQtNzRlZC00MzU2LWE0MDAtYTBlZjBlYzhmNjJiIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.NAkE1yXlxJHFyJ3-ReV316l7Xdijd2kjKU-77A5Bk5fxuJ9Rk_rPdXKiePxkq9prdj2fUxHqqSfM2RCmSJBY9v5plwkqyWACNPgL6Ze9zlKztKW_87HFNOmHtn9jyCar1fj1qYMGtMoQd-ezqDSl3bmCeP3AjC3A8pe86eVFP_ExX1AvepLeBMwFg0t2YQxG3c42NdX1YiprnkTNMLENL_yIWodsl8WcweAlACNk5t_WEHeMWa3YizLoOiC3ekfXBgjAgeygypwGc8qfMjW4yD3VRur1Wdi1XKZ0lgVtAHSlrYkhovVf86bHIuxtveqzpih8Fbpi2IGuT8v5U-YtVg",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"biography\": \"Test biography\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/v1/authors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"authors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTMwMjg2MzgsImlhdCI6MTc1MzAyNjgzOCwianRpIjoiZDYxYTA1ZDItZWM0YS00ZWUxLWE3MWItNGZkMzQ0YTQyZGM3IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjQzOTE4NWZkLWNiMzAtNGJhNy04ZGZlLTk1ZjA0NDcwMjkyNiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiNDM5MTg1ZmQtY2IzMC00YmE3LThkZmUtOTVmMDQ0NzAyOTI2IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.PuRn68mz669ECkfsxmAw2RA11XInbTdQZs9Q5oQCQai1EwbTjK2Gbv-UP3H4XAj0twjGsPMcDbJVe1GWZW77URdN8hrEWymByV0ZNQMPQVSEJSRXM2BpmVXTSpGcKpqAQdAGcd3PLeIq6bIdsw1mlECUkh6WZ4Bg5EM_mylHUA4EERDRKZr1ss38FjgInimSi3-ClA0iXLFwfOdD0Ydckx2fqDHdjjw2cfwo7TXlSjLgD3iFHhjdI2FUapgt_q0nQOycBEQwP_KYJiy-Gh76VkhiLHnW4lJAbmthzpwXLnUJLIsZrJkIYQsO6MVmHvMIQNCN05f_W4-BSeS5lPd9MQ",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Kafka Event\",\n    \"biography\": \"Test send audit event\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/v1/authors/102028",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"authors",
+								"102028"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "publisher",
+			"item": [
+				{
+					"name": "# Lấy danh sách nhà xuất bản",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTMxOTM2ODMsImlhdCI6MTc1MzE5MTg4MywianRpIjoiOGRjZmJkNWItMDYxNi00ZjU3LTg4YWUtNWU0ZTU5MDhmYzA4IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6ImU1NTM0MjFmLTBmOWItNDYwOC1hNmY3LTI1MjY2OWM1NjI1NSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiZTU1MzQyMWYtMGY5Yi00NjA4LWE2ZjctMjUyNjY5YzU2MjU1IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.XzTvQHWNGqxmHIXMMVx5Gh5A4g5FTrIBYd76iDHowS22z25dYBj9tLDKYNsf0A0md9uWM_7Y_N8BQh-besvPFr4neXB47neCue2TTk_Lm21_lN0Yzl2iJRwaIQwZh6mZX2XGBUL5cgm1d-AE04q3QN-yNhmAVWQN-urSRlH1YVUwI8yVtvt7KP9qg0lDwpkAX6h8kFcuCqiPfcUt8KFwSXOvyLiaG4tSFAT_BRiQVT-Xzx4InhHnwjOz1CGygMAfFIX6KjuUH_IruXGWKHLrcS-ajRWIgzbnf1fay8gjueTxI3BpHWsF3a8Mk_zl2YMoVhhxMmGPBQ3q4PEs3P4hpQ",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/publishers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"publishers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Lấy thông tin nhà xuất bản có ID = 1",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTMxOTc4MDgsImlhdCI6MTc1MzE5NjAwOCwianRpIjoiNGFhYTEwYzMtZjk0NC00MzFjLTlmM2QtNDg0NmQxYWMwZjk5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjIzOTBiM2MzLWU5M2UtNGM5NC05ZTEyLTFiOWY5OTc3ZDUyOCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMjM5MGIzYzMtZTkzZS00Yzk0LTllMTItMWI5Zjk5NzdkNTI4IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.BVxPJFtevZzz95QYAdBmxdWekjzFzf5H0TFaENwSY1kmgnnzV96jL_txSvSc6GxkaV0kBIhL6oYikoAczaRVvKjIdW934Xh9H-j5flA5Ja4LOUhSwRByKCwdpYPKabqNJqdFd6aSiraJ9Yb8uo8bCFA8O5bQwRGPlmgJJY4M6xDJ7xpj2zCt5Xy8pyJTVDS6xSzKeJkmOJgttPbutctZl5rvzv9Ot17dYR3Nqk0slxrqu-QCxX8coN1cMIvMOuO8I3hhkGgr8fIHFedvbPOZo9-27cKCSZ1OT1xPL6b69g33xWxdQezFUt5HxghGqOpv7JjRadHmmqekOntUqpiUTA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/publishers/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"publishers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Tạo nhà xuất bản với thông tin hợp lệ",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTI2NzkxODEsImlhdCI6MTc1MjY3NzM4MSwianRpIjoiYjQ5MTg0NTctZjFlNy00ODZiLTk1YWMtNWY4NDM1YWJlYWFmIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjUxYzc3NTA5LTA1MmMtNDY1OC04M2NlLTkyN2QwNzlhZmEwMCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiNTFjNzc1MDktMDUyYy00NjU4LTgzY2UtOTI3ZDA3OWFmYTAwIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.nATA4v_ljRIkeWn4On6mdzT3EpcuLd4sEWdeexcQRndAmCAh29Ts_8TFsDD5ZbDnGtrS5b6mmxHmpMT8gBmL19EvTObZiDXiSFk5KIGKTOmzkVwgvS0SSryRzHO0KRCiUg-T5Y2wanJvxlG8HjveJBI4HrQwOjkjGLkvP1FonDf05IV4klBK1q2wOvFt_eao5QTsoEvtR7_9xnH2GzV5yIgsP3XWDOfuzoWdXew1w4W0vYgYANQVf-1x-QFBJ5iYYyKFztwVob4FqBaHdfC9d21Lk2Thu_GMdzFZdwMtpV5VhewV80RvejpQgsKFLCvkJTjyQY-r5fWSLezk8qsw0w",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"NXB Kim Đồng\",\n    \"address\": \"55 Quang Trung, Hai Bà Trưng, Hà Nội\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/v1/publishers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"v1",
+								"publishers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Tạo nhà xuất bản với tên trùng lặp (để test xử lý lỗi)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"NXB Kim Đồng\",\n    \"address\": \"Địa chỉ khác\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/v1/publishers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"v1",
+								"publishers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Tạo nhà xuất bản với tên trống (để test validation)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"address\": \"Test address\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/v1/publishers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"v1",
+								"publishers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Tạo nhà xuất bản với tên quá dài (để test validation)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\",\n    \"address\": \"Test address\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/v1/publishers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"v1",
+								"publishers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "category",
+			"item": [
+				{
+					"name": "# Lấy danh sách thể loại với phân trang mặc định",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTMxMTg1ODgsImlhdCI6MTc1MzExNjc4OCwianRpIjoiMTY5ZjFjMTMtM2RhOS00YjUyLWFhOGItZTc5MjUxNTI2ZDk0IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjI4MWViYjhjLTY5YjItNGI0Ni04NWFjLTVjOTBiN2RlYjcyMiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMjgxZWJiOGMtNjliMi00YjQ2LTg1YWMtNWM5MGI3ZGViNzIyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.fhSb71xx9JXLGlSqNAmvIYqaPdntPZeoFd6wvpFR6DN3wFICFHgtB8AZAzl4srLRNcOMWxaYDHhnLbyexcovvXGrxnWwFDXQZYHPD1z2A4WftfgpRo5CUUWXwfCZ4T-dokwJKj1qJa_nacxjIirqCsTHFyl81iSXsr-HqIbs6xjLKaEEL6TeJBL49GRzx_7QbXQIeHawvwoJr5FMkNcvMiXAgA_k-u_oAbIXeFT270ir2lmfRqtuTgmRV6BmtQyLluetLFNW19jQ39B8pwizT4Z3hUz84f4WA-HQzTn_uB_W7m9-cmxbACImwahhHr_GHOB9EMsSF6UgkoVEaTPFgA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/categories",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Lấy thông tin thể loại có ID = 1",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTMxMTg1ODgsImlhdCI6MTc1MzExNjc4OCwianRpIjoiMTY5ZjFjMTMtM2RhOS00YjUyLWFhOGItZTc5MjUxNTI2ZDk0IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjI4MWViYjhjLTY5YjItNGI0Ni04NWFjLTVjOTBiN2RlYjcyMiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMjgxZWJiOGMtNjliMi00YjQ2LTg1YWMtNWM5MGI3ZGViNzIyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.fhSb71xx9JXLGlSqNAmvIYqaPdntPZeoFd6wvpFR6DN3wFICFHgtB8AZAzl4srLRNcOMWxaYDHhnLbyexcovvXGrxnWwFDXQZYHPD1z2A4WftfgpRo5CUUWXwfCZ4T-dokwJKj1qJa_nacxjIirqCsTHFyl81iSXsr-HqIbs6xjLKaEEL6TeJBL49GRzx_7QbXQIeHawvwoJr5FMkNcvMiXAgA_k-u_oAbIXeFT270ir2lmfRqtuTgmRV6BmtQyLluetLFNW19jQ39B8pwizT4Z3hUz84f4WA-HQzTn_uB_W7m9-cmxbACImwahhHr_GHOB9EMsSF6UgkoVEaTPFgA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/categories/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Cập nhật thể loại",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTMxMTg1ODgsImlhdCI6MTc1MzExNjc4OCwianRpIjoiMTY5ZjFjMTMtM2RhOS00YjUyLWFhOGItZTc5MjUxNTI2ZDk0IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjI4MWViYjhjLTY5YjItNGI0Ni04NWFjLTVjOTBiN2RlYjcyMiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMjgxZWJiOGMtNjliMi00YjQ2LTg1YWMtNWM5MGI3ZGViNzIyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.fhSb71xx9JXLGlSqNAmvIYqaPdntPZeoFd6wvpFR6DN3wFICFHgtB8AZAzl4srLRNcOMWxaYDHhnLbyexcovvXGrxnWwFDXQZYHPD1z2A4WftfgpRo5CUUWXwfCZ4T-dokwJKj1qJa_nacxjIirqCsTHFyl81iSXsr-HqIbs6xjLKaEEL6TeJBL49GRzx_7QbXQIeHawvwoJr5FMkNcvMiXAgA_k-u_oAbIXeFT270ir2lmfRqtuTgmRV6BmtQyLluetLFNW19jQ39B8pwizT4Z3hUz84f4WA-HQzTn_uB_W7m9-cmxbACImwahhHr_GHOB9EMsSF6UgkoVEaTPFgA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Vintage Updated\",\n    \"slug\": \"vintage-update\",\n    \"description\": \"Thể loại hoài cổ\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/v1/categories/31",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"31"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Thêm thể loại mới",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Category\",\n    \"slug\": \"new-category\",\n    \"description\": \"Mô tả cho category mới\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/categories",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "book",
+			"item": [
+				{
+					"name": "# Lấy danh sách book",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTQ0OTQ3MjksImlhdCI6MTc1NDQ5MjkyOSwianRpIjoiZDVkNDRkOWQtYTI5Yy00ZGE3LThjYTktNTg5YzU0NGNjMjJmIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6ImRmZmU3Y2M3LWEzMjktNDZlOC04OWExLTViODhkYjIyYWY1NCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiZGZmZTdjYzctYTMyOS00NmU4LTg5YTEtNWI4OGRiMjJhZjU0IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.STTKoPGDrZPXWM6hkTym21lBlBl04X1F8AjM2yoo28YsAqJaMwO8YI9T08yh8AW3Lc6DvJ6p9Y2o7K7FJaaczi64atJJpzvEXohNEP2vyE4Qw_mA_rBnHPCS1qGeqHMarC5HtA21X_ZQXu1v9R-5zve4jEiNgX3hMZlGQQhtpVKdDGIwc7aFJ_tOcona8bKlYyOUmnMWfsuAbi5H8taXsGaI1nofEvQbX1hXVw6dxu0P5-2OBGLNcGUTPb4DlZkxv5GEp-7hHnoJceAYg7Clg1qw1Y4deJV8Damm4568A2cqvEcSy8UMHIkSntKNPn3gAXTx9yH5R6tgtv49nEs_TQ"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/books",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"books"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Lấy thông tin chi tiết book",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTM4MDY2NTYsImlhdCI6MTc1MzgwNDg1NiwianRpIjoiZWYwYjk0OGQtZWU2MS00MWVjLThhZWItMGY4ZDNhOGY4YTA4IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjQ1ZmMwZWM1LTQ2N2ItNGJmMy04OGI3LTBkZmRhYjJhODZkNCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiNDVmYzBlYzUtNDY3Yi00YmYzLTg4YjctMGRmZGFiMmE4NmQ0IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.OLtJ0axT2VCm1znoVaXTmZyM8_qw6efqtsFOuBUCB2USvp3jkR99AHDSDbxpKftBuGGg_M0AnIL-u2TXtF1NZkr8bteBLG1yZx6_CNkeZ9WCtR-MrWrexqE106xTVtGfC_MGJ0tfFfTVbtxgMKwdrLRBnzAZKpHYhY5uA1XhMWZm3tiAeaFmhwDgeWNZiqf6G8niMwBYCZ7a8FwWDUbqZZnKHM9V3WjqtUuCWQd4Ir9eWlzrW0ApU9Gjcn__bqs0BT7RrsxENOt7de_QvWfTXVvwEjScGHrbrNPnGfh9unYXqbfEs-NZKDN9T8PdYA31BiiW1Klm-KEtombJh0HEBg",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/books/165aecb7-b5f7-4cea-8fb6-b26002d63a67/detail",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"books",
+								"165aecb7-b5f7-4cea-8fb6-b26002d63a67",
+								"detail"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Thêm book mới",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTQ0OTUzNDcsImlhdCI6MTc1NDQ5MzU0NywianRpIjoiNjJjMWFmNDUtNGNkYy00MzAwLTk0NjEtODM2NTIzYzgwNDMxIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6ImMzZDYyNGE3LTAwZmQtNDA3MC1iNzU0LTM5MDE5ZjMxNDZkNiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiYzNkNjI0YTctMDBmZC00MDcwLWI3NTQtMzkwMTlmMzE0NmQ2IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.ZFb9RZTmKLMThLXBdjpqzDZn4W_n5gdrEEoOpZZ7i4K4RRDIUsViWagjGoqhfrMosYtXA5wLgEYBNg7IgkFzKyHHsxvoSM6e9PMf5OJQp2ovG7cMF1LgJL8NbqqabbuvdYs_V0qjBL_FClJXnTIRt0B3QRpygpbfLT995AbGQhX7mBbtnbUE1WU56SqAX93dZeGfapRw3qNWwq7xJ789MrpklbdyztEBNShvcTfZ_BDMhF8lwS_w8TLxyGvNzep0BaDP9PF8IP3EmQkrj40W7ZL2A2oVfbmN8WUX0dGcZT1qAFe-c-xnh_s72TgWjsnPr22iTsOjjdxqY7yK_xiJVg",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Advanced Golang Programming\",\n    \"authorIds\": [\n        1,\n        2\n    ], // Internal author IDs\n    \"isbn\": \"978-9-123456-78-99\",\n    \"categoryIds\": [\n        3,\n        4\n    ], // Internal category IDs\n    \"publisherId\": 5, // Internal publisher ID\n    \"publicationYear\": 2024,\n    \"language\": \"English\",\n    \"pages\": 600,\n    \"description\": \"Comprehensive guide to advanced Java programming concepts\",\n    \"copies\": [\n        {\n            \"copyNumber\": \"C001\",\n            \"condition\": \"excellent\",\n            \"location\": \"B2-Programming-01\",\n            \"barcode\": \"JP001001\"\n        },\n        {\n            \"copyNumber\": \"C002\",\n            \"condition\": \"good\",\n            \"location\": \"B2-Programming-02\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/v1/books",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"books"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Chỉnh sửa thông tin sách",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTM4MDg0MTEsImlhdCI6MTc1MzgwNjYxMSwianRpIjoiNWY5MGUxMmUtYjkxNi00OTRhLThjYjUtYWM0MmZkZDIxYjY5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjlkMTNmNjI4LTEyMzItNDNmMi1hMzNiLWM4NmYzZWY0OGE5OCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiOWQxM2Y2MjgtMTIzMi00M2YyLWEzM2ItYzg2ZjNlZjQ4YTk4IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.d-AIjKXO1AzkC8KnNITsXseT2XwjIamH-SZUhK7fpp6AC-u0uYOByIlgjMP9UN-JnVfGY-4v5F2LaE_UPtIMBnl3lH2z75eX__Iy-hejQhx4EBlUHNcZjhgLZQ6Z8TMvbJl0dMIKM4PA1vWRLs85H6AP1unQlJvr_F2qMXcfOttxfy39DQGdsVWcAYVSHe1x6xe0jvimrf6UraZ-nB5cRvcfov0lR5HXU5-5M_BUp0Xu7dyEiPr_k6TgtGdTrmizy23PVX7a0asy6jJh5Kr2U-Zxn7V_Svc-XhcppZY-5vCZau9gbXbVQ7u50GVF1NQB7Un66k4UN8Cp6t6iqSGU_Q",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Advanced Java Programming - Updated\",\n    \"authorIds\": [\n        3,\n        4\n    ], // Internal author IDs\n    \"isbn\": \"978-9-123456-78-9\",\n    \"categoryIds\": [\n        1,\n        2\n    ], // Internal category IDs\n    \"publisherId\": 1, // Internal publisher ID\n    \"publicationYear\": 2025,\n    \"language\": \"Vietnamese\",\n    \"pages\": 678,\n    \"description\": \"Comprehensive guide to advanced Java programming concepts updated\",\n    \"copies\": [\n        {\n            \"id\": \"8ee18935-ea89-4b33-89e6-7f86fc91aaee\",\n            \"copyNumber\": \"C0001\",\n            \"condition\": \"excellent\",\n            \"location\": \"B2-Programming-01\",\n            \"barcode\": \"JP001001\"\n        },\n        {\n            \"id\": \"cb3323eb-7f63-4990-a600-9f50521e846e\",\n            \"copyNumber\": \"C0002\",\n            \"condition\": \"good\",\n            \"location\": \"B2-Programming-02\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/v1/books/165aecb7-b5f7-4cea-8fb6-b26002d63a67",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"books",
+								"165aecb7-b5f7-4cea-8fb6-b26002d63a67"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTM4MDg0MTEsImlhdCI6MTc1MzgwNjYxMSwianRpIjoiNWY5MGUxMmUtYjkxNi00OTRhLThjYjUtYWM0MmZkZDIxYjY5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjlkMTNmNjI4LTEyMzItNDNmMi1hMzNiLWM4NmYzZWY0OGE5OCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiOWQxM2Y2MjgtMTIzMi00M2YyLWEzM2ItYzg2ZjNlZjQ4YTk4IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.d-AIjKXO1AzkC8KnNITsXseT2XwjIamH-SZUhK7fpp6AC-u0uYOByIlgjMP9UN-JnVfGY-4v5F2LaE_UPtIMBnl3lH2z75eX__Iy-hejQhx4EBlUHNcZjhgLZQ6Z8TMvbJl0dMIKM4PA1vWRLs85H6AP1unQlJvr_F2qMXcfOttxfy39DQGdsVWcAYVSHe1x6xe0jvimrf6UraZ-nB5cRvcfov0lR5HXU5-5M_BUp0Xu7dyEiPr_k6TgtGdTrmizy23PVX7a0asy6jJh5Kr2U-Zxn7V_Svc-XhcppZY-5vCZau9gbXbVQ7u50GVF1NQB7Un66k4UN8Cp6t6iqSGU_Q",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/books/165aecb7-b5f7-4cea-8fb6-b26002d63a67",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"books",
+								"165aecb7-b5f7-4cea-8fb6-b26002d63a67"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "keycloak",
+			"item": [
+				{
+					"name": "Get token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "api-gateway",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "kia8wLCbflCup6q8TL5jgLUdcYDivqBb",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "admin1",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "!Test123456",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8080/realms/library-realm/protocol/openid-connect/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"realms",
+								"library-realm",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Lấy thông tin user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTQ0OTEwNTAsImlhdCI6MTc1NDQ4OTI1MCwianRpIjoiZDY1ZWM5N2ItMGU4NS00ZjkwLTlmYzctNWJmNGQwMjQ5YzQ0IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjFiNDNlZTU3LTRkNzQtNDZiMi04MDk0LTcyMDU3NWEzOTFjNSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMWI0M2VlNTctNGQ3NC00NmIyLTgwOTQtNzIwNTc1YTM5MWM1IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.eKojbRvNthzrmdbinnHfmAT9nuvd_D4yMvX7y19cbXgObPtKI_s3eMWvf6552tfzWwmdhFDKiEQJzK3J6hbPNYw82AiotAPBd-UWCYkWVuz6Na6GNmgCezMtY2r6zi0yPgXgX6J6VQ56IOXUfnad1Mkg3YKBNqP_nIBlcQI2SA87ENFlE8IIV93Wuhka-L-eFHYvo1HU37srq7JXn80m3l_rLJclcUpwNkARNz7ah5KoRpueNAc_03QGZl0iCvA8nTjhlgM6mO6DbGYMibV0tZvWDIpdLR-Jx3Tx2dFdA2ZAczb9fgOxrSOgnwVE8hZUC-3Vplvzkdww1e6lR2J5MA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/v1/members",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"members"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Lấy danh sách quyền của user",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTQ0MDg5MjAsImlhdCI6MTc1NDQwNzEyMCwianRpIjoiNWM3YjAwZGUtYTFjOS00ZTA0LWIxMGQtZjY5MGZhZmNkMDM5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjE4OWJkM2FiLTQ4MzYtNDA5NS04NmRmLTllM2FkNDllZjU4ZCIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMTg5YmQzYWItNDgzNi00MDk1LTg2ZGYtOWUzYWQ0OWVmNThkIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.I943X0VTgHlzkliTe3BWo3fBJ7ECGtG9HSG-CdpxrqWXvJ8Ek3J3aITLrxb9AxEZd6LXLWFEIDd6kdQDGnpezCCaQMG2F6TmQ-axgis0bPQ9BsJ84sx6pPholPynkN_yuVnesOukYdSVq1FGsCX2yn8nZ-SL40yp28ydMq9Qkbba9RVfzGiWbRbcg0peyXWbGLzVxK3X_-HVLDAekNp8T9IJUVGxQx9NIlhbRiv7YEiDzNUiKn8KztLwgbqJJukvfh8dKqAMPSGvwMtDlGipJaKpBna158UFY3wlgNH_GVgz1Ep_IRrpHcIIMmQpVKeWQozXEo10RUcNxWZjBd3qlw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/members/auth/permissions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"members",
+								"auth",
+								"permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Tạo Library Card",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTQ0OTcxMDIsImlhdCI6MTc1NDQ5NTMwMiwianRpIjoiYWRjYWY5MjEtNDY4ZS00ZWUzLTgwNmItMjU1MjdhNjFlYmM5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6Ijc0OTE0ZGQwLWVmNTktNDY5NS05NGUxLWNjMzQ1ZGM3M2VmYiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiNzQ5MTRkZDAtZWY1OS00Njk1LTk0ZTEtY2MzNDVkYzczZWZiIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.H6dn2q_52vwTEuNu0fPXGKWbQyHVrCwLeU3JGATXwA4t6m7H74jbE1cDpGOfyncmU02JLwNzWIUyNTR1-H5afYk0KfvoaGa5yONfxz1_R6JfqrFBmJe8BF-i6qNFjnacasSaTGAeXOg0kIILZF8LXVFQAclg37WQe1IZiybc1EP38wlPjP4eOIpx2C6vX1fErskoUQw1aoLuciWdH8abzfb3D0Mf4Bi9-ACLNEG4ta4W-HjDl7V8OPnETTfRzkpDmntlcAeQEemUXbjJSqA5GIKLP5GT3zTlJ4i50iUAbdVhCMD7RUZK206LrTZGyuJ-hLz-AACFam0j1D3eP_CfaQ",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userKeycloakId\": \"cfbb6415-133d-42c0-ad7d-ab885f71e92a\",\n  \"expiryDate\": \"2025-08-30\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/v1/members/library-cards",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"members",
+								"library-cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "# Lấy danh sách library cards",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTQ0OTEwNTAsImlhdCI6MTc1NDQ4OTI1MCwianRpIjoiZDY1ZWM5N2ItMGU4NS00ZjkwLTlmYzctNWJmNGQwMjQ5YzQ0IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjFiNDNlZTU3LTRkNzQtNDZiMi04MDk0LTcyMDU3NWEzOTFjNSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMWI0M2VlNTctNGQ3NC00NmIyLTgwOTQtNzIwNTc1YTM5MWM1IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.eKojbRvNthzrmdbinnHfmAT9nuvd_D4yMvX7y19cbXgObPtKI_s3eMWvf6552tfzWwmdhFDKiEQJzK3J6hbPNYw82AiotAPBd-UWCYkWVuz6Na6GNmgCezMtY2r6zi0yPgXgX6J6VQ56IOXUfnad1Mkg3YKBNqP_nIBlcQI2SA87ENFlE8IIV93Wuhka-L-eFHYvo1HU37srq7JXn80m3l_rLJclcUpwNkARNz7ah5KoRpueNAc_03QGZl0iCvA8nTjhlgM6mO6DbGYMibV0tZvWDIpdLR-Jx3Tx2dFdA2ZAczb9fgOxrSOgnwVE8hZUC-3Vplvzkdww1e6lR2J5MA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/members/library-cards/my-cards",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"members",
+								"library-cards",
+								"my-cards"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "dashboard",
+			"item": [
+				{
+					"name": "# Danh sách history",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTMxOTg1MTUsImlhdCI6MTc1MzE5NjcxNSwianRpIjoiMDdkOWMxODYtOGMzNy00NGM1LWJmOTktNDgzZjk0N2E5MzM5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6ImU4OGYyZDljLTFhNzUtNGQ0MC1iNjQ4LTM3ZWUxOTM1NWQxOSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiZTg4ZjJkOWMtMWE3NS00ZDQwLWI2NDgtMzdlZTE5MzU1ZDE5IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.C1KfQQhtRyWcN-zWn19Jx1CKfgs417WeVbMPOwzDBN7AZ3Q5zKMeNvJoUpahOLpVEsmA65cglNzsZtHS53OXDbBuNY0AIuUTHSnycpAbmVR1Ezs2ZEZ_8Ns8wK8QWmn7-iHako5DLZZ3_oGPZ8pq2R9dDougPFRl3jC8JD3vr9oWj2cQdHY7mpRMOyT7P-sxE4myOuupcypWVMfv24DCDfSIgSkQF-ZRYepeP29SzrQAJTD37sas4XXDOiQdydIQDjLPVN9RQg2cFsTJhvjIhYjN1Yt6hV-VjmMMw0SUW7jfp1SUhqXYN30PNeYOiZ8O_KQGQSnD85jObkM6iGMifQ",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/audit-logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"audit-logs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "notification",
+			"item": [
+				{
+					"name": "# Lấy thông tin cấu hình notification",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTQ1ODc2NTAsImlhdCI6MTc1NDU4NTg1MCwianRpIjoiNTM5MDU5MmItM2Y4NC00MTk3LWJlM2QtM2FmYWI4NTJhZWY5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6IjE3ZTEyZWRlLTFjYmItNDI3MS04MDY5LWM2N2EzZGJlY2QzOSIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiMTdlMTJlZGUtMWNiYi00MjcxLTgwNjktYzY3YTNkYmVjZDM5IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.LjyJMAbvDLomJHKTeCeCmeb9Ll6dJfHJ2kw6o_UVFoOvHYjW-XoJJxOPjwN66kUrR-KzHtlGTdmByneG6EpbECyIS_nTvH3w-Ud64lijgS2FO2xmnC9_sIcSMxWgcu1UkFMYhxa6EWHo6aa5lKEcNXXJ5TCybBfDK5e5SWyxLEsV6u71z2t_yibRuwOBsAFq297qELxQPrViRZ76WGihBkEVSNsI6RvieUNQVzCaWmjdg7qCuYpE-3PSO1_-9zxIp6gl_UmyWn-8VQXVQ7V_0zWOyoP4HkqSnZm9_ZrI1LZGl_zcdIeKk3u7nUXLfWRjveET6pdS3VQeATsvektGmw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/notification-preferences",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"notification-preferences"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "borrowing",
+			"item": [
+				{
+					"name": "# Lấy danh sách borrowing",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTQ4Mzk3NjAsImlhdCI6MTc1NDgzNzk2MCwianRpIjoiMTgzM2EyNTMtMzkxZS00ZGNlLTliYTQtMzkzMmQ1YjBjYWQ4IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6ImVlMmE2YTIxLWU2NmMtNGZhOC04NjMxLWJjMTZmODc2ZGMxNiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiZWUyYTZhMjEtZTY2Yy00ZmE4LTg2MzEtYmMxNmY4NzZkYzE2IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.Go5bSE_ntsf4FBObwLZ3e5Dt92WLVFzTY2ggzu7XwzXoJs7djJv3aji_TVQbtPGagXtDUV5Gjjxw5fyn0JKIEG9AjNr_2CPtlfczGOV5Z_BjZnWL1SOQHxH2o61-MBSmBFs_Y0GpOlzw0THbXw2LRcLv6mlcOfAHzIPpYJuZWq7Ci2BVOBzY3_5JG_SADSwtSaXZSnimyUYc6AusMsEGQRfpJcT4Q29ESdng6XtlZobuap7rWrLSv8YZXs_4KRz5E3bygVKmuCrlRaRhs1ml_nsJvLsIfyBxIPzUn-YQKXSMkIDlFMLPSdCx_0jXRPQ5_0dx0CVHzEHBRNsIeuJDkA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/borrowings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"borrowings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "book-bag",
+			"item": [
+				{
+					"name": "# Lấy thông tin book-bag",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJnUmpNRndQQ2J1aFJRSUJicFJNN1A5aDVzc2FNeUlGZ3RCNmh3N25ka0VBIn0.eyJleHAiOjE3NTQ4Mzk3NjAsImlhdCI6MTc1NDgzNzk2MCwianRpIjoiMTgzM2EyNTMtMzkxZS00ZGNlLTliYTQtMzkzMmQ1YjBjYWQ4IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9saWJyYXJ5LXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6ImNmYmI2NDE1LTEzM2QtNDJjMC1hZDdkLWFiODg1ZjcxZTkyYSIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFwaS1nYXRld2F5Iiwic2Vzc2lvbl9zdGF0ZSI6ImVlMmE2YTIxLWU2NmMtNGZhOC04NjMxLWJjMTZmODc2ZGMxNiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiIGh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1saWJyYXJ5LXJlYWxtIiwib2ZmbGluZV9hY2Nlc3MiLCJBRE1JTiIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiZWUyYTZhMjEtZTY2Yy00ZmE4LTg2MzEtYmMxNmY4NzZkYzE2IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJBZG1pbiBVc2VyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4xIiwiZ2l2ZW5fbmFtZSI6IkFkbWluIiwiZmFtaWx5X25hbWUiOiJVc2VyIiwiZW1haWwiOiJhZG1pbkBsaWJyYXJ5LmNvbSJ9.Go5bSE_ntsf4FBObwLZ3e5Dt92WLVFzTY2ggzu7XwzXoJs7djJv3aji_TVQbtPGagXtDUV5Gjjxw5fyn0JKIEG9AjNr_2CPtlfczGOV5Z_BjZnWL1SOQHxH2o61-MBSmBFs_Y0GpOlzw0THbXw2LRcLv6mlcOfAHzIPpYJuZWq7Ci2BVOBzY3_5JG_SADSwtSaXZSnimyUYc6AusMsEGQRfpJcT4Q29ESdng6XtlZobuap7rWrLSv8YZXs_4KRz5E3bygVKmuCrlRaRhs1ml_nsJvLsIfyBxIPzUn-YQKXSMkIDlFMLPSdCx_0jXRPQ5_0dx0CVHzEHBRNsIeuJDkA",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8888/api/v1/book-bags/65cc82a1-5ebe-466d-aba3-46fd9f5c20e2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"v1",
+								"book-bags",
+								"65cc82a1-5ebe-466d-aba3-46fd9f5c20e2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "https://postman-rest-api-learner.glitch.me/"
+		}
+	]
+}
