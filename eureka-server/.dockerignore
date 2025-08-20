@@ -1,5 +1,7 @@
-# Maven
-target/
+# Maven - exclude target contents but allow JAR files
+target/*
+!target/*.jar
+
 .mvn/
 mvnw
 mvnw.cmd

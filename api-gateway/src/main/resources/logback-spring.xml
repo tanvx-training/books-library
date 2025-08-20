@@ -13,50 +13,12 @@
         </encoder>
     </appender>
 
-    <!-- Cấu hình log level cho các package -->
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.springframework.cloud.gateway" level="INFO"/>
     <logger name="org.springframework.security" level="INFO"/>
     <logger name="com.library" level="DEBUG"/>
 
-    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>logstash:5044</destination>
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <timestamp>
-                    <timeZone>UTC</timeZone>
-                </timestamp>
-                <pattern>
-                    <pattern>
-                        {
-                        "severity": "%level",
-                        "service": "${springAppName:-}",
-                        "version": "${appVersion:-}",
-                        "trace": "%X{traceId:-}",
-                        "span": "%X{spanId:-}",
-                        "pid": "${PID:-}",
-                        "thread": "%thread",
-                        "class": "%logger{40}",
-                        "message": "%message",
-                        "stacktrace": "%exception{10}"
-                        }
-                    </pattern>
-                </pattern>
-                <mdc/>
-                <stackTrace>
-                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
-                        <maxDepthPerThrowable>30</maxDepthPerThrowable>
-                        <maxLength>2048</maxLength>
-                        <shortenedClassNameLength>20</shortenedClassNameLength>
-                        <rootCauseFirst>true</rootCauseFirst>
-                    </throwableConverter>
-                </stackTrace>
-            </providers>
-        </encoder>
-    </appender>
-
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="LOGSTASH"/>
     </root>
 </configuration>

@@ -1,0 +1,98 @@
+# ==========================================================
+# ENVIRONMENT CONFIGURATION FOR LIBRARY MANAGEMENT SYSTEM
+# Copy this file to .env in project root and update values as needed
+# ==========================================================
+
+# ============ DOCKER & NETWORK ============
+DOCKER_HOST_IP=localhost
+
+# ============ DATABASE CONFIGURATION ============
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=library_db
+POSTGRES_USER=library_admin
+POSTGRES_PASSWORD=library_secure_password_2024
+
+# Keycloak Database
+KEYCLOAK_DB_HOST=postgres
+KEYCLOAK_DB_PORT=5432
+KEYCLOAK_DB_NAME=keycloak_db
+KEYCLOAK_DB_USERNAME=keycloak_admin
+KEYCLOAK_DB_PASSWORD=keycloak_secure_password_2024
+
+# ============ KEYCLOAK CONFIGURATION ============
+KEYCLOAK_PORT=9090
+KEYCLOAK_ADMIN=admin
+KEYCLOAK_ADMIN_PASSWORD=admin_password_2024
+KC_DB=postgres
+KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak_db
+KC_DB_USERNAME=keycloak_admin
+KC_DB_PASSWORD=keycloak_secure_password_2024
+
+# ============ REDIS CONFIGURATION ============
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_EXTERNAL_PORT=6379
+REDIS_PASSWORD=
+
+# ============ KAFKA CONFIGURATION ============
+KAFKA_EXTERNAL_PORT=9092
+KAFKA_DOCKER_PORT=29092
+KAFKA_BROKER_ID=1
+KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+ZOOKEEPER_PORT=2181
+
+# ============ EUREKA SERVER ============
+EUREKA_SERVER_HOST=eureka-server
+EUREKA_SERVER_PORT=8761
+
+# ============ API GATEWAY ============
+API_GATEWAY_HOST=api-gateway
+API_GATEWAY_PORT=8888
+
+# ============ MICROSERVICES CONFIGURATION ============
+# Member Service
+MEMBER_SERVICE_HOST=member-service
+MEMBER_SERVICE_PORT=9993
+
+# Catalog Service
+CATALOG_SERVICE_HOST=catalog-service
+CATALOG_SERVICE_PORT=9991
+
+# Loan Service
+LOAN_SERVICE_HOST=loan-service
+LOAN_SERVICE_PORT=9995
+
+# Notification Service
+NOTIFICATION_SERVICE_HOST=notification-service
+NOTIFICATION_SERVICE_PORT=9994
+
+# Dashboard Service
+DASHBOARD_SERVICE_HOST=dashboard-service
+DASHBOARD_SERVICE_PORT=9992
+
+# ============ LOGGING CONFIGURATION ============
+LOG_LEVEL=INFO
+ROOT_LOG_LEVEL=WARN
+
+# ============ JWT CONFIGURATION ============
+JWT_SECRET_KEY=library_super_secret_jwt_key_2024_please_change_in_production
+JWT_EXPIRATION_TIME=3600000
+
+# ============ EMAIL CONFIGURATION ============
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_app_password
+MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+
+# ============ PROFILE & ENVIRONMENT ============
+SPRING_PROFILES_ACTIVE=docker
+ENVIRONMENT=development
+
+# ============ HEALTH CHECK CONFIGURATION ============
+HEALTH_CHECK_INTERVAL=30s
+HEALTH_CHECK_TIMEOUT=10s
+HEALTH_CHECK_RETRIES=3
+HEALTH_CHECK_START_PERIOD=60s

@@ -1,8 +1,6 @@
-# Maven
-target/
-.mvn/
-mvnw
-mvnw.cmd
+# Maven - exclude everything in target except the final JAR
+target/*
+!target/*.jar
 
 # IDE
 .idea/
