@@ -128,6 +128,27 @@ services:
       retries: 10
       start_period: 150s
 
+  # Config server
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      - EUREKA_HOST=${EUREKA_HOST}
+    ports:
+      - "8889:8889"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 curl -f http://localhost:8889/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   # API Gateway
   api-gateway:
     build: ./api-gateway
@@ -138,10 +159,13 @@ services:
       - EUREKA_HOST=${EUREKA_HOST}
       - KEYCLOAK_HOST=${KEYCLOAK_HOST}
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+      - SPRING_CONFIG_IMPORT=${SPRING_CONFIG_IMPORT}
     ports:
       - "8888:8888"
     depends_on:
       eureka-server:
+        condition: service_healthy
+      config-server:
         condition: service_healthy
       keycloak:
         condition: service_healthy
@@ -156,6 +180,8 @@ services:
       - "9993:9993"
     depends_on:
       eureka-server:
+        condition: service_healthy
+      config-server:
         condition: service_healthy
       postgres:
         condition: service_healthy
@@ -174,6 +200,7 @@ services:
       - KEYCLOAK_HOST=${KEYCLOAK_HOST}
       - KEYCLOAK_ADMIN_USERNAME=${KEYCLOAK_ADMIN_USERNAME}
       - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - SPRING_CONFIG_IMPORT=${SPRING_CONFIG_IMPORT}
 
   # Catalog Service
   catalog-service:
@@ -186,6 +213,8 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
+      config-server:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       kafka:
@@ -201,6 +230,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - KAFKA_SERVER=${KAFKA_SERVER}
       - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - SPRING_CONFIG_IMPORT=${SPRING_CONFIG_IMPORT}
 
   # Loan Service
   loan-service:
@@ -211,6 +241,8 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
+      config-server:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       kafka:
@@ -226,6 +258,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - KAFKA_SERVER=${KAFKA_SERVER}
       - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - SPRING_CONFIG_IMPORT=${SPRING_CONFIG_IMPORT}
 
   # Notification Service
   notification-service:
@@ -236,6 +269,8 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
+      config-server:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       kafka:
@@ -251,6 +286,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - KAFKA_SERVER=${KAFKA_SERVER}
       - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - SPRING_CONFIG_IMPORT=${SPRING_CONFIG_IMPORT}
 
   # Dashboard Service
   dashboard-service:
@@ -261,6 +297,8 @@ services:
     depends_on:
       eureka-server:
         condition: service_healthy
+      config-server:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       kafka:
@@ -276,3 +314,4 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - KAFKA_SERVER=${KAFKA_SERVER}
       - KEYCLOAK_HOST=${KEYCLOAK_HOST}
+      - SPRING_CONFIG_IMPORT=${SPRING_CONFIG_IMPORT}
